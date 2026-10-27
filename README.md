@@ -11,7 +11,9 @@ This repository contains the Command Center platform:
 - The employee launcher, showing only assigned, enabled applications.
 - An append-only audit log for privileged changes and sign-ins.
 
-Documentation: [security model and revocation policy](docs/security.md) and [integrating an application](docs/integration-guide.md). The full specification is in [Task.md](Task.md).
+Documentation: [security model and revocation policy](docs/security.md) and [integrating an application](docs/integration-guide.md).
+
+Integration guides for all five applications are in [docs/integrations/](docs/integrations/README.md). The ImageUnit pilot has a reference patch in `docs/integrations/imageunit/`. The full specification is in [Task.md](Task.md).
 
 Not yet included: integration of the five AFS applications themselves (see "Status" below).
 
@@ -132,6 +134,6 @@ The tests run against a separate `<POSTGRES_DB>_test` database, created automati
 | 1. Repository audit and design | Done for all five repositories: see [integration-audit.md](docs/integration-audit.md). |
 | 2. Docker foundation and identity | Done. |
 | 3. Core Command Center | Done: employees, application registry, role mappings, assignments, launcher, audit log. |
-| 4. Pilot integration | Not started. Needs a chosen pilot application and access to its repository. |
-| 5. Remaining integrations | Not started. |
+| 4. Pilot integration | ImageUnit verified end to end on the local stack. Its production rollout is open. |
+| 5. Remaining integrations | Guides written for Procurement BN and FN, Biocap Dashboard, and Biocap Rwanda. Code changes are owned by each application's team. Biocap Rwanda is blocked until its backend repository is available. |
 | 6. Hardening and release | Partly done. See [security.md](docs/security.md) "Known limits". Production deployment, backup validation and cross-application logout remain. |

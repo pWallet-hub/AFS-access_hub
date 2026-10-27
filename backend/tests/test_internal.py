@@ -1,10 +1,12 @@
 """Access checks used by integrated applications through /api/internal/access."""
 
+import os
 import uuid
 
 from fastapi.testclient import TestClient
 
 from app.db import connect
+from app.internal import service_token_env
 from app.main import app
 
 SERVICE_TOKEN = "test-service-token"
@@ -46,17 +48,31 @@ def _assign(user, application, role=None):
         )
 
 
-def _check(application_slug, subject, token=SERVICE_TOKEN):
-    headers = {"X-Service-Token": token} if token is not None else {}
+def _check(application_slug, subject, token=None):
+    """Call the access check. The application's token is provisioned for the test process unless given."""
+    env = service_token_env(application_slug)
+    os.environ.setdefault(env, f"token-{application_slug}-{'x' * 20}")
+    if token is None:
+        token = os.environ[env]
+    headers = {"X-Service-Token": token} if token else {}
     return TestClient(app).get(
         "/api/internal/access", params={"application": application_slug, "subject": subject}, headers=headers
     )
 
 
+def test_token_for_another_application_is_rejected():
+    user = _user()
+    application = _application()
+    _assign(user, application)
+    other_token = os.environ.setdefault("AFS_SERVICE_TOKEN_IMAGEUNIT", SERVICE_TOKEN)
+    # A token issued for one application cannot ask about a different one.
+    assert _check(application["slug"], user["keycloak_sub"], token=other_token).status_code == 401
+
+
 def test_requires_service_token():
     user = _user()
     application = _application()
-    assert _check(application["slug"], user["keycloak_sub"], token=None).status_code == 401
+    assert _check(application["slug"], user["keycloak_sub"], token="").status_code == 401
     assert _check(application["slug"], user["keycloak_sub"], token="wrong").status_code == 401
 
 

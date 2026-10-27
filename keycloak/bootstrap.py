@@ -20,10 +20,15 @@ ADMIN_USER = os.environ["KEYCLOAK_ADMIN"]
 ADMIN_PASSWORD = os.environ["KEYCLOAK_ADMIN_PASSWORD"]
 CLIENT_ID = os.environ["OIDC_CLIENT_ID"]
 CLIENT_SECRET = os.environ["OIDC_CLIENT_SECRET"]
-IMAGEUNIT_CLIENT_ID = os.environ.get("IMAGEUNIT_OIDC_CLIENT_ID", "imageunit")
-IMAGEUNIT_CLIENT_SECRET = os.environ["IMAGEUNIT_OIDC_CLIENT_SECRET"]
-IMAGEUNIT_REDIRECT_URI = os.environ["IMAGEUNIT_REDIRECT_URI"]
-IMAGEUNIT_ORIGIN = os.environ["IMAGEUNIT_ORIGIN"].rstrip("/")
+# Integrated applications, one per product (frontend and backend together): (client id / env prefix, display name).
+# The client belongs to the product's backend, which runs the sign-in. An application's client is created only when its
+# *_OIDC_CLIENT_SECRET is set, so applications can be rolled out one at a time. Each client needs its redirect URI
+# (*_REDIRECT_URI: the application's own callback) and its web origin (*_ORIGIN).
+APPLICATIONS = [
+    ("imageunit", "ImageUnit", "IMAGEUNIT"),
+    ("biocap", "Biocap", "BIOCAP"),
+    ("procurement", "Procurement", "PROCUREMENT"),
+]
 PUBLIC_BASE_URL = os.environ["PUBLIC_BASE_URL"].rstrip("/")
 BOOTSTRAP_EMAIL = os.environ["BOOTSTRAP_ADMIN_EMAIL"]
 BOOTSTRAP_PASSWORD = os.environ["BOOTSTRAP_ADMIN_PASSWORD"]
@@ -131,6 +136,24 @@ def ensure_client(token, client):
     log(f"created client '{client['id']}'")
 
 
+def application_client_settings(slug, name, prefix):
+    """Settings for one application's client, or None when its secret is not configured."""
+    secret = os.environ.get(f"{prefix}_OIDC_CLIENT_SECRET", "")
+    if not secret:
+        return None
+    origin = os.environ[f"{prefix}_ORIGIN"].rstrip("/")
+    return {
+        "id": os.environ.get(f"{prefix}_OIDC_CLIENT_ID", slug),
+        "name": name,
+        "secret": secret,
+        "redirect": os.environ[f"{prefix}_REDIRECT_URI"],
+        "origin": origin,
+        "logout_redirect": origin + "/",
+        # Application clients always use PKCE; the backend must send a code challenge.
+        "pkce": True,
+    }
+
+
 def ensure_clients(token):
     ensure_client(
         token,
@@ -143,18 +166,12 @@ def ensure_clients(token):
             "logout_redirect": f"{PUBLIC_BASE_URL}/",
         },
     )
-    ensure_client(
-        token,
-        {
-            "id": IMAGEUNIT_CLIENT_ID,
-            "name": "ImageUnit",
-            "secret": IMAGEUNIT_CLIENT_SECRET,
-            "redirect": IMAGEUNIT_REDIRECT_URI,
-            "origin": IMAGEUNIT_ORIGIN,
-            "logout_redirect": IMAGEUNIT_ORIGIN + "/",
-            "pkce": True,
-        },
-    )
+    for slug, name, prefix in APPLICATIONS:
+        settings = application_client_settings(slug, name, prefix)
+        if settings is None:
+            log(f"skipped client for {name}: {prefix}_OIDC_CLIENT_SECRET is not set")
+            continue
+        ensure_client(token, settings)
 
 
 def ensure_realm_role(token):

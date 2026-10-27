@@ -1,8 +1,9 @@
 """Service-to-service access check for integrated applications.
 
-An application's backend calls this with the shared service token to decide whether a signed-in
-employee may use it, and which application role to apply. Browsers never call it: nginx does not
-expose /api/internal, and the token is required on every request.
+An application's backend calls this with its own service token to decide whether a signed-in employee
+may use it, and which application role to apply. Each application has a separate token,
+AFS_SERVICE_TOKEN_<SLUG> (for example AFS_SERVICE_TOKEN_PROCUREMENT), so a token can only ask about
+its own application. Browsers never call it: nginx does not expose /api/internal.
 """
 
 import hmac
@@ -14,14 +15,17 @@ from .audit import record
 from .db import connect
 from .schemas import SLUG_PATTERN
 
-SERVICE_TOKEN = os.environ.get("AFS_SERVICE_TOKEN", "")
-
 router = APIRouter(prefix="/api/internal", tags=["internal"])
 
 
-def _verify_service_token(presented):
+def service_token_env(application):
+    return "AFS_SERVICE_TOKEN_" + application.upper().replace("-", "_")
+
+
+def _verify_service_token(application, presented):
+    expected = os.environ.get(service_token_env(application), "")
     # An unset token means no caller can authenticate, rather than an empty one matching.
-    if not SERVICE_TOKEN or not presented or not hmac.compare_digest(presented, SERVICE_TOKEN):
+    if not expected or not presented or not hmac.compare_digest(presented, expected):
         raise HTTPException(status_code=401, detail="Invalid service token")
 
 
@@ -32,7 +36,7 @@ def check_access(
     x_service_token: str | None = Header(default=None),
 ):
     """Return whether `subject` (a Keycloak sub) may use `application`, and the role to apply."""
-    _verify_service_token(x_service_token)
+    _verify_service_token(application, x_service_token)
     with connect() as conn:
         user = conn.execute("SELECT * FROM users WHERE keycloak_sub = %s", (subject,)).fetchone()
         app = conn.execute("SELECT * FROM applications WHERE slug = %s", (application,)).fetchone()

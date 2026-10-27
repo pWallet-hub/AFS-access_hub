@@ -1,0 +1,747 @@
+diff --git a/apps/api/drizzle/0006_sso_pilot.sql b/apps/api/drizzle/0006_sso_pilot.sql
+new file mode 100644
+index 0000000..e176c90
+--- /dev/null
++++ b/apps/api/drizzle/0006_sso_pilot.sql
+@@ -0,0 +1,3 @@
++ALTER TABLE "users" ALTER COLUMN "password_hash" DROP NOT NULL;--> statement-breakpoint
++ALTER TABLE "users" ADD COLUMN "oidc_sub" text;--> statement-breakpoint
++CREATE UNIQUE INDEX "users_oidc_sub_unique" ON "users" USING btree ("oidc_sub") WHERE "users"."oidc_sub" IS NOT NULL;
+\ No newline at end of file
+diff --git a/apps/api/drizzle/0007_sso_session_flag.sql b/apps/api/drizzle/0007_sso_session_flag.sql
+new file mode 100644
+index 0000000..5ca9790
+--- /dev/null
++++ b/apps/api/drizzle/0007_sso_session_flag.sql
+@@ -0,0 +1 @@
++ALTER TABLE "sessions" ADD COLUMN "sso" boolean DEFAULT false NOT NULL;
+\ No newline at end of file
+diff --git a/apps/api/drizzle/meta/_journal.json b/apps/api/drizzle/meta/_journal.json
+index c3d0bb6..976fb4a 100644
+--- a/apps/api/drizzle/meta/_journal.json
++++ b/apps/api/drizzle/meta/_journal.json
+@@ -43,6 +43,20 @@
+       "when": 1791543005503,
+       "tag": "0005_collection_websites",
+       "breakpoints": true
++    },
++    {
++      "idx": 6,
++      "version": "7",
++      "when": 1793099827323,
++      "tag": "0006_sso_pilot",
++      "breakpoints": true
++    },
++    {
++      "idx": 7,
++      "version": "7",
++      "when": 1793099864642,
++      "tag": "0007_sso_session_flag",
++      "breakpoints": true
+     }
+   ]
+ }
+\ No newline at end of file
+diff --git a/apps/api/package.json b/apps/api/package.json
+index 07e5877..671f0a1 100644
+--- a/apps/api/package.json
++++ b/apps/api/package.json
+@@ -33,6 +33,7 @@
+     "ffprobe-static": "^3.1.0",
+     "file-type": "^22.1.1",
+     "ioredis": "^6.0.0",
++    "jose": "^6.2.13",
+     "pg": "^8.23.0",
+     "pino": "^10.3.1",
+     "prom-client": "^15.1.3",
+diff --git a/apps/api/src/app.ts b/apps/api/src/app.ts
+index 2b19ddf..05e77c5 100644
+--- a/apps/api/src/app.ts
++++ b/apps/api/src/app.ts
+@@ -25,6 +25,7 @@ import { publicRoutes } from './modules/public.js';
+ import { statsRoutes } from './modules/stats.js';
+ import { userRoutes } from './modules/users.js';
+ import { websiteApiRoutes } from './modules/website-api.js';
++import { ssoRoutes } from './modules/sso.js';
+ 
+ export async function buildApp(ctx: AppContext, opts: { rateLimitMax?: number } = {}) {
+   const app = Fastify({
+@@ -114,6 +115,7 @@ export async function buildApp(ctx: AppContext, opts: { rateLimitMax?: number }
+   await app.register(
+     async (api) => {
+       await api.register(authRoutes);
++      await api.register(ssoRoutes);
+       await api.register(userRoutes);
+       await api.register(eventRoutes);
+       await api.register(galleryRoutes);
+diff --git a/apps/api/src/config.ts b/apps/api/src/config.ts
+index fbf0487..62dd9e6 100644
+--- a/apps/api/src/config.ts
++++ b/apps/api/src/config.ts
+@@ -48,6 +48,19 @@ const schema = z.object({
+   LOGIN_RATE_LIMIT: z.coerce.number().default(10),
+   METRICS_TOKEN: z.string().min(16).optional(),
+   // Case-insensitive; an invalid level would otherwise crash the logger at startup.
++  /** AFS single sign-on (Keycloak OIDC). When enabled, the settings below are required. */
++  AFS_SSO_ENABLED: looseBool,
++  AFS_OIDC_ISSUER: z.string().url().optional(),
++  /** Issuer as this API reaches Keycloak on the internal network. Defaults to AFS_OIDC_ISSUER. */
++  AFS_OIDC_INTERNAL_ISSUER: z.string().url().optional(),
++  AFS_OIDC_CLIENT_ID: z.string().min(1).optional(),
++  AFS_OIDC_CLIENT_SECRET: z.string().min(1).optional(),
++  /** Must match the redirect URI registered for the client in Keycloak. Defaults to API_PUBLIC_URL + /api/auth/sso/callback. */
++  AFS_OIDC_REDIRECT_URI: z.string().url().optional(),
++  /** Base URL of AFS Command Center, reached internally, for the access check. */
++  AFS_COMMAND_CENTER_URL: z.string().url().optional(),
++  AFS_SERVICE_TOKEN: z.string().min(16).optional(),
++  AFS_APP_SLUG: z.string().regex(/^[a-z0-9][a-z0-9-]{1,40}$/).default('imageunit'),
+   LOG_LEVEL: z.preprocess((v) => (typeof v === 'string' ? v.trim().toLowerCase() : v), z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info')),
+ });
+ 
+@@ -63,6 +76,10 @@ export function loadConfig(input: NodeJS.ProcessEnv = process.env): Config {
+     throw new Error(`Invalid environment configuration:\n${issues}`);
+   }
+   // An https public URL means TLS terminates at a reverse proxy in front of us: secure cookies and proxy trust follow.
++  if (parsed.data.AFS_SSO_ENABLED) {
++    const missing = ['AFS_OIDC_ISSUER', 'AFS_OIDC_CLIENT_ID', 'AFS_OIDC_CLIENT_SECRET', 'AFS_COMMAND_CENTER_URL', 'AFS_SERVICE_TOKEN'].filter((k) => !parsed.data[k as keyof typeof parsed.data]);
++    if (missing.length) throw new Error(`AFS_SSO_ENABLED=true requires: ${missing.join(', ')}`);
++  }
+   const https = parsed.data.PUBLIC_WEB_URL.startsWith('https://');
+   const config: Config = { ...parsed.data, COOKIE_SECURE: parsed.data.COOKIE_SECURE ?? https, TRUST_PROXY: parsed.data.TRUST_PROXY ?? https };
+   if (config.NODE_ENV === 'production') {
+diff --git a/apps/api/src/db/schema.ts b/apps/api/src/db/schema.ts
+index 789b110..367e8eb 100644
+--- a/apps/api/src/db/schema.ts
++++ b/apps/api/src/db/schema.ts
+@@ -55,7 +55,10 @@ export const users = pgTable(
+     id: id(),
+     email: text('email').notNull(),
+     name: text('name').notNull(),
+-    passwordHash: text('password_hash').notNull(),
++    /** Null for accounts that sign in only through AFS SSO. */
++    passwordHash: text('password_hash'),
++    /** Keycloak subject of the linked AFS identity. Set when the account is linked to SSO. */
++    oidcSub: text('oidc_sub'),
+     role: userRole('role').notNull().default('photographer'),
+     status: userStatus('status').notNull().default('active'),
+     /** Extra permissions granted by an admin on top of the role defaults. */
+@@ -69,7 +72,11 @@ export const users = pgTable(
+     createdAt: createdAt(),
+     updatedAt: updatedAt(),
+   },
+-  (t) => [uniqueIndex('users_email_unique').on(sql`lower(${t.email})`), index('users_status_idx').on(t.status)],
++  (t) => [
++    uniqueIndex('users_email_unique').on(sql`lower(${t.email})`),
++    uniqueIndex('users_oidc_sub_unique').on(t.oidcSub).where(sql`${t.oidcSub} IS NOT NULL`),
++    index('users_status_idx').on(t.status),
++  ],
+ );
+ 
+ export const sessions = pgTable(
+@@ -80,6 +87,8 @@ export const sessions = pgTable(
+       .notNull()
+       .references(() => users.id, { onDelete: 'cascade' }),
+     tokenHash: text('token_hash').notNull(),
++    /** Created by AFS SSO: fixed lifetime, no sliding renewal, so revoked access ends within that lifetime. */
++    sso: boolean('sso').notNull().default(false),
+     ip: text('ip'),
+     userAgent: text('user_agent'),
+     expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+diff --git a/apps/api/src/http/guards.ts b/apps/api/src/http/guards.ts
+index 8fb1785..69dbf14 100644
+--- a/apps/api/src/http/guards.ts
++++ b/apps/api/src/http/guards.ts
+@@ -59,8 +59,9 @@ export async function loadSession(ctx: AppContext, req: FastifyRequest): Promise
+   // Suspension takes effect immediately: a suspended user's live sessions stop working.
+   if (row.user.status !== 'active') return null;
+   req.sessionId = row.session.id;
+-  // Sliding expiry: renew once half the lifetime is consumed.
+-  if (row.session.expiresAt.getTime() - Date.now() < SESSION_TTL_MS / 2) {
++  // Sliding expiry: renew once half the lifetime is consumed. SSO sessions are not renewed, so access revoked in
++  // AFS Command Center ends at their fixed expiry.
++  if (!row.session.sso && row.session.expiresAt.getTime() - Date.now() < SESSION_TTL_MS / 2) {
+     await ctx.db.update(sessions).set({ expiresAt: new Date(Date.now() + SESSION_TTL_MS) }).where(eq(sessions.id, row.session.id));
+   }
+   return row.user;
+diff --git a/apps/api/src/lib/sso.ts b/apps/api/src/lib/sso.ts
+new file mode 100644
+index 0000000..4277812
+--- /dev/null
++++ b/apps/api/src/lib/sso.ts
+@@ -0,0 +1,166 @@
++/**
++ * AFS single sign-on helpers: OpenID Connect authorization code flow with PKCE, verified against Keycloak.
++ *
++ * The flow's transient values (state, nonce, PKCE verifier) live in a short-lived signed cookie, so no server-side
++ * state is needed. The tokens never reach the browser; only ImageUnit's own session cookie is set.
++ */
++import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
++import { createRemoteJWKSet, jwtVerify, type JWTPayload } from 'jose';
++import type { User } from '../db/schema.js';
++import type { Config } from '../config.js';
++
++type UserRole = User['role'];
++
++/** SSO settings, or null when single sign-on is disabled. Config validation guarantees the required values. */
++export function ssoSettings(config: Config): SsoSettings | null {
++  if (!config.AFS_SSO_ENABLED) return null;
++  return {
++    issuer: config.AFS_OIDC_ISSUER!,
++    internalIssuer: config.AFS_OIDC_INTERNAL_ISSUER ?? config.AFS_OIDC_ISSUER!,
++    clientId: config.AFS_OIDC_CLIENT_ID!,
++    clientSecret: config.AFS_OIDC_CLIENT_SECRET!,
++    redirectUri: config.AFS_OIDC_REDIRECT_URI ?? `${config.API_PUBLIC_URL}/api/auth/sso/callback`,
++    commandCenterUrl: config.AFS_COMMAND_CENTER_URL!,
++    serviceToken: config.AFS_SERVICE_TOKEN!,
++    appSlug: config.AFS_APP_SLUG,
++  };
++}
++
++export const SSO_STATE_COOKIE = 'iu_sso';
++export const SSO_STATE_TTL_MS = 10 * 60 * 1000;
++/** Lifetime of an SSO session. It is not renewed, so access revoked in AFS ends within this period. */
++export const SSO_SESSION_TTL_MS = 8 * 3600 * 1000;
++
++export interface SsoSettings {
++  issuer: string;
++  internalIssuer: string;
++  clientId: string;
++  clientSecret: string;
++  redirectUri: string;
++  commandCenterUrl: string;
++  serviceToken: string;
++  appSlug: string;
++}
++
++export interface SsoState {
++  state: string;
++  nonce: string;
++  verifier: string;
++  next: string;
++  issuedAt: number;
++}
++
++const base64url = (buf: Buffer) => buf.toString('base64url');
++
++/** A PKCE verifier and its S256 challenge (RFC 7636). */
++export function pkcePair() {
++  const verifier = base64url(randomBytes(32));
++  const challenge = base64url(createHash('sha256').update(verifier).digest());
++  return { verifier, challenge };
++}
++
++export const randomValue = () => base64url(randomBytes(24));
++
++/**
++ * Only same-site paths are accepted after sign-in, so the login flow cannot be used to redirect users to another
++ * site (open redirect). Anything else falls back to the console.
++ */
++export function safeNextPath(value: unknown): string {
++  if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//') || value.startsWith('/\\')) return '/console';
++  if (/[\r\n\t\0]/.test(value)) return '/console';
++  return value;
++}
++
++/** Sign a payload with HMAC-SHA256 so the cookie cannot be altered by the browser. */
++export function signState(payload: SsoState, secret: string): string {
++  const body = base64url(Buffer.from(JSON.stringify(payload), 'utf8'));
++  const mac = base64url(createHmac('sha256', secret).update(body).digest());
++  return `${body}.${mac}`;
++}
++
++export function readState(value: string | undefined, secret: string, now = Date.now()): SsoState | null {
++  if (!value) return null;
++  const [body, mac, extra] = value.split('.');
++  if (!body || !mac || extra !== undefined) return null;
++  const expected = createHmac('sha256', secret).update(body).digest();
++  const given = Buffer.from(mac, 'base64url');
++  if (given.length !== expected.length || !timingSafeEqual(given, expected)) return null;
++  let parsed: SsoState;
++  try {
++    parsed = JSON.parse(Buffer.from(body, 'base64url').toString('utf8')) as SsoState;
++  } catch {
++    return null;
++  }
++  if (typeof parsed.issuedAt !== 'number' || now - parsed.issuedAt > SSO_STATE_TTL_MS) return null;
++  return parsed;
++}
++
++/** Build the Keycloak authorization URL that starts the flow. */
++export function authorizationUrl(settings: SsoSettings, params: { state: string; nonce: string; challenge: string }) {
++  const url = new URL(`${settings.issuer}/protocol/openid-connect/auth`);
++  url.search = new URLSearchParams({
++    client_id: settings.clientId,
++    redirect_uri: settings.redirectUri,
++    response_type: 'code',
++    scope: 'openid email profile',
++    state: params.state,
++    nonce: params.nonce,
++    code_challenge: params.challenge,
++    code_challenge_method: 'S256',
++  }).toString();
++  return url.toString();
++}
++
++/** Exchange the authorization code for tokens. Runs server to server, so the client secret never leaves the API. */
++export async function exchangeCode(settings: SsoSettings, code: string, verifier: string): Promise<{ id_token: string; access_token: string }> {
++  const res = await fetch(`${settings.internalIssuer}/protocol/openid-connect/token`, {
++    method: 'POST',
++    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
++    body: new URLSearchParams({
++      grant_type: 'authorization_code',
++      code,
++      redirect_uri: settings.redirectUri,
++      client_id: settings.clientId,
++      client_secret: settings.clientSecret,
++      code_verifier: verifier,
++    }),
++    signal: AbortSignal.timeout(8000),
++  });
++  if (!res.ok) throw new Error(`token exchange failed: HTTP ${res.status}`);
++  return (await res.json()) as { id_token: string; access_token: string };
++}
++
++/**
++ * Verify an ID token: RS256 signature from the realm keys, issuer, audience, expiry and the nonce bound to this login.
++ * The issuer is the public one that Keycloak writes into tokens; the keys are fetched over the internal network.
++ */
++export async function verifyIdToken(settings: SsoSettings, idToken: string, nonce: string): Promise<JWTPayload & { sub: string }> {
++  const jwks = createRemoteJWKSet(new URL(`${settings.internalIssuer}/protocol/openid-connect/certs`));
++  const { payload } = await jwtVerify(idToken, jwks, {
++    issuer: settings.issuer,
++    audience: settings.clientId,
++    algorithms: ['RS256'],
++  });
++  if (typeof payload.sub !== 'string' || payload.nonce !== nonce) throw new Error('invalid id token');
++  return payload as JWTPayload & { sub: string };
++}
++
++export interface AccessDecision {
++  allowed: boolean;
++  external_role: string | null;
++  reason: string;
++}
++
++/** Ask AFS Command Center whether this identity may use ImageUnit, and with which role. */
++export async function checkAccess(settings: SsoSettings, subject: string): Promise<AccessDecision> {
++  const url = new URL('/api/internal/access', settings.commandCenterUrl);
++  url.search = new URLSearchParams({ application: settings.appSlug, subject }).toString();
++  const res = await fetch(url, { headers: { 'X-Service-Token': settings.serviceToken }, signal: AbortSignal.timeout(5000) });
++  if (!res.ok) throw new Error(`access check failed: HTTP ${res.status}`);
++  return (await res.json()) as AccessDecision;
++}
++
++/** Map the role recorded in AFS Command Center onto ImageUnit's own role. Unknown values grant nothing. */
++export function roleFromExternal(value: string | null): UserRole | null {
++  return value === 'admin' || value === 'editor' || value === 'photographer' ? value : null;
++}
+diff --git a/apps/api/src/modules/auth.ts b/apps/api/src/modules/auth.ts
+index 5bf0764..de8579a 100644
+--- a/apps/api/src/modules/auth.ts
++++ b/apps/api/src/modules/auth.ts
+@@ -82,6 +82,7 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
+   app.post('/auth/change-password', { preHandler: guard.user }, async (req) => {
+     const body = parse(z.object({ currentPassword: z.string(), newPassword: passwordSchema }), req.body);
+     const u = req.user!;
++    if (!u.passwordHash) throw badRequest('This account signs in with AFS SSO and has no ImageUnit password');
+     if (!(await verifyPassword(u.passwordHash, body.currentPassword))) throw badRequest('Current password is incorrect');
+     await ctx.db.transaction(async (tx) => {
+       await tx.update(users).set({ passwordHash: await hashPassword(body.newPassword) }).where(eq(users.id, u.id));
+diff --git a/apps/api/src/modules/sso.ts b/apps/api/src/modules/sso.ts
+new file mode 100644
+index 0000000..3cc3242
+--- /dev/null
++++ b/apps/api/src/modules/sso.ts
+@@ -0,0 +1,175 @@
++import { and, eq, isNull, sql } from 'drizzle-orm';
++import type { FastifyPluginAsync, FastifyReply } from 'fastify';
++import { sessions, users, type User } from '../db/schema.js';
++import { SESSION_COOKIE } from '../http/guards.js';
++import { audit } from '../lib/audit.js';
++import { randomToken, sha256 } from '../lib/crypto.js';
++import { AppError } from '../lib/errors.js';
++import {
++  authorizationUrl,
++  checkAccess,
++  exchangeCode,
++  pkcePair,
++  randomValue,
++  readState,
++  roleFromExternal,
++  safeNextPath,
++  signState,
++  ssoSettings,
++  SSO_SESSION_TTL_MS,
++  SSO_STATE_COOKIE,
++  SSO_STATE_TTL_MS,
++  verifyIdToken,
++} from '../lib/sso.js';
++
++const STATE_PATH = '/api/auth/sso';
++
++type SsoOutcome = { error: string } | { token: string; next: string };
++
++/**
++ * AFS single sign-on, using OpenID Connect with PKCE through Keycloak.
++ *
++ * Access rules, in order:
++ *  1. The ID token is verified (signature, issuer, audience, expiry, nonce).
++ *  2. AFS Command Center must report an active assignment to ImageUnit with a role. Access is never granted by sign-in alone.
++ *  3. The Keycloak identity is linked to an existing ImageUnit account. Linking needs a verified email that matches
++ *     an account not yet linked. Accounts are not created here; an administrator creates them first.
++ *  4. The account must be active.
++ * On success ImageUnit's own session cookie is issued. The Keycloak tokens are discarded.
++ */
++export const ssoRoutes: FastifyPluginAsync = async (app) => {
++  const ctx = app.ctx;
++  const settings = ssoSettings(ctx.config);
++
++  app.get('/auth/sso/config', async () => ({ enabled: settings !== null }));
++
++  app.get('/auth/sso/login', async (req, reply) => {
++    if (!settings) throw new AppError(404, 'sso_disabled', 'Single sign-on is not enabled');
++    const { verifier, challenge } = pkcePair();
++    const state = randomValue();
++    const nonce = randomValue();
++    const next = safeNextPath((req.query as { next?: unknown }).next);
++    reply.setCookie(
++      SSO_STATE_COOKIE,
++      signState({ state, nonce, verifier, next, issuedAt: Date.now() }, ctx.config.SESSION_SECRET),
++      stateCookieOptions(ctx.config.COOKIE_SECURE),
++    );
++    return reply.redirect(authorizationUrl(settings, { state, nonce, challenge }));
++  });
++
++  app.get('/auth/sso/callback', async (req, reply) => {
++    // Every failure ends at the login page with a short code. Details go to the server log only.
++    const fail = (code: string) => {
++      reply.clearCookie(SSO_STATE_COOKIE, { path: STATE_PATH });
++      return reply.redirect(`${ctx.config.PUBLIC_WEB_URL}/login?sso_error=${code}`);
++    };
++    if (!settings) return fail('disabled');
++
++    const query = req.query as { code?: string; state?: string; error?: string };
++    if (query.error) return fail('cancelled');
++    const saved = readState(req.cookies[SSO_STATE_COOKIE], ctx.config.SESSION_SECRET);
++    if (!saved || !query.code || query.state !== saved.state) return fail('expired');
++
++    let tokens;
++    try {
++      tokens = await exchangeCode(settings, query.code, saved.verifier);
++    } catch (err) {
++      req.log.warn({ err: String(err) }, 'sso token exchange failed');
++      return fail('token');
++    }
++
++    let claims;
++    try {
++      claims = await verifyIdToken(settings, tokens.id_token, saved.nonce);
++    } catch (err) {
++      req.log.warn({ err: String(err) }, 'sso id token rejected');
++      return fail('invalid_token');
++    }
++
++    let decision;
++    try {
++      decision = await checkAccess(settings, claims.sub);
++    } catch (err) {
++      req.log.error({ err: String(err) }, 'sso access check unavailable');
++      return fail('unavailable');
++    }
++    if (!decision.allowed) return fail('not_assigned');
++    const role = roleFromExternal(decision.external_role);
++    if (!role) return fail('unknown_role');
++
++    const outcome = await ctx.db.transaction(async (tx): Promise<SsoOutcome> => {
++      const system = { type: 'system' as const, label: 'sso', ip: req.ip };
++      let user: User | undefined = (await tx.select().from(users).where(eq(users.oidcSub, claims.sub)))[0];
++      if (!user) {
++        if (claims.email_verified !== true || typeof claims.email !== 'string') return { error: 'unverified_email' };
++        const email = claims.email.toLowerCase();
++        const candidate = (
++          await tx
++            .select()
++            .from(users)
++            .where(and(sql`lower(${users.email}) = ${email}`, isNull(users.oidcSub)))
++        )[0];
++        if (!candidate) return { error: 'no_account' };
++        const [linked] = await tx.update(users).set({ oidcSub: claims.sub }).where(eq(users.id, candidate.id)).returning();
++        if (!linked) return { error: 'no_account' };
++        user = linked;
++        await audit(tx, system, { action: 'auth.sso_link', entityType: 'user', entityId: linked.id, targetUserId: linked.id });
++      }
++
++      const account = user;
++      if (account.status !== 'active') {
++        await audit(tx, system, {
++          action: 'auth.sso_login',
++          entityType: 'user',
++          entityId: account.id,
++          targetUserId: account.id,
++          meta: { outcome: 'refused', reason: 'account not active' },
++        });
++        return { error: 'disabled' };
++      }
++
++      if (account.role !== role) {
++        await audit(tx, system, {
++          action: 'user.role_synced',
++          entityType: 'user',
++          entityId: account.id,
++          targetUserId: account.id,
++          before: { role: account.role },
++          after: { role },
++        });
++      }
++      await tx
++        .update(users)
++        .set({ role, failedLogins: 0, lockedUntil: null, lastLoginAt: new Date() })
++        .where(eq(users.id, account.id));
++
++      const token = randomToken(32);
++      await tx.insert(sessions).values({
++        userId: account.id,
++        tokenHash: sha256(token),
++        sso: true,
++        ip: req.ip,
++        userAgent: req.headers['user-agent']?.slice(0, 300),
++        expiresAt: new Date(Date.now() + SSO_SESSION_TTL_MS),
++      });
++      await audit(tx, system, { action: 'auth.sso_login', entityType: 'user', entityId: account.id, targetUserId: account.id });
++      return { token, next: saved.next };
++    });
++
++    if ('error' in outcome) return fail(outcome.error);
++
++    reply.clearCookie(SSO_STATE_COOKIE, { path: STATE_PATH });
++    reply.setCookie(SESSION_COOKIE, outcome.token, {
++      httpOnly: true,
++      sameSite: 'lax',
++      secure: ctx.config.COOKIE_SECURE,
++      path: '/',
++      maxAge: SSO_SESSION_TTL_MS / 1000,
++    });
++    return reply.redirect(`${ctx.config.PUBLIC_WEB_URL}${outcome.next}`);
++  });
++};
++
++function stateCookieOptions(secure: boolean): Parameters<FastifyReply['setCookie']>[2] {
++  return { httpOnly: true, sameSite: 'lax', secure, path: STATE_PATH, maxAge: SSO_STATE_TTL_MS / 1000 };
++}
+diff --git a/apps/api/tests/sso.test.ts b/apps/api/tests/sso.test.ts
+new file mode 100644
+index 0000000..6b53a86
+--- /dev/null
++++ b/apps/api/tests/sso.test.ts
+@@ -0,0 +1,114 @@
++import { createHash } from 'node:crypto';
++import { describe, expect, it } from 'vitest';
++import {
++  authorizationUrl,
++  pkcePair,
++  readState,
++  roleFromExternal,
++  safeNextPath,
++  signState,
++  SSO_STATE_TTL_MS,
++  type SsoSettings,
++} from '../src/lib/sso.js';
++
++const SECRET = 'test-session-secret-for-sso-state-cookies';
++
++const settings: SsoSettings = {
++  issuer: 'http://localhost:8081/realms/afs',
++  internalIssuer: 'http://keycloak:8080/realms/afs',
++  clientId: 'imageunit',
++  clientSecret: 'unused-here',
++  redirectUri: 'http://localhost:4000/api/auth/sso/callback',
++  commandCenterUrl: 'http://backend:8000',
++  serviceToken: 'unused-here',
++  appSlug: 'imageunit',
++};
++
++describe('PKCE', () => {
++  it('derives the S256 challenge from the verifier', () => {
++    const { verifier, challenge } = pkcePair();
++    const expected = createHash('sha256').update(verifier).digest('base64url');
++    expect(challenge).toBe(expected);
++    expect(verifier.length).toBeGreaterThanOrEqual(43);
++  });
++
++  it('gives a fresh verifier every time', () => {
++    expect(pkcePair().verifier).not.toBe(pkcePair().verifier);
++  });
++});
++
++describe('safeNextPath (open-redirect protection)', () => {
++  it.each([['/console'], ['/console/events?tab=photos'], ['/']])('keeps same-site path %s', (path) => {
++    expect(safeNextPath(path)).toBe(path);
++  });
++
++  it.each([
++    ['https://evil.example/console'],
++    ['//evil.example/console'],
++    ['/\\evil.example'],
++    ['javascript:alert(1)'],
++    ['/console\r\nSet-Cookie: x=1'],
++    ['/console\u0000'],
++    ['console'],
++    [''],
++    [undefined],
++    [42],
++  ])('replaces unsafe value %j with the console', (value) => {
++    expect(safeNextPath(value)).toBe('/console');
++  });
++});
++
++describe('signed state cookie', () => {
++  const payload = { state: 's', nonce: 'n', verifier: 'v', next: '/console', issuedAt: 1_000_000 };
++
++  it('round-trips a freshly signed payload', () => {
++    const cookie = signState(payload, SECRET);
++    expect(readState(cookie, SECRET, 1_000_000 + 1000)).toEqual(payload);
++  });
++
++  it('rejects a payload altered after signing', () => {
++    const cookie = signState(payload, SECRET);
++    const [, mac] = cookie.split('.');
++    const forged = Buffer.from(JSON.stringify({ ...payload, next: 'https://evil.example' })).toString('base64url');
++    expect(readState(`${forged}.${mac}`, SECRET, 1_000_001)).toBeNull();
++  });
++
++  it('rejects a cookie signed with another secret', () => {
++    const cookie = signState(payload, 'another-secret-entirely-different-value');
++    expect(readState(cookie, SECRET, 1_000_001)).toBeNull();
++  });
++
++  it('rejects an expired state cookie', () => {
++    const cookie = signState(payload, SECRET);
++    expect(readState(cookie, SECRET, 1_000_000 + SSO_STATE_TTL_MS + 1)).toBeNull();
++  });
++
++  it('rejects malformed values', () => {
++    expect(readState(undefined, SECRET)).toBeNull();
++    expect(readState('no-dot', SECRET)).toBeNull();
++    expect(readState('a.b.c', SECRET)).toBeNull();
++  });
++});
++
++describe('authorization request', () => {
++  it('uses the public issuer, PKCE S256 and the bound state and nonce', () => {
++    const url = new URL(authorizationUrl(settings, { state: 'st', nonce: 'no', challenge: 'ch' }));
++    expect(url.origin + url.pathname).toBe('http://localhost:8081/realms/afs/protocol/openid-connect/auth');
++    expect(url.searchParams.get('client_id')).toBe('imageunit');
++    expect(url.searchParams.get('response_type')).toBe('code');
++    expect(url.searchParams.get('code_challenge')).toBe('ch');
++    expect(url.searchParams.get('code_challenge_method')).toBe('S256');
++    expect(url.searchParams.get('state')).toBe('st');
++    expect(url.searchParams.get('nonce')).toBe('no');
++  });
++});
++
++describe('role mapping from Command Center', () => {
++  it.each([['admin'], ['editor'], ['photographer']])('maps %s to the ImageUnit role', (role) => {
++    expect(roleFromExternal(role)).toBe(role);
++  });
++
++  it.each([[null], [''], ['Admin'], ['superuser'], ['viewer']])('grants nothing for %j', (value) => {
++    expect(roleFromExternal(value)).toBeNull();
++  });
++});
+diff --git a/apps/web/src/app/login/page.tsx b/apps/web/src/app/login/page.tsx
+index dd15283..4ce84e5 100644
+--- a/apps/web/src/app/login/page.tsx
++++ b/apps/web/src/app/login/page.tsx
+@@ -3,15 +3,37 @@
+ import { useMutation, useQueryClient } from '@tanstack/react-query';
+ import { Aperture } from 'lucide-react';
+ import { useRouter } from 'next/navigation';
+-import { useState } from 'react';
++import { useEffect, useState } from 'react';
+ import { ErrorNote, Button, Field, Input } from '@/components/ui';
+ import { post } from '@/lib/api';
+ 
++const SSO_MESSAGES: Record<string, string> = {
++  cancelled: 'Sign-in with AFS was cancelled.',
++  expired: 'Your AFS sign-in expired. Please try again.',
++  not_assigned: 'Your AFS account is not assigned to ImageUnit. Contact an administrator.',
++  unknown_role: 'Your ImageUnit role is not set up yet. Contact an administrator.',
++  no_account: 'No ImageUnit account is linked to this AFS account. Contact an administrator.',
++  unverified_email: 'Your AFS email address must be verified before it can be linked.',
++  disabled: 'This ImageUnit account is not active. Contact an administrator.',
++  unavailable: 'AFS sign-in is temporarily unavailable. Try again shortly.',
++};
++
+ export default function LoginPage() {
+   const router = useRouter();
+   const qc = useQueryClient();
+   const [email, setEmail] = useState('');
+   const [password, setPassword] = useState('');
++  const [ssoEnabled, setSsoEnabled] = useState(false);
++  const [ssoMessage, setSsoMessage] = useState<string | null>(null);
++
++  useEffect(() => {
++    fetch('/api/auth/sso/config')
++      .then((res) => (res.ok ? res.json() : null))
++      .then((data) => setSsoEnabled(Boolean(data?.enabled)))
++      .catch(() => setSsoEnabled(false));
++    const code = new URLSearchParams(window.location.search).get('sso_error');
++    if (code) setSsoMessage(SSO_MESSAGES[code] ?? 'AFS sign-in failed. Please try again.');
++  }, []);
+   const login = useMutation({
+     mutationFn: () => post('/auth/login', { email, password }),
+     onSuccess: async () => {
+@@ -44,9 +66,25 @@ export default function LoginPage() {
+           <Input type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+         </Field>
+         <ErrorNote error={login.error} />
++        {ssoMessage && <p role="alert" className="text-sm text-danger">{ssoMessage}</p>}
+         <Button type="submit" variant="primary" className="w-full" loading={login.isPending}>
+           Sign in
+         </Button>
++        {ssoEnabled && (
++          <>
++            <div className="flex items-center gap-3 text-xs text-muted" aria-hidden>
++              <span className="h-px flex-1 bg-border" />
++              or
++              <span className="h-px flex-1 bg-border" />
++            </div>
++            <a
++              href="/api/auth/sso/login?next=/console"
++              className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-border bg-surface text-sm font-medium hover:bg-surface-2"
++            >
++              Sign in with AFS SSO
++            </a>
++          </>
++        )}
+       </form>
+     </main>
+   );
+diff --git a/package-lock.json b/package-lock.json
+index 32e1bdb..5b46894 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -34,6 +34,7 @@
+         "ffprobe-static": "^3.1.0",
+         "file-type": "^22.1.1",
+         "ioredis": "^6.0.0",
++        "jose": "^6.2.13",
+         "pg": "^8.23.0",
+         "pino": "^10.3.1",
+         "prom-client": "^15.1.3",
+@@ -5607,6 +5608,15 @@
+         "jiti": "lib/jiti-cli.mjs"
+       }
+     },
++    "node_modules/jose": {
++      "version": "6.2.13",
++      "resolved": "https://registry.npmjs.org/jose/-/jose-6.2.13.tgz",
++      "integrity": "sha512-7TIg10ZE1x82YediN+lcrPNvGMKge9yFHQD+Qho/b8y2adfugU3AsvvHfxV0fzyFllT6l9xCjf4RWY9g/Z9PJQ==",
++      "license": "MIT",
++      "funding": {
++        "url": "https://github.com/sponsors/panva"
++      }
++    },
+     "node_modules/joycon": {
+       "version": "3.1.1",
+       "resolved": "https://registry.npmjs.org/joycon/-/joycon-3.1.1.tgz",
