@@ -35,6 +35,17 @@ Application slugs and their client settings. Each client belongs to the product'
 | `biocap` | `biocap` | `BIOCAP_` | `AFS_SERVICE_TOKEN_BIOCAP` |
 | `procurement` | `procurement` | `PROCUREMENT_` | `AFS_SERVICE_TOKEN_PROCUREMENT` |
 
+## Reporting failures
+
+An application can report a sync or revocation failure it hits, so administrators see it in the **Integrations** tab:
+
+```
+POST /api/internal/events?application=<slug>      with X-Service-Token
+{"kind": "sync_failure" | "revocation_failure" | "info", "outcome": "failure" | "success", "detail": "..."}
+```
+
+Report a revocation failure when removing a user from the application's own records fails. Administrators then see that access may still exist there.
+
 ## The rules every integration follows
 
 1. **Sign-in proves identity; Command Center grants access.** After Keycloak verifies the ID token, the application asks Command Center whether the employee has an active assignment, and which role applies. No assignment, no access. An assignment without a role is refused.

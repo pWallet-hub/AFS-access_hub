@@ -98,7 +98,7 @@ def _sign_in(browser, email, password):
     page.fill("#username", email)
     page.fill("#password", password)
     page.click("#kc-login")
-    page.wait_for_selector("#signed-in:not(.hidden)", timeout=30000)
+    page.wait_for_selector("#view-app:not([hidden])", timeout=30000)
     return context, page
 
 
@@ -120,19 +120,20 @@ def test_health_reports_database_and_identity_provider(browser):
 
 def test_administrator_sees_the_console_and_integration_health(browser):
     context, page = _sign_in(browser, ADMIN_EMAIL, ADMIN_PASSWORD)
-    tabs = page.locator("#tabs button").all_inner_texts()
-    for expected in ["Employees", "Applications & roles", "Assignments", "Integrations", "Audit log"]:
-        assert expected in tabs
-    page.click("#tabs button:has-text('Integrations')")
-    expect(page.locator("#views")).to_contain_text("Integration health")
+    links = page.locator("#nav a").all_inner_texts()
+    for expected in ["Employees", "Applications", "Assignments", "Integrations", "Audit log"]:
+        assert expected in links
+    page.click("#nav a:has-text('Integrations')")
+    expect(page.get_by_role("heading", name="Integrations")).to_be_visible()
+    expect(page.locator("main")).to_contain_text("Failing")
     context.close()
 
 
 def test_new_employee_has_no_admin_tabs_and_no_applications(browser, employee):
     context, page = _sign_in(browser, employee["email"], employee["password"])
-    tabs = page.locator("#tabs button").all_inner_texts()
-    assert tabs == ["My applications"]
-    expect(page.locator("#views")).to_contain_text("No applications are assigned to you yet")
+    links = page.locator("#nav a").all_inner_texts()
+    assert links == ["My applications"]
+    expect(page.locator("main")).to_contain_text("No applications yet")
     context.close()
 
 
@@ -170,4 +171,43 @@ def test_sign_out_returns_to_the_sign_in_page(browser, employee):
     if confirm.count():
         confirm.click()
     expect(page.locator("text=Sign in with AFS SSO")).to_be_visible(timeout=20000)
+    context.close()
+
+
+def test_employee_search_filters_the_list(browser):
+    context, page = _sign_in(browser, ADMIN_EMAIL, ADMIN_PASSWORD)
+    page.click("#nav a:has-text('Employees')")
+    search = page.get_by_role("searchbox", name="Search employees")
+    search.fill("no-such-person-zzz")
+    expect(page.locator("main")).to_contain_text("No employees match")
+    search.fill("carterk279")
+    expect(page.get_by_role("table", name="Employees")).to_contain_text("carterk279@gmail.com")
+    context.close()
+
+
+def test_add_employee_dialog_validates_the_email(browser):
+    context, page = _sign_in(browser, ADMIN_EMAIL, ADMIN_PASSWORD)
+    page.click("#nav a:has-text('Employees')")
+    page.click("button:has-text('Add employee')")
+    dialog = page.locator("dialog[open]")
+    dialog.get_by_label("Email *").fill("not-an-email")
+    dialog.get_by_role("button", name="Add employee").click()
+    # The browser blocks submission for an invalid email, so no request is made and the dialog stays open.
+    expect(dialog).to_be_visible()
+    dialog.get_by_role("button", name="Cancel").click()
+    expect(page.locator("dialog[open]")).to_have_count(0)
+    context.close()
+
+
+def test_audit_log_can_be_filtered_by_outcome(browser):
+    context, page = _sign_in(browser, ADMIN_EMAIL, ADMIN_PASSWORD)
+    page.click("#nav a:has-text('Audit log')")
+    page.get_by_label("Filter by outcome").select_option("failure")
+    page.wait_for_timeout(800)
+    rows = page.get_by_role("table", name="Audit entries").locator("tbody tr")
+    if rows.count() == 0:
+        expect(page.locator("main")).to_contain_text("No matching entries")
+    for i in range(rows.count()):
+        text = rows.nth(i).inner_text()
+        assert "Failure" in text and "Success" not in text, text
     context.close()

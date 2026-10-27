@@ -103,6 +103,35 @@ REALM_SETTINGS = {
 }
 
 
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
+RESEND_FROM = os.environ.get("RESEND_FROM", "")
+RESEND_FROM_NAME = os.environ.get("RESEND_FROM_NAME", "AFS Command Center")
+
+
+def email_settings():
+    """Keycloak's mail settings, sent through Resend's SMTP service. Empty when Resend is not configured.
+
+    Email verification and password reset need mail, so they are enabled only when Resend is configured.
+    """
+    if not (RESEND_API_KEY and RESEND_FROM):
+        return {}
+    return {
+        "verifyEmail": True,
+        "resetPasswordAllowed": True,
+        "smtpServer": {
+            "host": "smtp.resend.com",
+            "port": "465",
+            "ssl": "true",
+            "starttls": "false",
+            "auth": "true",
+            "user": "resend",
+            "password": RESEND_API_KEY,
+            "from": RESEND_FROM,
+            "fromDisplayName": RESEND_FROM_NAME,
+        },
+    }
+
+
 def ensure_realm(token):
     status, _ = call("GET", f"/admin/realms/{REALM}", token=token)
     if status != 200:
@@ -112,10 +141,15 @@ def ensure_realm(token):
         log(f"created realm '{REALM}'")
     else:
         log(f"realm '{REALM}' exists")
-    status, body = call("PUT", f"/admin/realms/{REALM}", token=token, json_body={"realm": REALM, **REALM_SETTINGS})
+    status, body = call(
+        "PUT", f"/admin/realms/{REALM}", token=token, json_body={"realm": REALM, **REALM_SETTINGS, **email_settings()}
+    )
     if status != 204:
         sys.exit(f"Failed to apply security settings to realm '{REALM}' (HTTP {status}): {body}")
-    log(f"applied realm security settings (brute-force protection on)")
+    if email_settings():
+        log("applied realm settings: brute-force protection on, mail via Resend")
+    else:
+        log("applied realm settings: brute-force protection on; RESEND_API_KEY not set, so mail is off")
 
 
 def ensure_client(token, client):

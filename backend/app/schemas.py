@@ -30,6 +30,7 @@ class UserCreate(BaseModel):
 class UserUpdate(BaseModel):
     status: UserStatus | None = None
     platform_role: PlatformRole | None = None
+    display_name: str | None = Field(default=None, min_length=1, max_length=120)
 
 
 class ApplicationCreate(BaseModel):

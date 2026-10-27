@@ -4,14 +4,16 @@ Every endpoint checks the platform role on the server. The frontend hides contro
 cannot use, but that is never relied on for protection.
 """
 
+from typing import Literal
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
 from psycopg import errors
 
 from .audit import record
 from .auth import require_platform_role
 from .db import connect
+from .notifications import notify
 from .schemas import ApplicationCreate, ApplicationUpdate, AssignmentCreate, RoleCreate, UserCreate, UserUpdate
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
@@ -69,7 +71,7 @@ def list_users(actor=Depends(ACCESS_ADMIN)):
 
 
 @router.post("/users", status_code=201)
-def create_user(body: UserCreate, actor=Depends(ACCESS_ADMIN)):
+def create_user(body: UserCreate, background: BackgroundTasks, actor=Depends(ACCESS_ADMIN)):
     email = body.email.lower()
     with connect() as conn:
         try:
@@ -97,11 +99,25 @@ def create_user(body: UserCreate, actor=Depends(ACCESS_ADMIN)):
             target_id=row["id"],
             details={"email": email},
         )
-        return _get_user(conn, row["id"])
+        created = _get_user(conn, row["id"])
+    background.add_task(
+        notify,
+        email,
+        created["id"],
+        "account.created",
+        "You have been added to AFS Command Center",
+        [
+            "An administrator has added you to AFS Command Center, the single place to reach the applications you are assigned.",
+            "Sign in with your AFS account. Your applications appear once an administrator assigns them.",
+        ],
+        "Open AFS Command Center",
+        "/",
+    )
+    return created
 
 
 @router.patch("/users/{user_id}")
-def update_user(user_id: UUID, body: UserUpdate, actor=Depends(ACCESS_ADMIN)):
+def update_user(user_id: UUID, body: UserUpdate, background: BackgroundTasks, actor=Depends(ACCESS_ADMIN)):
     changes = body.model_dump(exclude_none=True)
     with connect() as conn:
         if "platform_role" in changes and actor["platform_role"] != "super_admin":
@@ -128,7 +144,7 @@ def update_user(user_id: UUID, body: UserUpdate, actor=Depends(ACCESS_ADMIN)):
                 raise HTTPException(status_code=409, detail="The last active super administrator cannot be disabled or demoted")
 
         if changes:
-            allowed = {"status", "platform_role"}
+            allowed = {"status", "platform_role", "display_name"}
             assignments = ", ".join(f"{field} = %s" for field in changes if field in allowed)
             values = [changes[field] for field in changes if field in allowed]
             conn.execute(
@@ -144,7 +160,33 @@ def update_user(user_id: UUID, body: UserUpdate, actor=Depends(ACCESS_ADMIN)):
                 target_id=user_id,
                 details={"changes": {f: {"from": current[f], "to": changes[f]} for f in changes if f in allowed}},
             )
-        return _get_user(conn, user_id)
+        updated = _get_user(conn, user_id)
+    if "status" in changes and changes["status"] != current["status"]:
+        disabled = changes["status"] == "disabled"
+        background.add_task(
+            notify,
+            current["email"],
+            user_id,
+            "account.disabled" if disabled else "account.reactivated",
+            "Your AFS Command Center account has been disabled" if disabled else "Your AFS Command Center account is active again",
+            [
+                "Your access to AFS Command Center has been suspended. Contact an access administrator if you think this is a mistake."
+                if disabled
+                else "Your access to AFS Command Center has been restored. Sign in to see your applications.",
+            ],
+        )
+    if "platform_role" in changes and changes["platform_role"] != current["platform_role"]:
+        background.add_task(
+            notify,
+            current["email"],
+            user_id,
+            "account.role_changed",
+            "Your AFS Command Center role has changed",
+            [f"Your platform role is now {changes['platform_role'].replace('_', ' ')}."],
+            "Open AFS Command Center",
+            "/",
+        )
+    return updated
 
 
 # ---------- Applications ----------
@@ -338,7 +380,7 @@ def list_assignments(
 
 
 @router.post("/assignments", status_code=201)
-def grant_assignment(body: AssignmentCreate, actor=Depends(ACCESS_ADMIN)):
+def grant_assignment(body: AssignmentCreate, background: BackgroundTasks, actor=Depends(ACCESS_ADMIN)):
     with connect() as conn:
         user = _get_user(conn, body.user_id)
         application = _get_application(conn, body.application_id)
@@ -389,14 +431,29 @@ def grant_assignment(body: AssignmentCreate, actor=Depends(ACCESS_ADMIN)):
             application_slug=application["slug"],
             details={"user_email": user["email"], "app_role_id": str(body.app_role_id) if body.app_role_id else None},
         )
-        return {"id": row["id"]}
+        role = None
+        if body.app_role_id:
+            role = conn.execute("SELECT name FROM app_roles WHERE id = %s", (body.app_role_id,)).fetchone()
+        role_name = role["name"] if role else None
+    role_text = f" with the role {role_name}" if role_name else ""
+    background.add_task(
+        notify,
+        user["email"],
+        user["id"],
+        "access.granted",
+        f"You now have access to {application['name']}",
+        [f"You have been given access to {application['name']}{role_text}."],
+        f"Open {application['name']}",
+        "/",
+    )
+    return {"id": row["id"]}
 
 
 @router.delete("/assignments/{assignment_id}", status_code=204)
-def revoke_assignment(assignment_id: UUID, actor=Depends(ACCESS_ADMIN)):
+def revoke_assignment(assignment_id: UUID, background: BackgroundTasks, actor=Depends(ACCESS_ADMIN)):
     with connect() as conn:
         row = conn.execute(
-            "SELECT s.id, s.user_id, u.email, a.slug FROM assignments s"
+            "SELECT s.id, s.user_id, u.email, a.slug, a.name AS app_name FROM assignments s"
             " JOIN users u ON u.id = s.user_id JOIN applications a ON a.id = s.application_id"
             " WHERE s.id = %s AND s.revoked_at IS NULL FOR UPDATE OF s",
             (assignment_id,),
@@ -417,19 +474,47 @@ def revoke_assignment(assignment_id: UUID, actor=Depends(ACCESS_ADMIN)):
             application_slug=row["slug"],
             details={"user_email": row["email"]},
         )
+    background.add_task(
+        notify,
+        row["email"],
+        row["user_id"],
+        "access.revoked",
+        f"Your access to {row['app_name']} has been removed",
+        [f"Your access to {row['app_name']} has been removed. Contact an access administrator if you still need it."],
+    )
 
 
 # ---------- Audit ----------
 
 
 @router.get("/audit")
-def list_audit(limit: int = Query(default=100, ge=1, le=500), actor=Depends(ACCESS_ADMIN)):
+def list_audit(
+    limit: int = Query(default=100, ge=1, le=500),
+    offset: int = Query(default=0, ge=0),
+    action: str | None = Query(default=None, max_length=60),
+    outcome: Literal["success", "failure"] | None = None,
+    application: str | None = Query(default=None, max_length=41),
+    actor=Depends(ACCESS_ADMIN),
+):
+    filters, params = [], []
+    if action:
+        filters.append("action ILIKE %s")
+        params.append(f"%{action}%")
+    if outcome:
+        filters.append("outcome = %s")
+        params.append(outcome)
+    if application:
+        filters.append("application_slug = %s")
+        params.append(application)
+    where = f"WHERE {' AND '.join(filters)}" if filters else ""
     with connect() as conn:
-        return conn.execute(
+        rows = conn.execute(
             "SELECT id, occurred_at, actor_identity, action, target_type, target_id, application_slug, outcome,"
-            " details FROM audit_log ORDER BY id DESC LIMIT %s",
-            (limit,),
+            f" details FROM audit_log {where} ORDER BY id DESC LIMIT %s OFFSET %s",
+            (*params, limit, offset),
         ).fetchall()
+        total = conn.execute(f"SELECT count(*) AS n FROM audit_log {where}", params).fetchone()["n"]
+    return {"total": total, "items": rows}
 
 
 # ---------- Integration health ----------

@@ -85,21 +85,14 @@ All settings come from `.env` (see [.env.example](.env.example)). Notable values
 
 Production must not use the `.env.example` values, `start-dev`, or plain HTTP. Those items are part of the hardening phase.
 
-## Backup and restore
+## Email (Resend)
 
-Back up all databases in the `db` container:
+Set `RESEND_API_KEY` and `RESEND_FROM` (an address on a domain verified in Resend) in `.env`, then `docker compose up -d`.
 
-```bash
-docker compose exec -T db pg_dumpall -U "$POSTGRES_USER" > backup-$(date +%F).sql
-```
+- **Keycloak** sends verification and password-reset mail through Resend's SMTP service (`smtp.resend.com`). Email verification and password reset are switched on only when Resend is configured.
+- **Command Center** sends notices through Resend's HTTP API when an employee is added, when their account is disabled or reactivated, when their platform role changes, and when access is granted or removed. Sending happens after the change is saved, so a mail failure never undoes it. Each attempt is in the audit log as `notification.sent` or `notification.failed`.
 
-Restore into an empty stack:
-
-```bash
-docker compose up -d db
-docker compose exec -T db psql -U "$POSTGRES_USER" -d postgres < backup-YYYY-MM-DD.sql
-docker compose up -d
-```
+Without `RESEND_API_KEY`, mail is off and notices are logged and skipped.
 
 ## Troubleshooting
 
@@ -121,11 +114,31 @@ The five AFS applications are registered (disabled, without launch URLs) by `bac
 
 ## Testing
 
+Backend tests (API, authorization, assignments, audit, access checks, integration monitoring, seeded roles):
+
 ```bash
 docker compose run --rm --no-deps backend python -m pytest tests -q -p no:cacheprovider
 ```
 
-The tests run against a separate `<POSTGRES_DB>_test` database, created automatically, so they never touch working data. They cover authentication failures, role enforcement, disabled accounts, role-to-application validation, assignment and revocation, identity linking, and the append-only audit log.
+The tests run against a separate `<POSTGRES_DB>_test` database, created automatically, so they never touch working data.
+
+Browser tests (sign-in through Keycloak, the console, the employee launcher, unavailable applications, sign-out), run in a Playwright container against the running stack:
+
+```bash
+docker compose up -d
+e2e/run.sh
+```
+
+The browser tests create a temporary employee in Keycloak and remove it afterwards.
+
+## Backup and restore
+
+```bash
+scripts/backup.sh                      # writes backups/afs-<timestamp>.sql
+scripts/restore.sh backups/<file>.sql  # replaces all data, then waits for the stack to be healthy
+```
+
+Both databases (Command Center and Keycloak) are included. Roles are not, so restores never change database users. Tested by wiping all volumes, restoring, and comparing record counts and the Keycloak accounts.
 
 ## Status
 

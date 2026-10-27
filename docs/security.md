@@ -44,9 +44,19 @@ Existing application sessions are bounded by each application's own session life
 - The `audit_log` table is append-only: database triggers reject `UPDATE`, `DELETE` and `TRUNCATE`. The application's database role is still the database owner in the Compose setup, so production must use a separate, least-privilege application role and restrict ownership.
 - Secrets never appear in audit details, logs or the browser. Audit details contain identifiers and before/after values of ordinary fields only.
 
+## Email
+
+Command Center notices go through Resend, and Keycloak's verification and reset mail goes through Resend's SMTP service. Notices carry no secrets, only plain text and a link to the portal. Dynamic text is escaped. The audit log records the recipient's account, not their address.
+
+## Integration monitoring
+
+Each application's access checks update its `last_access_*` timestamps. Failures it reports (`POST /api/internal/events`), and rejected service tokens, are stored in `integration_events` and shown in the console's **Integrations** tab. Status is `not_connected` before any check, `error` after a failure reported later than the last successful check, and `ok` otherwise. A business denial such as "not assigned" is an audited decision, not an integration error.
+
 ## Known limits in this release
 
 - CSRF protection relies on `SameSite=lax` cookies and JSON request bodies. Add a CSRF token before exposing state-changing endpoints to untrusted origins.
 - Keycloak runs in `start-dev` mode and the stack uses HTTP on localhost. Production requires `start --optimized`, HTTPS, and separate secrets management.
-- No rate limiting on sign-in attempts. Rely on Keycloak brute-force detection (enable it in the realm) until a gateway is added.
+- Keycloak brute-force protection is on (5 failures, then a lock that grows up to 15 minutes), applied by `keycloak/bootstrap.py` on every run. Command Center itself has no separate sign-in rate limit.
+- The identity provider's port is bound to 127.0.0.1 in this stack, so its admin console is not reachable from the network. Production must put it behind HTTPS with the same restriction.
+- Keycloak does not send email in this stack, so email verification is not enforced at sign-in. Linking an identity to a pre-provisioned account still requires `email_verified` in the token.
 - Pre-provisioned email linking depends on Keycloak's email-verification setting. Keep `verifyEmail` required for the AFS realm in production.

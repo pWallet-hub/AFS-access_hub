@@ -3,475 +3,1006 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="AFS Command Center: sign in once to reach the applications you are assigned.">
   <title>AFS Command Center</title>
   <style>
     :root {
       color-scheme: light dark;
-      --bg: #f5f6f8; --panel: #ffffff; --fg: #1d1d1f; --muted: #6e6e73; --line: #dcdfe4;
-      --accent: #0b5cad; --accent-fg: #ffffff; --ok: #1e7e34; --bad: #b3261e; --warn: #8a5a00;
+      --bg: #f4f6fa; --surface: #ffffff; --surface-2: #f0f3f8; --fg: #16181d; --muted: #5f6673; --line: #dfe3ea;
+      --accent: #1f5fbf; --accent-hover: #184d9e; --accent-fg: #ffffff; --accent-soft: #e6eefb;
+      --ok: #17743a; --ok-soft: #e3f4ea; --bad: #b42318; --bad-soft: #fde8e6; --warn: #8a5a00; --warn-soft: #fdf3dc;
+      --focus: #2f80ed; --shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 1px 3px rgba(16, 24, 40, .08);
+      --radius: 10px;
     }
     @media (prefers-color-scheme: dark) {
       :root:not([data-theme="light"]) {
-        --bg: #111214; --panel: #1b1d21; --fg: #f5f5f7; --muted: #a1a1a6; --line: #34373d;
-        --accent: #4da3ff; --accent-fg: #061427; --ok: #5ed37b; --bad: #ff8a80; --warn: #f0c060;
+        --bg: #0f1115; --surface: #171a20; --surface-2: #1e222a; --fg: #eef0f4; --muted: #9aa3b2; --line: #2a2f39;
+        --accent: #5b9bff; --accent-hover: #7aaeff; --accent-fg: #071a33; --accent-soft: #1b2b44;
+        --ok: #5fd08a; --ok-soft: #14301f; --bad: #ff8b82; --bad-soft: #3a1917; --warn: #f2c46b; --warn-soft: #3a2f14;
+        --focus: #7aaeff; --shadow: 0 1px 2px rgba(0, 0, 0, .4);
       }
     }
     :root[data-theme="dark"] {
-      --bg: #111214; --panel: #1b1d21; --fg: #f5f5f7; --muted: #a1a1a6; --line: #34373d;
-      --accent: #4da3ff; --accent-fg: #061427; --ok: #5ed37b; --bad: #ff8a80; --warn: #f0c060;
+      --bg: #0f1115; --surface: #171a20; --surface-2: #1e222a; --fg: #eef0f4; --muted: #9aa3b2; --line: #2a2f39;
+      --accent: #5b9bff; --accent-hover: #7aaeff; --accent-fg: #071a33; --accent-soft: #1b2b44;
+      --ok: #5fd08a; --ok-soft: #14301f; --bad: #ff8b82; --bad-soft: #3a1917; --warn: #f2c46b; --warn-soft: #3a2f14;
+      --focus: #7aaeff; --shadow: 0 1px 2px rgba(0, 0, 0, .4);
     }
+
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, sans-serif; color: var(--fg); background: var(--bg); }
-    header { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding: 14px 16px; background: var(--panel); border-bottom: 1px solid var(--line); }
-    header h1 { font-size: 1.15rem; margin: 0; }
-    header .who { color: var(--muted); font-size: .9rem; }
-    nav { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 16px 0; }
-    nav button { background: none; border: 1px solid transparent; border-bottom: none; color: var(--muted); padding: 8px 12px; border-radius: 6px 6px 0 0; cursor: pointer; font: inherit; }
-    nav button[aria-selected="true"] { color: var(--fg); background: var(--panel); border-color: var(--line); }
-    main { padding: 16px; max-width: 1100px; margin: 0 auto; }
-    section.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
-    section.panel h2 { font-size: 1rem; margin: 0 0 12px; }
-    table { width: 100%; border-collapse: collapse; font-size: .92rem; }
-    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
-    th { color: var(--muted); font-weight: 600; }
-    .cards { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
-    .card { border: 1px solid var(--line); border-radius: 8px; padding: 14px; background: var(--panel); display: flex; flex-direction: column; gap: 8px; }
-    .card h3 { margin: 0; font-size: 1rem; }
-    .card p { margin: 0; color: var(--muted); font-size: .9rem; }
-    .muted { color: var(--muted); }
-    .tag { display: inline-block; font-size: .78rem; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
-    .ok { color: var(--ok); } .bad { color: var(--bad); } .warn { color: var(--warn); }
-    form.inline { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; margin-bottom: 14px; }
-    label { display: flex; flex-direction: column; font-size: .82rem; color: var(--muted); gap: 4px; }
-    input, select, textarea { font: inherit; padding: 7px 9px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--fg); min-width: 0; }
-    textarea { min-height: 60px; }
-    button, .button { font: inherit; padding: 7px 12px; border-radius: 6px; border: 1px solid var(--line); background: var(--panel); color: var(--fg); cursor: pointer; text-decoration: none; display: inline-block; }
-    button.primary, .button.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
-    button.small { padding: 3px 8px; font-size: .82rem; }
+    html, body { height: 100%; }
+    body {
+      margin: 0; font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color: var(--fg); background: var(--bg);
+    }
+    :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+    a { color: var(--accent); }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .skip { position: absolute; left: 12px; top: -60px; background: var(--accent); color: var(--accent-fg); padding: 8px 12px; border-radius: 6px; z-index: 100; }
+    .skip:focus { top: 12px; }
+    [hidden] { display: none !important; }
+
+    /* ---------- Shell ---------- */
+    .topbar {
+      position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 16px;
+      height: 60px; padding: 0 20px; background: var(--surface); border-bottom: 1px solid var(--line);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 650; letter-spacing: .1px; color: var(--fg); text-decoration: none; }
+    .brand-mark {
+      width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center;
+      background: linear-gradient(135deg, #1f5fbf, #4c8df6); color: #fff; font-size: 14px; font-weight: 700;
+    }
+    .topbar .spacer { flex: 1; }
+    .account { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .account-meta { text-align: right; min-width: 0; }
+    .account-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+    .account-role { font-size: 12px; color: var(--muted); }
+    .avatar {
+      width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; flex: none;
+      background: var(--accent-soft); color: var(--accent); font-weight: 650; font-size: 13px;
+    }
+
+    .layout { display: grid; grid-template-columns: 232px 1fr; min-height: calc(100vh - 60px); }
+    nav.side { border-right: 1px solid var(--line); background: var(--surface); padding: 14px 10px; }
+    nav.side .group { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 14px 10px 6px; }
+    nav.side a {
+      display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px;
+      color: var(--fg); text-decoration: none; font-weight: 500;
+    }
+    nav.side a:hover { background: var(--surface-2); }
+    nav.side a[aria-current="page"] { background: var(--accent-soft); color: var(--accent); }
+    nav.side svg { width: 18px; height: 18px; flex: none; opacity: .85; }
+    main { padding: 26px clamp(16px, 3vw, 36px) 60px; min-width: 0; }
+    .page-head { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: flex-end; justify-content: space-between; margin-bottom: 20px; }
+    .page-head h1 { font-size: 24px; line-height: 1.2; margin: 0 0 4px; font-weight: 680; }
+    .page-head p { margin: 0; color: var(--muted); max-width: 70ch; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+    /* ---------- Controls ---------- */
+    button, .btn {
+      font: inherit; font-weight: 550; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      min-height: 36px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--line);
+      background: var(--surface); color: var(--fg); cursor: pointer; text-decoration: none; white-space: nowrap;
+      transition: background .15s, border-color .15s;
+    }
+    button:hover, .btn:hover { background: var(--surface-2); }
+    button.primary, .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+    button.primary:hover, .btn.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+    button.danger { color: var(--bad); }
+    button.danger:hover { background: var(--bad-soft); border-color: var(--bad-soft); }
+    button.small, .btn.small { min-height: 30px; padding: 0 10px; font-size: 13px; }
     button:disabled { opacity: .5; cursor: not-allowed; }
-    .toast { position: fixed; right: 16px; bottom: 16px; max-width: 360px; padding: 10px 14px; border-radius: 8px; background: var(--panel); border: 1px solid var(--line); box-shadow: 0 4px 16px rgba(0,0,0,.15); }
-    .toast.error { border-color: var(--bad); color: var(--bad); }
-    .center { text-align: center; padding: 48px 16px; }
-    .hidden { display: none !important; }
-    .table-wrap { overflow-x: auto; }
-    @media (max-width: 640px) { main { padding: 12px; } section.panel { padding: 12px; } }
+    input, select, textarea {
+      font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line);
+      border-radius: 8px; padding: 8px 10px; min-height: 36px; min-width: 0; width: 100%;
+    }
+    textarea { min-height: 76px; resize: vertical; }
+    input:focus, select:focus, textarea:focus { border-color: var(--focus); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 25%, transparent); }
+    input[aria-invalid="true"] { border-color: var(--bad); }
+    .field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .field label { font-size: 13px; font-weight: 600; color: var(--fg); }
+    .field .hint { font-size: 12px; color: var(--muted); }
+    .field .error { font-size: 12px; color: var(--bad); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; }
+    .toolbar .search { flex: 1 1 240px; max-width: 360px; }
+    .toolbar select { width: auto; min-width: 150px; }
+    .toolbar > input { width: auto; flex: 1 1 220px; max-width: 360px; }
+    .switch { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
+
+    /* ---------- Surfaces ---------- */
+    .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+    .panel + .panel { margin-top: 16px; }
+    .cards > .panel, .kpis > .panel { margin-top: 0; }
+    .table-wrap { overflow-x: auto; border-radius: var(--radius); }
+    table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; }
+    th, td { padding: 11px 14px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: middle; }
+    th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; background: var(--surface-2); position: sticky; top: 0; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: color-mix(in srgb, var(--surface-2) 60%, transparent); }
+    td .sub { display: block; font-size: 12px; color: var(--muted); }
+    td.actions-cell { text-align: right; white-space: nowrap; }
+    td.actions-cell > * + * { margin-left: 6px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600;
+      padding: 3px 9px; border-radius: 999px; background: var(--surface-2); color: var(--muted); white-space: nowrap;
+    }
+    .badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; opacity: .8; }
+    .badge.ok { background: var(--ok-soft); color: var(--ok); }
+    .badge.bad { background: var(--bad-soft); color: var(--bad); }
+    .badge.warn { background: var(--warn-soft); color: var(--warn); }
+    .badge.accent { background: var(--accent-soft); color: var(--accent); }
+    .badge.neutral::before { display: none; }
+
+    .cards { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+    .card { padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+    .card h3 { margin: 0; font-size: 16px; font-weight: 650; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .card p { margin: 0; color: var(--muted); font-size: 14px; }
+    .card .meta { display: grid; gap: 6px; font-size: 13px; color: var(--muted); }
+    .card .meta b { color: var(--fg); font-weight: 600; }
+    .card .foot { margin-top: auto; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+    .app-icon {
+      width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; flex: none;
+      background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 16px;
+    }
+    .app-head { display: flex; gap: 12px; align-items: center; }
+
+    .kpis { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); margin-bottom: 18px; }
+    .kpi { padding: 16px 18px; }
+    .kpi .label { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+    .kpi .value { font-size: 26px; font-weight: 680; margin-top: 4px; }
+
+    .empty { text-align: center; padding: 44px 20px; color: var(--muted); }
+    .empty .icon { width: 44px; height: 44px; margin: 0 auto 12px; border-radius: 12px; display: grid; place-items: center; background: var(--surface-2); color: var(--muted); }
+    .empty h3 { margin: 0 0 6px; color: var(--fg); font-size: 16px; }
+    .empty p { margin: 0 auto 14px; max-width: 46ch; }
+    .notice { padding: 12px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface-2); font-size: 14px; color: var(--muted); }
+    .notice.bad { border-color: color-mix(in srgb, var(--bad) 40%, transparent); background: var(--bad-soft); color: var(--bad); }
+
+    .skeleton { display: grid; gap: 10px; padding: 18px; }
+    .skeleton span { height: 14px; border-radius: 6px; background: linear-gradient(90deg, var(--surface-2), var(--line), var(--surface-2)); background-size: 200% 100%; animation: shimmer 1.2s infinite linear; }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+    @media (prefers-reduced-motion: reduce) { .skeleton span { animation: none; } }
+
+    .pager { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; color: var(--muted); font-size: 13px; }
+    pre.details { margin: 0; white-space: pre-wrap; word-break: break-word; font-size: 12px; background: var(--surface-2); padding: 10px; border-radius: 8px; max-width: 520px; }
+
+    /* ---------- Dialogs and toasts ---------- */
+    dialog { border: none; padding: 0; border-radius: 14px; background: var(--surface); color: var(--fg); width: min(520px, calc(100vw - 32px)); box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+    dialog::backdrop { background: rgba(10, 12, 16, .5); }
+    dialog.wide { width: min(780px, calc(100vw - 32px)); }
+    .dialog-head { padding: 18px 20px 0; }
+    .dialog-head h2 { margin: 0; font-size: 18px; }
+    .dialog-body { padding: 16px 20px; display: grid; gap: 14px; max-height: min(64vh, 620px); overflow: auto; }
+    .dialog-foot { display: flex; gap: 8px; justify-content: flex-end; padding: 14px 20px 18px; border-top: 1px solid var(--line); flex-wrap: wrap; }
+    .dialog-foot .grow { flex: 1; }
+    .toasts { position: fixed; right: 16px; bottom: 16px; display: grid; gap: 10px; z-index: 50; width: min(380px, calc(100vw - 32px)); }
+    .toast { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--ok); border-radius: 10px; padding: 12px 14px; box-shadow: 0 10px 30px rgba(0,0,0,.2); font-size: 14px; }
+    .toast.error { border-left-color: var(--bad); }
+
+    /* ---------- Sign-in ---------- */
+    .signin { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+    .signin-card { width: min(420px, 100%); padding: 32px; text-align: center; }
+    .signin-card .brand-mark { margin: 0 auto 14px; width: 46px; height: 46px; font-size: 20px; border-radius: 12px; }
+    .signin-card h1 { margin: 0 0 6px; font-size: 22px; }
+    .signin-card p { color: var(--muted); margin: 0 0 22px; }
+    .signin-card .btn { width: 100%; min-height: 44px; font-size: 15px; }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; align-items: start; }
+      nav.side { display: flex; gap: 4px; overflow-x: auto; padding: 8px; border-right: none; border-bottom: 1px solid var(--line); position: sticky; top: 60px; z-index: 15; background: var(--surface); }
+      nav.side .group { display: none; }
+      nav.side { align-items: center; align-self: start; min-height: 0; }
+      nav.side a { white-space: nowrap; padding: 8px 12px; flex: none; }
+      .account-meta { display: none; }
+      .topbar { padding: 0 14px; }
+    }
+    @media (max-width: 560px) {
+      .page-head h1 { font-size: 21px; }
+      .toolbar .search, .toolbar select { max-width: none; width: 100%; }
+      th, td { padding: 9px 10px; }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <h1>AFS Command Center</h1>
-    <div class="who" id="who"></div>
-  </header>
+  <a class="skip" href="#main">Skip to content</a>
 
-  <div id="signed-out" class="hidden center">
-    <p>Sign in with your AFS account to see the applications assigned to you.</p>
-    <a class="button primary" href="/auth/login">Sign in with AFS SSO</a>
+  <!-- Signed out -->
+  <div id="view-signin" class="signin" hidden>
+    <section class="panel signin-card" aria-labelledby="signin-title">
+      <div class="brand-mark" aria-hidden="true">A</div>
+      <h1 id="signin-title">AFS Command Center</h1>
+      <p>Sign in once with your AFS account to reach the applications you are assigned.</p>
+      <a class="btn primary" href="/auth/login">Sign in with AFS SSO</a>
+      <p id="signin-message" class="notice" style="margin:18px 0 0" hidden></p>
+    </section>
   </div>
 
-  <div id="signed-in" class="hidden">
-    <nav role="tablist" id="tabs"></nav>
-    <main id="views"></main>
+  <!-- Signed in -->
+  <div id="view-app" hidden>
+    <header class="topbar">
+      <a class="brand" href="#/apps" aria-label="AFS Command Center home">
+        <span class="brand-mark" aria-hidden="true">A</span>
+        <span>Command Center</span>
+      </a>
+      <span class="spacer"></span>
+      <div class="account">
+        <div class="account-meta">
+          <div class="account-name" id="account-name"></div>
+          <div class="account-role" id="account-role"></div>
+        </div>
+        <div class="avatar" id="account-avatar" aria-hidden="true"></div>
+        <a class="btn small" href="/auth/logout">Sign out</a>
+      </div>
+    </header>
+
+    <div class="layout">
+      <nav class="side" id="nav" aria-label="Main"></nav>
+      <main id="main" tabindex="-1"></main>
+    </div>
   </div>
 
-  <div id="toast" class="toast hidden" role="status"></div>
+  <div id="toasts" class="toasts" role="status" aria-live="polite"></div>
 
-  <script>
-    const state = { me: null, tab: "apps" };
-    const $ = (sel) => document.querySelector(sel);
+<script>
+  /* ================= helpers ================= */
+  const ADMIN_ROLES = ["super_admin", "access_admin"];
+  const ROLE_LABEL = { super_admin: "Super administrator", access_admin: "Access administrator", employee: "Employee" };
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const state = { me: null };
 
-    // Build DOM with textContent only, so no server value is ever parsed as HTML.
-    function h(tag, attrs, ...children) {
-      const node = document.createElement(tag);
-      for (const [key, value] of Object.entries(attrs || {})) {
-        if (value === null || value === undefined || value === false) continue;
-        if (key === "class") node.className = value;
-        else if (key.startsWith("on")) node.addEventListener(key.slice(2), value);
-        else if (key === "value") node.value = value;
-        else node.setAttribute(key, value === true ? "" : value);
-      }
-      for (const child of children.flat()) {
-        if (child === null || child === undefined || child === false) continue;
-        node.append(child instanceof Node ? child : document.createTextNode(String(child)));
-      }
-      return node;
+  // Builds DOM from text and nodes only. Server values are never parsed as HTML.
+  function h(tag, attrs, ...children) {
+    const node = document.createElement(tag);
+    for (const [key, value] of Object.entries(attrs || {})) {
+      if (value === null || value === undefined || value === false) continue;
+      if (key === "class") node.className = value;
+      else if (key === "text") node.textContent = value;
+      else if (key.startsWith("on")) node.addEventListener(key.slice(2), value);
+      else if (key === "value") node.value = value;
+      else if (key === "checked" || key === "selected" || key === "disabled" || key === "hidden") node[key] = value;
+      else node.setAttribute(key, value === true ? "" : value);
     }
-
-    function toast(message, isError) {
-      const el = $("#toast");
-      el.className = "toast" + (isError ? " error" : "");
-      el.textContent = message;
-      clearTimeout(toast.timer);
-      toast.timer = setTimeout(() => el.classList.add("hidden"), 4000);
-      el.classList.remove("hidden");
+    for (const child of children.flat(Infinity)) {
+      if (child === null || child === undefined || child === false) continue;
+      node.append(child instanceof Node ? child : document.createTextNode(String(child)));
     }
+    return node;
+  }
 
-    async function api(method, path, body) {
-      const options = { method, credentials: "same-origin", headers: {} };
-      if (body !== undefined) {
-        options.headers["Content-Type"] = "application/json";
-        options.body = JSON.stringify(body);
-      }
-      const res = await fetch(path, options);
-      if (res.status === 204) return null;
-      const data = await res.json().catch(() => null);
-      if (!res.ok) {
-        if (res.status === 401 && path !== "/api/me") showSignedOut();
-        const detail = data && data.detail;
-        const message = Array.isArray(detail)
-          ? detail.map((d) => (d.loc ? d.loc.slice(1).join(".") + ": " : "") + d.msg).join("; ")
-          : detail || `Request failed (HTTP ${res.status})`;
-        throw new Error(message);
-      }
-      return data;
+  function toast(message, isError = false) {
+    const node = h("div", { class: "toast" + (isError ? " error" : "") }, message);
+    $("#toasts").append(node);
+    setTimeout(() => node.remove(), isError ? 6500 : 3800);
+  }
+
+  async function api(method, path, body) {
+    const options = { method, credentials: "same-origin", headers: {} };
+    if (body !== undefined) {
+      options.headers["Content-Type"] = "application/json";
+      options.body = JSON.stringify(body);
     }
-
-    function when(value) {
-      return value ? new Date(value).toLocaleString() : "—";
+    let res;
+    try {
+      res = await fetch(path, options);
+    } catch (_) {
+      throw new Error("Cannot reach the server. Check your connection and try again.");
     }
-
-    function button(label, onClick, options = {}) {
-      return h("button", { type: "button", class: "small" + (options.primary ? " primary" : ""), onclick: onClick, disabled: options.disabled }, label);
+    if (res.status === 204) return null;
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+      if (res.status === 401 && path !== "/api/me") showSignedOut();
+      const detail = data && data.detail;
+      const message = Array.isArray(detail)
+        ? detail.map((d) => (d.loc ? d.loc.slice(1).join(" ") + ": " : "") + d.msg).join(" · ")
+        : detail || `Something went wrong (HTTP ${res.status}).`;
+      throw new Error(message);
     }
+    return data;
+  }
 
-    function table(headers, rows) {
-      if (rows.length === 0) return h("p", { class: "muted" }, "Nothing to show yet.");
-      return h("div", { class: "table-wrap" },
-        h("table", null,
-          h("thead", null, h("tr", null, headers.map((t) => h("th", null, t)))),
-          h("tbody", null, rows.map((cells) => h("tr", null, cells.map((c) => h("td", null, c)))))
-        ));
+  function ago(value) {
+    if (!value) return "Never";
+    const seconds = Math.round((Date.now() - new Date(value).getTime()) / 1000);
+    const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
+    const units = [["year", 31536000], ["month", 2592000], ["day", 86400], ["hour", 3600], ["minute", 60]];
+    for (const [unit, size] of units) {
+      if (Math.abs(seconds) >= size) return rtf.format(-Math.round(seconds / size), unit);
     }
+    return "just now";
+  }
 
-    function panel(title, ...children) {
-      return h("section", { class: "panel" }, h("h2", null, title), ...children);
+  function fullDate(value) {
+    return value ? new Date(value).toLocaleString() : "—";
+  }
+
+  function initials(name, email) {
+    const source = (name || email || "?").trim();
+    const parts = source.split(/\s+/).filter(Boolean);
+    return ((parts[0]?.[0] || "") + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase() || "?";
+  }
+
+  function badge(text, tone = "") {
+    return h("span", { class: "badge " + tone }, text);
+  }
+
+  function statusBadge(enabled) {
+    return enabled ? badge("Enabled", "ok") : badge("Disabled", "neutral");
+  }
+
+  function emptyState(icon, title, text, action) {
+    return h("div", { class: "empty" },
+      h("div", { class: "icon", "aria-hidden": "true" }, icon),
+      h("h3", null, title),
+      h("p", null, text),
+      action || null);
+  }
+
+  function skeleton() {
+    return h("div", { class: "skeleton", "aria-label": "Loading", role: "status" },
+      [88, 72, 94, 60, 80].map((w) => h("span", { style: `width:${w}%` })));
+  }
+
+  function errorNotice(err, retry) {
+    return h("div", { class: "notice bad", role: "alert" },
+      h("div", null, err.message),
+      retry ? h("div", { style: "margin-top:10px" }, button("Try again", retry, { small: true })) : null);
+  }
+
+  function button(label, onClick, options = {}) {
+    const classes = [options.primary ? "primary" : "", options.danger ? "danger" : "", options.small ? "small" : ""].filter(Boolean).join(" ");
+    return h("button", { type: "button", class: classes, onclick: onClick, disabled: options.disabled, "aria-label": options.ariaLabel }, label);
+  }
+
+  function linkButton(label, href, options = {}) {
+    return h("a", { class: "btn" + (options.primary ? " primary" : "") + (options.small ? " small" : ""), href, target: options.external ? "_blank" : null, rel: options.external ? "noopener noreferrer" : null }, label);
+  }
+
+  function field({ label, name, type = "text", value = "", required = false, hint = "", pattern, options, min, max }) {
+    const id = `f-${name}-${Math.random().toString(36).slice(2, 7)}`;
+    let control;
+    if (options) {
+      control = h("select", { id, name, required }, options.map((o) => h("option", { value: o.value, selected: o.value === value }, o.label)));
+    } else if (type === "textarea") {
+      control = h("textarea", { id, name, required, maxlength: max || null }, value);
+    } else {
+      control = h("input", { id, name, type, value, required, pattern: pattern || null, minlength: min || null, maxlength: max || null, autocomplete: "off" });
     }
+    const errorId = id + "-error";
+    return h("div", { class: "field" },
+      h("label", { for: id }, label + (required ? " *" : "")),
+      control,
+      hint ? h("span", { class: "hint" }, hint) : null,
+      h("span", { class: "error", id: errorId, hidden: true }));
+  }
 
-    function showSignedOut() {
-      state.me = null;
-      $("#who").textContent = "";
-      $("#signed-in").classList.add("hidden");
-      $("#signed-out").classList.remove("hidden");
-    }
-
-    // ---------- Tabs ----------
-
-    const TABS = [
-      { id: "apps", label: "My applications", roles: null, render: renderApps },
-      { id: "users", label: "Employees", roles: ["super_admin", "access_admin"], render: renderUsers },
-      { id: "applications", label: "Applications & roles", roles: ["super_admin", "access_admin"], render: renderApplications },
-      { id: "assignments", label: "Assignments", roles: ["super_admin", "access_admin"], render: renderAssignments },
-      { id: "integrations", label: "Integrations", roles: ["super_admin", "access_admin"], render: renderIntegrations },
-      { id: "audit", label: "Audit log", roles: ["super_admin", "access_admin"], render: renderAudit },
-    ];
-
-    function visibleTabs() {
-      return TABS.filter((t) => !t.roles || t.roles.includes(state.me.platform_role));
-    }
-
-    function renderTabs() {
-      const nav = $("#tabs");
-      nav.replaceChildren(...visibleTabs().map((t) =>
-        h("button", { type: "button", role: "tab", "aria-selected": String(t.id === state.tab), onclick: () => selectTab(t.id) }, t.label)
-      ));
-    }
-
-    function selectTab(id) {
-      state.tab = id;
-      renderTabs();
-      const tab = TABS.find((t) => t.id === id);
-      const views = $("#views");
-      views.replaceChildren(h("p", { class: "muted" }, "Loading…"));
-      tab.render(views).catch((err) => {
-        views.replaceChildren(h("p", { class: "bad" }, err.message));
-      });
-    }
-
-    // ---------- Employee portal ----------
-
-    async function renderApps(root) {
-      const apps = await api("GET", "/api/apps");
-      root.replaceChildren(panel("Your applications",
-        apps.length === 0
-          ? h("p", { class: "muted" }, "No applications are assigned to you yet. Contact an access administrator if you need access.")
-          : h("div", { class: "cards" }, apps.map((app) =>
-              h("div", { class: "card" },
-                h("h3", null, app.name),
-                h("p", null, app.description),
-                h("div", null,
-                  app.role_name ? h("span", { class: "tag" }, "Role: " + app.role_name) : null,
-                  " ",
-                  app.available ? null : h("span", { class: "tag bad" }, "Unavailable")),
-                app.available
-                  ? h("a", { class: "button primary", href: app.launch_url, target: "_blank", rel: "noopener noreferrer" }, "Open application")
-                  : h("p", { class: "muted" }, "This application is temporarily unavailable. Try again later or contact an administrator.")
-              )))
-      ));
-    }
-
-    // ---------- Employees ----------
-
-    async function renderUsers(root) {
-      const isSuper = state.me.platform_role === "super_admin";
-      const users = await api("GET", "/api/admin/users");
-      const emailInput = h("input", { type: "email", required: true, placeholder: "name@example.org", id: "new-email" });
-      const nameInput = h("input", { type: "text", placeholder: "Optional", id: "new-name" });
-      const createForm = h("form", { class: "inline", onsubmit: async (e) => {
-        e.preventDefault();
-        try {
-          await api("POST", "/api/admin/users", { email: emailInput.value.trim(), display_name: nameInput.value.trim() || null });
-          toast("Employee added. They can sign in with SSO, and assignments can be made now.");
-          selectTab("users");
-        } catch (err) { toast(err.message, true); }
-      } },
-        h("label", null, "Email", emailInput),
-        h("label", null, "Display name", nameInput),
-        h("button", { type: "submit", class: "primary" }, "Add employee"));
-
-      const rows = users.map((u) => {
-        const roleSelect = h("select", { disabled: !isSuper, onchange: async (e) => {
-          try {
-            await api("PATCH", `/api/admin/users/${u.id}`, { platform_role: e.target.value });
-            toast(`Platform role updated for ${u.email}`);
-            selectTab("users");
-          } catch (err) { toast(err.message, true); selectTab("users"); }
-        } },
-          ["employee", "access_admin", "super_admin"].map((r) => h("option", { value: r, selected: r === u.platform_role }, r)));
-        const toggle = button(u.status === "active" ? "Disable" : "Reactivate", async () => {
-          try {
-            await api("PATCH", `/api/admin/users/${u.id}`, { status: u.status === "active" ? "disabled" : "active" });
-            toast(u.status === "active" ? "Account disabled" : "Account reactivated");
-            selectTab("users");
-          } catch (err) { toast(err.message, true); }
-        });
-        return [
-          u.email,
-          u.display_name || "—",
-          u.linked ? h("span", { class: "ok" }, "Linked") : h("span", { class: "warn" }, "Awaiting first sign-in"),
-          roleSelect,
-          u.status === "active" ? h("span", { class: "ok" }, "Active") : h("span", { class: "bad" }, "Disabled"),
-          when(u.last_login_at),
-          toggle,
-        ];
-      });
-
-      root.replaceChildren(
-        panel("Add employee", createForm, h("p", { class: "muted" }, "Pre-provisioned accounts are linked to a central identity when that employee first signs in with a verified email address.")),
-        panel("Employees", table(["Email", "Name", "Identity", "Platform role", "Status", "Last sign-in", ""], rows))
-      );
-    }
-
-    // ---------- Applications and role mappings ----------
-
-    async function renderApplications(root) {
-      const isSuper = state.me.platform_role === "super_admin";
-      const apps = await api("GET", "/api/admin/applications");
-
-      const rows = apps.map((a) => [
-        h("strong", null, a.name),
-        h("code", null, a.slug),
-        a.launch_url ? h("a", { href: a.launch_url, target: "_blank", rel: "noopener noreferrer" }, a.launch_url) : h("span", { class: "warn" }, "No launch URL"),
-        a.enabled ? h("span", { class: "ok" }, "Enabled") : h("span", { class: "muted" }, "Disabled"),
-        a.integration_type === "none" ? "Not integrated" : "OIDC",
-        isSuper ? button(a.enabled ? "Disable" : "Enable", async () => {
-          try {
-            await api("PATCH", `/api/admin/applications/${a.id}`, { enabled: !a.enabled });
-            toast(a.enabled ? "Application disabled" : "Application enabled");
-            selectTab("applications");
-          } catch (err) { toast(err.message, true); }
-        }) : null,
-      ]);
-
-      const nameInput = h("input", { required: true, id: "app-name" });
-      const slugInput = h("input", { required: true, pattern: "[a-z0-9][a-z0-9-]{1,40}", id: "app-slug", placeholder: "biocap-rwanda" });
-      const urlInput = h("input", { type: "url", id: "app-url", placeholder: "https://…" });
-      const descInput = h("textarea", { id: "app-desc" });
-      const createApp = h("form", { class: "inline", onsubmit: async (e) => {
-        e.preventDefault();
-        try {
-          await api("POST", "/api/admin/applications", {
-            name: nameInput.value.trim(), slug: slugInput.value.trim(), description: descInput.value.trim(),
-            launch_url: urlInput.value.trim() || null, enabled: false, integration_type: "none",
-          });
-          toast("Application registered (disabled until a launch URL is set and it is enabled)");
-          selectTab("applications");
-        } catch (err) { toast(err.message, true); }
-      } },
-        h("label", null, "Name", nameInput),
-        h("label", null, "Slug", slugInput),
-        h("label", null, "Launch URL", urlInput),
-        h("label", null, "Description", descInput),
-        h("button", { type: "submit", class: "primary" }, "Register application"));
-
-      // Role mappings for one application at a time.
-      const appSelect = h("select", { id: "role-app" }, apps.map((a) => h("option", { value: a.id }, a.name)));
-      const roleBox = h("div", null);
-      async function loadRoles() {
-        const roles = await api("GET", `/api/admin/applications/${appSelect.value}/roles`);
-        const roleName = h("input", { required: true, pattern: "[a-z0-9][a-z0-9_-]{0,39}", placeholder: "viewer" });
-        const external = h("input", { required: true, placeholder: "Role name in the app" });
-        const roleDesc = h("input", { placeholder: "Optional" });
-        roleBox.replaceChildren(
-          table(["Central role", "Role in application", "Description", ""], roles.map((r) => [
-            h("code", null, r.name), r.external_role, r.description || "—",
-            button("Delete", async () => {
-              try { await api("DELETE", `/api/admin/roles/${r.id}`); toast("Role deleted"); loadRoles(); }
-              catch (err) { toast(err.message, true); }
-            }),
-          ])),
-          h("form", { class: "inline", onsubmit: async (e) => {
-            e.preventDefault();
-            try {
-              await api("POST", `/api/admin/applications/${appSelect.value}/roles`, {
-                name: roleName.value.trim(), external_role: external.value.trim(), description: roleDesc.value.trim(),
-              });
-              toast("Role mapping added");
-              loadRoles();
-            } catch (err) { toast(err.message, true); }
-          } },
-            h("label", null, "Central role", roleName),
-            h("label", null, "Role in application", external),
-            h("label", null, "Description", roleDesc),
-            h("button", { type: "submit", class: "primary" }, "Add role mapping")));
-      }
-      appSelect.addEventListener("change", loadRoles);
-
-      root.replaceChildren(
-        ...[
-          panel("Applications", table(["Name", "Slug", "Launch URL", "Status", "Integration", ""], rows)),
-          isSuper ? panel("Register application", createApp) : null,
-          panel("Application-specific roles", apps.length ? h("form", { class: "inline" }, h("label", null, "Application", appSelect)) : h("p", { class: "muted" }, "No applications registered."), roleBox),
-        ].filter(Boolean));
-      if (apps.length) loadRoles();
-    }
-
-    // ---------- Assignments ----------
-
-    async function renderAssignments(root) {
-      const [users, apps, assignments] = await Promise.all([
-        api("GET", "/api/admin/users"),
-        api("GET", "/api/admin/applications"),
-        api("GET", "/api/admin/assignments"),
-      ]);
-      const activeUsers = users.filter((u) => u.status === "active");
-      const enabledApps = apps.filter((a) => a.enabled);
-      const userSelect = h("select", { id: "as-user" }, activeUsers.map((u) => h("option", { value: u.id }, u.email)));
-      const appSelect = h("select", { id: "as-app" }, enabledApps.map((a) => h("option", { value: a.id }, a.name)));
-      const roleSelect = h("select", { id: "as-role" });
-
-      async function loadRolesFor() {
-        const roles = await api("GET", `/api/admin/applications/${appSelect.value}/roles`);
-        roleSelect.replaceChildren(
-          h("option", { value: "" }, "Standard access (no specific role)"),
-          ...roles.map((r) => h("option", { value: r.id }, `${r.name} → ${r.external_role}`)));
-      }
-      appSelect.addEventListener("change", loadRolesFor);
-
-      const grant = h("form", { class: "inline", onsubmit: async (e) => {
-        e.preventDefault();
-        try {
-          await api("POST", "/api/admin/assignments", {
-            user_id: userSelect.value, application_id: appSelect.value, app_role_id: roleSelect.value || null,
-          });
-          toast("Access saved");
-          selectTab("assignments");
-        } catch (err) { toast(err.message, true); }
-      } },
-        h("label", null, "Employee", userSelect),
-        h("label", null, "Application", appSelect),
-        h("label", null, "Role", roleSelect),
-        h("button", { type: "submit", class: "primary", disabled: !activeUsers.length || !enabledApps.length }, "Grant or update access"));
-
-      const rows = assignments.map((s) => [
-        s.email, s.application_name, s.role_name || "Standard access", when(s.granted_at),
-        button("Revoke", async () => {
-          if (!confirm(`Revoke ${s.application_name} access for ${s.email}?`)) return;
-          try {
-            await api("DELETE", `/api/admin/assignments/${s.id}`);
-            toast("Access revoked");
-            selectTab("assignments");
-          } catch (err) { toast(err.message, true); }
-        }),
-      ]);
-
-      root.replaceChildren(
-        panel("Grant access", grant, h("p", { class: "muted" }, "Access takes effect on the employee's next request to Command Center. Applications re-check access themselves once integrated.")),
-        panel("Current assignments", table(["Employee", "Application", "Role", "Granted", ""], rows))
-      );
-      if (enabledApps.length) loadRolesFor();
-    }
-
-    // ---------- Integrations ----------
-
-    const STATUS_LABEL = { ok: ["ok", "Healthy"], error: ["bad", "Failing"], not_connected: ["muted", "Not connected yet"] };
-
-    async function renderIntegrations(root) {
-      const apps = await api("GET", "/api/admin/integrations");
-      const rows = apps.map((a) => {
-        const [cls, label] = STATUS_LABEL[a.status] || ["muted", a.status];
-        return [
-          h("strong", null, a.name),
-          h("span", { class: cls }, label),
-          a.last_access_ok_at ? when(a.last_access_ok_at) : "—",
-          a.last_error ? h("span", { class: "bad" }, a.last_error) : "—",
-          a.last_error_at ? when(a.last_error_at) : "—",
-          button("Events", async () => {
-            try {
-              const events = await api("GET", `/api/admin/integrations/${a.id}/events?limit=50`);
-              eventsBox.replaceChildren(
-                panel(`Events: ${a.name}`, events.length
-                  ? table(["When", "Kind", "Outcome", "Detail"], events.map((e) => [
-                      when(e.occurred_at), e.kind,
-                      e.outcome === "success" ? h("span", { class: "ok" }, "success") : h("span", { class: "bad" }, "failure"),
-                      e.detail || "—",
-                    ]))
-                  : h("p", { class: "muted" }, "No events recorded.")));
-            } catch (err) { toast(err.message, true); }
-          }),
-        ];
-      });
-      const eventsBox = h("div", null);
-      root.replaceChildren(
-        panel("Integration health",
-          h("p", { class: "muted" }, "Each application's access checks and any failures it reports. A failing status means a failure was reported after the last successful check."),
-          table(["Application", "Status", "Last successful check", "Last error", "Error time", ""], rows)),
-        eventsBox);
-    }
-
-    // ---------- Audit ----------
-
-    async function renderAudit(root) {
-      const entries = await api("GET", "/api/admin/audit?limit=200");
-      const rows = entries.map((e) => [
-        when(e.occurred_at), e.actor_identity, e.action,
-        e.target_type + (e.target_id ? " " + e.target_id.slice(0, 8) : ""),
-        e.application_slug || "—",
-        e.outcome === "success" ? h("span", { class: "ok" }, "success") : h("span", { class: "bad" }, "failure"),
-        Object.keys(e.details || {}).length ? h("code", null, JSON.stringify(e.details)) : "—",
-      ]);
-      root.replaceChildren(panel("Recent activity", table(["When", "Actor", "Action", "Target", "Application", "Outcome", "Details"], rows)));
-    }
-
-    // ---------- Startup ----------
-
-    async function start() {
-      let me;
+  // A modal form. `onSubmit` receives the form values; on success the dialog closes and `done` runs.
+  function openForm({ title, description, fields, submitLabel = "Save", danger = false, wide = false, onSubmit, done, extra }) {
+    let submitButton;
+    const dialog = h("dialog", { class: wide ? "wide" : "", "aria-labelledby": "dlg-title" });
+    const errorBox = h("div", { class: "notice bad", role: "alert", hidden: true });
+    const form = h("form", { novalidate: true, onsubmit: async (e) => {
+      e.preventDefault();
+      if (!form.reportValidity()) return;
+      const values = Object.fromEntries(new FormData(form).entries());
+      submitButton.disabled = true;
+      submitButton.textContent = "Saving…";
+      errorBox.hidden = true;
       try {
-        me = await api("GET", "/api/me");
+        await onSubmit(values, form);
+        dialog.close();
+        if (done) done();
       } catch (err) {
-        showSignedOut();
+        errorBox.textContent = err.message;
+        errorBox.hidden = false;
+        submitButton.disabled = false;
+        submitButton.textContent = submitLabel;
+      }
+    } },
+      h("div", { class: "dialog-head" }, h("h2", { id: "dlg-title" }, title), description ? h("p", { class: "muted", style: "margin:6px 0 0;color:var(--muted);font-size:14px" }, description) : null),
+      h("div", { class: "dialog-body" }, errorBox, fields.map(field), extra || null),
+      h("div", { class: "dialog-foot" },
+        h("button", { type: "button", onclick: () => dialog.close() }, "Cancel"),
+        submitButton = h("button", { type: "submit", class: danger ? "danger" : "primary" }, submitLabel)));
+    dialog.append(form);
+    document.body.append(dialog);
+    dialog.addEventListener("close", () => dialog.remove());
+    dialog.showModal();
+    const first = form.querySelector("input, select, textarea");
+    if (first) first.focus();
+    return dialog;
+  }
+
+  function confirmDialog({ title, text, action, danger = true, onConfirm, done }) {
+    return openForm({ title, description: text, fields: [], submitLabel: action, danger, onSubmit: onConfirm, done });
+  }
+
+  // Table with optional row click handlers. `columns`: [{ label, className }]. `rows`: arrays of nodes.
+  // A cell is either a plain value, a DOM node, or { node, className } for cells that need a class (such as actions).
+  function table(columns, rows, { label } = {}) {
+    const cell = (c) => {
+      const isWrapper = c !== null && typeof c === "object" && !(c instanceof Node) && "node" in c;
+      return h("td", { class: isWrapper ? c.className || null : null }, isWrapper ? c.node : c);
+    };
+    return h("div", { class: "table-wrap" },
+      h("table", { "aria-label": label || null },
+        h("thead", null, h("tr", null, columns.map((c) => h("th", { scope: "col", class: c.className || null }, c.label)))),
+        h("tbody", null, rows.map((cells) => h("tr", null, cells.map(cell))))));
+  }
+
+  function toolbarSearch(placeholder, value, onInput, label) {
+    return h("label", { class: "search" },
+      h("span", { class: "sr-only" }, label || placeholder),
+      h("input", { type: "search", placeholder, value, oninput: (e) => onInput(e.target.value) }));
+  }
+
+  // ================= layout =================
+
+  const ICONS = {
+    apps: '<path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/>',
+    people: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.4 3.2-5.5 6.5-5.5s5.9 2.1 6.5 5.5M16 4.5a3.5 3.5 0 010 7M18 14.5c2 .8 3.2 2.7 3.5 5.5"/>',
+    box: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/>',
+    key: '<path d="M14 10a4 4 0 11-1.2-2.8L21 7v3h-2v2h-2v-2h-2.5"/>',
+    pulse: '<path d="M3 12h4l2-6 4 12 2-6h6"/>',
+    log: '<path d="M7 4h10v16H7zM10 8h4M10 12h4M10 16h2"/>',
+  };
+  // Icon markup comes only from the constant ICONS table above, never from data.
+  function icon(name) {
+    const template = document.createElement("template");
+    template.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name] || ""}</svg>`;
+    return template.content.firstChild;
+  }
+
+  // Route table: id, label, icon, group, admin-only flag, renderer.
+  const ROUTES = [
+    { id: "apps", label: "My applications", icon: "apps", group: "Portal", render: renderMyApps },
+    { id: "employees", label: "Employees", icon: "people", group: "Administration", admin: true, render: renderEmployees },
+    { id: "applications", label: "Applications", icon: "box", group: "Administration", admin: true, render: renderApplications },
+    { id: "assignments", label: "Assignments", icon: "key", group: "Administration", admin: true, render: renderAssignments },
+    { id: "integrations", label: "Integrations", icon: "pulse", group: "Administration", admin: true, render: renderIntegrations },
+    { id: "audit", label: "Audit log", icon: "log", group: "Administration", admin: true, render: renderAudit },
+  ];
+
+  function allowedRoutes() {
+    const isAdmin = ADMIN_ROLES.includes(state.me.platform_role);
+    return ROUTES.filter((r) => !r.admin || isAdmin);
+  }
+
+  function renderNav(activeId) {
+    const groups = {};
+    for (const route of allowedRoutes()) (groups[route.group] ||= []).push(route);
+    const nav = $("#nav");
+    nav.replaceChildren(...Object.entries(groups).flatMap(([group, items]) => [
+      h("div", { class: "group" }, group),
+      ...items.map((r) => h("a", { href: "#/" + r.id, "aria-current": r.id === activeId ? "page" : null }, icon(r.icon), h("span", null, r.label))),
+    ]));
+  }
+
+  function pageHead(title, description, actions) {
+    return h("div", { class: "page-head" },
+      h("div", null, h("h1", null, title), description ? h("p", null, description) : null),
+      actions ? h("div", { class: "actions" }, actions) : null);
+  }
+
+  async function navigate() {
+    if (!state.me) return;
+    const requested = (location.hash.replace(/^#\/?/, "") || "apps");
+    const allowed = allowedRoutes();
+    const route = allowed.find((r) => r.id === requested) || allowed[0];
+    if (route.id !== requested) history.replaceState(null, "", "#/" + route.id);
+    renderNav(route.id);
+    const main = $("#main");
+    main.replaceChildren(skeleton());
+    try {
+      await route.render(main);
+    } catch (err) {
+      main.replaceChildren(pageHead(route.label), errorNotice(err, navigate));
+    }
+    main.focus({ preventScroll: true });
+  }
+
+  function showSignedOut(message) {
+    state.me = null;
+    $("#view-app").hidden = true;
+    $("#view-signin").hidden = false;
+    const note = $("#signin-message");
+    note.hidden = !message;
+    note.textContent = message || "";
+  }
+
+  function showSignedIn(me) {
+    state.me = me;
+    $("#view-signin").hidden = true;
+    $("#view-app").hidden = false;
+    const name = me.name || me.email;
+    $("#account-name").textContent = name;
+    $("#account-role").textContent = ROLE_LABEL[me.platform_role] || me.platform_role;
+    $("#account-avatar").textContent = initials(me.name, me.email);
+    document.title = "AFS Command Center";
+  }
+
+  /* ================= Portal: my applications ================= */
+
+  async function renderMyApps(root) {
+    const apps = await api("GET", "/api/apps");
+    const search = { q: "" };
+    const grid = h("div");
+    const paint = () => {
+      const q = search.q.trim().toLowerCase();
+      const shown = apps.filter((a) => !q || a.name.toLowerCase().includes(q) || (a.description || "").toLowerCase().includes(q));
+      grid.replaceChildren(shown.length === 0
+        ? emptyState(icon("apps"), apps.length ? "No matches" : "No applications yet",
+            apps.length ? "Try a different search." : "No applications are assigned to you yet. Ask an access administrator if you need one.")
+        : h("div", { class: "cards" }, shown.map((app) => h("article", { class: "panel card" },
+            h("div", { class: "app-head" }, h("div", { class: "app-icon", "aria-hidden": "true" }, app.name.charAt(0).toUpperCase()), h("h3", null, app.name)),
+            h("p", null, app.description || "No description."),
+            h("div", { class: "meta" },
+              app.role_name ? h("div", null, "Your role: ", h("b", null, app.role_name)) : h("div", null, "Standard access"),
+              app.available ? null : badge("Unavailable", "bad")),
+            h("div", { class: "foot" },
+              app.available
+                ? linkButton("Open " + app.name, app.launch_url, { primary: true, external: true })
+                : h("span", { class: "muted" }, "Temporarily unavailable. Try again later."))))));
+    };
+    root.replaceChildren(
+      pageHead("My applications", apps.length ? `You have access to ${apps.length} application${apps.length === 1 ? "" : "s"}.` : "Applications assigned to you appear here."),
+      apps.length > 3 ? h("div", { class: "toolbar" }, toolbarSearch("Search applications", "", (v) => { search.q = v; paint(); }, "Search applications")) : null,
+      grid);
+    paint();
+  }
+
+  /* ================= Administration: employees ================= */
+
+  async function renderEmployees(root) {
+    const isSuper = state.me.platform_role === "super_admin";
+    const users = await api("GET", "/api/admin/users");
+    const filter = { q: "", role: "", status: "" };
+    const body = h("div", { class: "panel" });
+
+    const paint = () => {
+      const q = filter.q.trim().toLowerCase();
+      const shown = users.filter((u) =>
+        (!q || u.email.toLowerCase().includes(q) || (u.display_name || "").toLowerCase().includes(q)) &&
+        (!filter.role || u.platform_role === filter.role) &&
+        (!filter.status || u.status === filter.status));
+      if (shown.length === 0) {
+        body.replaceChildren(emptyState(icon("people"), users.length ? "No employees match" : "No employees yet",
+          users.length ? "Adjust the search or filters." : "Add an employee by email. They can sign in once they have an AFS account."));
         return;
       }
-      state.me = me;
-      $("#who").textContent = `${me.name || me.email} · ${me.platform_role.replace("_", " ")} · `;
-      const out = h("a", { href: "/auth/logout" }, "Sign out");
-      $("#who").append(out);
-      $("#signed-out").classList.add("hidden");
-      $("#signed-in").classList.remove("hidden");
-      renderTabs();
-      selectTab("apps");
-    }
+      const rows = shown.map((u) => [
+        { node: h("div", null, h("strong", null, u.display_name || u.email), h("span", { class: "sub" }, u.email)) },
+        u.linked ? badge("Linked", "ok") : badge("Waiting for first sign-in", "warn"),
+        { node: isSuper ? roleSelect(u) : badge(ROLE_LABEL[u.platform_role] || u.platform_role, "accent") },
+        u.status === "active" ? badge("Active", "ok") : badge("Disabled", "bad"),
+        { node: h("span", { title: fullDate(u.last_login_at) }, ago(u.last_login_at)) },
+        { className: "actions-cell", node: h("span", null,
+          button("Edit", () => editEmployee(u), { small: true, ariaLabel: `Edit ${u.email}` }),
+          u.status === "active"
+            ? button("Disable", () => toggleStatus(u), { small: true, danger: true, ariaLabel: `Disable ${u.email}` })
+            : button("Reactivate", () => toggleStatus(u), { small: true, ariaLabel: `Reactivate ${u.email}` })) },
+      ]);
+      body.replaceChildren(table(["Employee", "Identity", "Platform role", "Status", "Last sign-in", ""].map((label) => ({ label })), rows, { label: "Employees" }));
+    };
 
-    start();
-  </script>
+    const roleSelect = (u) => h("select", { "aria-label": `Platform role for ${u.email}`, onchange: async (e) => {
+      try {
+        await api("PATCH", `/api/admin/users/${u.id}`, { platform_role: e.target.value });
+        toast(`Role updated for ${u.email}.`);
+        await renderEmployeesAgain();
+      } catch (err) { toast(err.message, true); e.target.value = u.platform_role; }
+    } }, ["employee", "access_admin", "super_admin"].map((r) => h("option", { value: r, selected: r === u.platform_role }, ROLE_LABEL[r])));
+
+    const renderEmployeesAgain = () => navigate();
+
+    const addButton = h("button", { type: "button", class: "primary", onclick: () => addEmployee() }, "Add employee");
+    const roleFilter = h("select", { "aria-label": "Filter by role", onchange: (e) => { filter.role = e.target.value; paint(); } },
+      h("option", { value: "" }, "All roles"),
+      ["super_admin", "access_admin", "employee"].map((r) => h("option", { value: r }, ROLE_LABEL[r])));
+    const statusFilter = h("select", { "aria-label": "Filter by status", onchange: (e) => { filter.status = e.target.value; paint(); } },
+      h("option", { value: "" }, "All statuses"),
+      h("option", { value: "active" }, "Active"),
+      h("option", { value: "disabled" }, "Disabled"));
+
+    root.replaceChildren(
+      pageHead("Employees", "Manage who can sign in and what they can administer. Accounts link to the AFS identity on first sign-in.",
+        ADMIN_ROLES.includes(state.me.platform_role) ? addButton : null),
+      h("div", { class: "toolbar" }, toolbarSearch("Search by name or email", "", (v) => { filter.q = v; paint(); }, "Search employees"), roleFilter, statusFilter),
+      body);
+    paint();
+  }
+
+  function addEmployee() {
+    openForm({
+      title: "Add employee",
+      description: "Creates the account now. The employee can sign in with their AFS account, and is sent a welcome email when mail is configured.",
+      submitLabel: "Add employee",
+      fields: [
+        { label: "Email", name: "email", type: "email", required: true, hint: "Must match the employee's AFS sign-in email." },
+        { label: "Display name", name: "display_name", hint: "Optional. Shown in the console." },
+      ],
+      onSubmit: async (values) => {
+        await api("POST", "/api/admin/users", { email: values.email.trim(), display_name: values.display_name.trim() || null });
+        toast("Employee added.");
+      },
+      done: () => navigate(),
+    });
+  }
+
+  function editEmployee(user) {
+    openForm({
+      title: "Edit employee",
+      description: user.email,
+      submitLabel: "Save changes",
+      fields: [{ label: "Display name", name: "display_name", value: user.display_name || "", required: true, max: 120 }],
+      onSubmit: async (values) => {
+        await api("PATCH", `/api/admin/users/${user.id}`, { display_name: values.display_name.trim() });
+        toast("Employee updated.");
+      },
+      done: () => navigate(),
+    });
+  }
+
+  function toggleStatus(user) {
+    const disabling = user.status === "active";
+    confirmDialog({
+      title: disabling ? `Disable ${user.email}?` : `Reactivate ${user.email}?`,
+      text: disabling
+        ? "They lose access to Command Center at their next request, and to applications at their next sign-in. They are emailed about the change."
+        : "They can sign in again. Their existing assignments are restored.",
+      action: disabling ? "Disable account" : "Reactivate account",
+      danger: disabling,
+      onConfirm: async () => {
+        await api("PATCH", `/api/admin/users/${user.id}`, { status: disabling ? "disabled" : "active" });
+        toast(disabling ? "Account disabled." : "Account reactivated.");
+      },
+      done: () => navigate(),
+    });
+  }
+
+  /* ================= Administration: applications and roles ================= */
+
+  async function renderApplications(root) {
+    const isSuper = state.me.platform_role === "super_admin";
+    const apps = await api("GET", "/api/admin/applications");
+    const rows = apps.map((a) => [
+      { node: h("div", null, h("strong", null, a.name), h("span", { class: "sub mono" }, a.slug)) },
+      { node: a.enabled ? badge("Enabled", "ok") : badge("Disabled", "neutral") },
+      { node: a.launch_url ? h("a", { href: a.launch_url, target: "_blank", rel: "noopener noreferrer", class: "mono" }, a.launch_url) : badge("No launch URL", "warn") },
+      { node: a.integration_type === "none" ? "Not integrated" : "Single sign-on" },
+      { className: "actions-cell", node: h("span", null,
+        button("Roles", () => manageRoles(a), { small: true, ariaLabel: `Roles for ${a.name}` }),
+        isSuper ? button("Edit", () => editApplication(a), { small: true, ariaLabel: `Edit ${a.name}` }) : null,
+        isSuper ? button(a.enabled ? "Disable" : "Enable", () => toggleApplication(a), { small: true, danger: a.enabled, ariaLabel: `${a.enabled ? "Disable" : "Enable"} ${a.name}` }) : null) },
+    ]);
+    root.replaceChildren(
+      pageHead("Applications", "Applications are enabled only once they have a verified launch URL. Each application's roles are the values it enforces.",
+        isSuper ? h("button", { type: "button", class: "primary", onclick: () => registerApplication() }, "Register application") : null),
+      h("div", { class: "panel" }, apps.length ? table(["Application", "Status", "Launch URL", "Integration", ""].map((label) => ({ label })), rows, { label: "Applications" })
+        : emptyState(icon("box"), "No applications", "Register an application to start assigning access.")));
+  }
+
+  function registerApplication() {
+    openForm({
+      title: "Register application",
+      description: "New applications stay disabled until they have a launch URL and are enabled.",
+      submitLabel: "Register",
+      fields: [
+        { label: "Name", name: "name", required: true, max: 120 },
+        { label: "Slug", name: "slug", required: true, pattern: "[a-z0-9][a-z0-9-]{1,40}", hint: "Lowercase letters, digits and hyphens. Used in integrations; cannot be changed later." },
+        { label: "Description", name: "description", type: "textarea", max: 1000 },
+        { label: "Launch URL", name: "launch_url", type: "url", hint: "Optional for now. Required before the application can be enabled." },
+      ],
+      onSubmit: async (values) => {
+        await api("POST", "/api/admin/applications", {
+          name: values.name.trim(), slug: values.slug.trim(), description: values.description.trim(), launch_url: values.launch_url.trim() || null,
+        });
+        toast("Application registered. It stays disabled until enabled.");
+      },
+      done: () => navigate(),
+    });
+  }
+
+  function editApplication(app) {
+    openForm({
+      title: "Edit application",
+      description: app.slug,
+      submitLabel: "Save changes",
+      fields: [
+        { label: "Name", name: "name", value: app.name, required: true, max: 120 },
+        { label: "Description", name: "description", type: "textarea", value: app.description || "", max: 1000 },
+        { label: "Launch URL", name: "launch_url", type: "url", value: app.launch_url || "", hint: "Must be an https address in production." },
+      ],
+      onSubmit: async (values) => {
+        await api("PATCH", `/api/admin/applications/${app.id}`, {
+          name: values.name.trim(), description: values.description.trim(), launch_url: values.launch_url.trim() || null,
+        });
+        toast("Application updated.");
+      },
+      done: () => navigate(),
+    });
+  }
+
+  function toggleApplication(app) {
+    if (app.enabled) {
+      confirmDialog({
+        title: `Disable ${app.name}?`,
+        text: "Employees see it as unavailable and cannot open it. Its existing assignments are kept.",
+        action: "Disable",
+        onConfirm: () => api("PATCH", `/api/admin/applications/${app.id}`, { enabled: false }),
+        done: () => { toast("Application disabled."); navigate(); },
+      });
+      return;
+    }
+    api("PATCH", `/api/admin/applications/${app.id}`, { enabled: true })
+      .then(() => { toast("Application enabled."); navigate(); })
+      .catch((err) => toast(err.message, true));
+  }
+
+  async function manageRoles(app) {
+    const canEdit = ADMIN_ROLES.includes(state.me.platform_role);
+    const roles = await api("GET", `/api/admin/applications/${app.id}/roles`);
+    const dialog = h("dialog", { class: "wide", "aria-labelledby": "roles-title" });
+    const close = h("button", { type: "button", onclick: () => dialog.close() }, "Done");
+    const list = roles.length
+      ? table(["Central role", "Value in the application", "Description", ""].map((label) => ({ label })), roles.map((r) => [
+          { node: h("code", { class: "mono" }, r.name) },
+          { node: h("code", { class: "mono" }, r.external_role) },
+          r.description || "—",
+          { className: "actions-cell", node: button("Delete", () => confirmDialog({
+              title: `Delete role ${r.name}?`,
+              text: "Assignments that use this role must be changed first. Deletion is refused while any use it.",
+              action: "Delete role",
+              onConfirm: () => api("DELETE", `/api/admin/roles/${r.id}`),
+              done: () => { dialog.close(); manageRoles(app); },
+            }), { small: true, danger: true, ariaLabel: `Delete ${r.name}` }) },
+        ]))
+      : emptyState(icon("key"), "No roles yet", "Add the roles this application enforces, so assignments can use them.");
+    dialog.append(h("div", { class: "dialog-head" }, h("h2", { id: "roles-title" }, `Roles: ${app.name}`),
+      h("p", { style: "margin:6px 0 0;color:var(--muted);font-size:14px" }, "Map each central role to the value the application itself checks.")),
+      h("div", { class: "dialog-body" }, list, canEdit ? addRoleForm(app, dialog) : null),
+      h("div", { class: "dialog-foot" }, close));
+    document.body.append(dialog);
+    dialog.addEventListener("close", () => dialog.remove());
+    dialog.showModal();
+  }
+
+  function addRoleForm(app, dialog) {
+    const errorBox = h("div", { class: "notice bad", role: "alert", hidden: true });
+    const name = h("input", { name: "name", required: true, pattern: "[a-z0-9][a-z0-9_-]{0,39}", placeholder: "viewer", "aria-label": "Central role name" });
+    const external = h("input", { name: "external_role", required: true, placeholder: "Value the application checks", "aria-label": "Value in the application" });
+    const description = h("input", { name: "description", placeholder: "Optional description", "aria-label": "Description" });
+    return h("form", { class: "panel", style: "padding:14px", onsubmit: async (e) => {
+      e.preventDefault();
+      if (!e.target.reportValidity()) return;
+      errorBox.hidden = true;
+      try {
+        await api("POST", `/api/admin/applications/${app.id}/roles`, { name: name.value.trim(), external_role: external.value.trim(), description: description.value.trim() });
+        toast("Role added.");
+        dialog.close();
+        manageRoles(app);
+      } catch (err) { errorBox.textContent = err.message; errorBox.hidden = false; }
+    } },
+      h("strong", { style: "display:block;margin-bottom:10px" }, "Add a role"),
+      errorBox,
+      h("div", { style: "display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))" }, name, external, description),
+      h("div", { style: "margin-top:10px;text-align:right" }, h("button", { type: "submit", class: "primary small" }, "Add role")));
+  }
+
+  /* ================= Administration: assignments ================= */
+
+  async function renderAssignments(root) {
+    const [assignments, apps, users] = await Promise.all([
+      api("GET", "/api/admin/assignments"),
+      api("GET", "/api/admin/applications"),
+      api("GET", "/api/admin/users"),
+    ]);
+    const filter = { q: "", app: "" };
+    const body = h("div", { class: "panel" });
+    const paint = () => {
+      const q = filter.q.trim().toLowerCase();
+      const shown = assignments.filter((a) =>
+        (!q || a.email.toLowerCase().includes(q)) && (!filter.app || a.application_id === filter.app));
+      if (shown.length === 0) {
+        body.replaceChildren(emptyState(icon("key"), assignments.length ? "No matches" : "No access granted yet",
+          assignments.length ? "Adjust the search or application filter." : "Grant an employee access to an application to get started."));
+        return;
+      }
+      body.replaceChildren(table(["Employee", "Application", "Role", "Granted", ""].map((label) => ({ label })), shown.map((a) => [
+        { node: h("span", null, a.email) },
+        { node: h("strong", null, a.application_name) },
+        { node: a.role_name ? badge(a.role_name, "accent") : badge("Standard access", "neutral") },
+        { node: h("span", { title: fullDate(a.granted_at) }, ago(a.granted_at)) },
+        { className: "actions-cell", node: button("Revoke", () => revoke(a), { small: true, danger: true, ariaLabel: `Revoke ${a.application_name} from ${a.email}` }) },
+      ]), { label: "Assignments" }));
+    };
+    const appFilter = h("select", { "aria-label": "Filter by application", onchange: (e) => { filter.app = e.target.value; paint(); } },
+      h("option", { value: "" }, "All applications"), apps.map((a) => h("option", { value: a.id }, a.name)));
+    root.replaceChildren(
+      pageHead("Assignments", "Who can open which application, and with which role. Revoking takes effect at the next request.",
+        h("button", { type: "button", class: "primary", onclick: () => grantAccess(users, apps) }, "Grant access")),
+      h("div", { class: "toolbar" }, toolbarSearch("Search by employee email", "", (v) => { filter.q = v; paint(); }, "Search assignments"), appFilter),
+      body);
+    paint();
+  }
+
+  function grantAccess(users, apps) {
+    const active = users.filter((u) => u.status === "active");
+    const enabled = apps.filter((a) => a.enabled);
+    if (!active.length || !enabled.length) {
+      toast(!active.length ? "Add an active employee first." : "Enable an application first.", true);
+      return;
+    }
+    const roleSelect = h("select", { name: "app_role_id", "aria-label": "Role" }, h("option", { value: "" }, "Standard access"));
+    const loadRoles = async (appId) => {
+      roleSelect.replaceChildren(h("option", { value: "" }, "Standard access"));
+      const roles = await api("GET", `/api/admin/applications/${appId}/roles`);
+      roleSelect.append(...roles.map((r) => h("option", { value: r.id }, `${r.name} (${r.external_role})`)));
+    };
+    const appSelect = h("select", { name: "application_id", "aria-label": "Application", onchange: (e) => loadRoles(e.target.value).catch((err) => toast(err.message, true)) },
+      enabled.map((a) => h("option", { value: a.id }, a.name)));
+    const dialog = openForm({
+      title: "Grant access",
+      description: "The employee can open the application at their next request. They are emailed about the change.",
+      submitLabel: "Grant access",
+      fields: [{ label: "Employee", name: "user_id", options: active.map((u) => ({ value: u.id, label: u.email })), required: true }],
+      extra: [h("div", { class: "field" }, h("label", { for: "grant-app" }, "Application *"), (appSelect.id = "grant-app", appSelect)),
+              h("div", { class: "field" }, h("label", { for: "grant-role" }, "Role"), (roleSelect.id = "grant-role", roleSelect))],
+      onSubmit: async (values) => {
+        await api("POST", "/api/admin/assignments", {
+          user_id: values.user_id, application_id: appSelect.value, app_role_id: roleSelect.value || null,
+        });
+        toast("Access granted.");
+      },
+      done: () => navigate(),
+    });
+    loadRoles(appSelect.value).catch((err) => toast(err.message, true));
+    return dialog;
+  }
+
+  function revoke(assignment) {
+    confirmDialog({
+      title: `Revoke ${assignment.application_name}?`,
+      text: `${assignment.email} will lose access at their next request. They are emailed about the change.`,
+      action: "Revoke access",
+      onConfirm: () => api("DELETE", `/api/admin/assignments/${assignment.id}`),
+      done: () => { toast("Access revoked."); navigate(); },
+    });
+  }
+
+  /* ================= Administration: integrations ================= */
+
+  const HEALTH = {
+    ok: { tone: "ok", label: "Healthy" },
+    error: { tone: "bad", label: "Failing" },
+    not_connected: { tone: "neutral", label: "Not connected yet" },
+  };
+
+  async function renderIntegrations(root) {
+    const apps = await api("GET", "/api/admin/integrations");
+    const failing = apps.filter((a) => a.status === "error").length;
+    const connected = apps.filter((a) => a.status === "ok").length;
+    const kpis = h("div", { class: "kpis" },
+      [["Applications", apps.length], ["Healthy", connected], ["Failing", failing]].map(([label, value]) =>
+        h("div", { class: "panel kpi" }, h("div", { class: "label" }, label), h("div", { class: "value" }, value))));
+    const cards = apps.length === 0
+      ? emptyState(icon("pulse"), "No applications", "Register an application to see its integration health.")
+      : h("div", { class: "cards" }, apps.map((a) => {
+          const health = HEALTH[a.status] || HEALTH.not_connected;
+          return h("article", { class: "panel card" },
+            h("div", { class: "app-head" }, h("div", { class: "app-icon", "aria-hidden": "true" }, a.name.charAt(0).toUpperCase()),
+              h("div", null, h("h3", null, a.name), h("span", { class: "sub mono muted" }, a.slug))),
+            h("div", null, badge(health.label, health.tone)),
+            h("div", { class: "meta" },
+              h("div", null, "Last successful check: ", h("b", null, ago(a.last_access_ok_at))),
+              h("div", null, "Last error: ", a.last_error ? h("b", { class: "bad" }, a.last_error) : "None"),
+              h("div", null, "Enabled: ", h("b", null, a.enabled ? "Yes" : "No"))),
+            h("div", { class: "foot" }, button("View events", () => showEvents(a), { small: true, ariaLabel: `Events for ${a.name}` })));
+        }));
+    root.replaceChildren(
+      pageHead("Integrations", "Each application's access checks and any failures it reports. A failing status means a failure was reported after the last successful check."),
+      kpis, cards);
+  }
+
+  async function showEvents(app) {
+    const events = await api("GET", `/api/admin/integrations/${app.id}/events?limit=100`);
+    const dialog = h("dialog", { class: "wide", "aria-labelledby": "events-title" });
+    dialog.append(
+      h("div", { class: "dialog-head" }, h("h2", { id: "events-title" }, `Events: ${app.name}`)),
+      h("div", { class: "dialog-body", style: "padding:0;max-height:70vh" }, events.length
+        ? table(["When", "Kind", "Outcome", "Detail"].map((label) => ({ label })), events.map((e) => [
+            { node: h("span", { title: fullDate(e.occurred_at) }, ago(e.occurred_at)) },
+            { node: h("span", { class: "mono" }, e.kind) },
+            { node: e.outcome === "success" ? badge("Success", "ok") : badge("Failure", "bad") },
+            e.detail || "—",
+          ]))
+        : h("div", { style: "padding:16px" }, emptyState(icon("pulse"), "No events yet", "Events appear when the application checks access or reports a problem."))),
+      h("div", { class: "dialog-foot" }, h("button", { type: "button", onclick: () => dialog.close() }, "Close")));
+    document.body.append(dialog);
+    dialog.addEventListener("close", () => dialog.remove());
+    dialog.showModal();
+  }
+
+  /* ================= Administration: audit log ================= */
+
+  async function renderAudit(root) {
+    const apps = await api("GET", "/api/admin/applications");
+    const PAGE = 50;
+    const query = { action: "", outcome: "", application: "", offset: 0 };
+    const body = h("div", { class: "panel" });
+    const pager = h("div", { class: "pager" });
+
+    const load = async () => {
+      body.replaceChildren(skeleton());
+      const params = new URLSearchParams({ limit: PAGE, offset: query.offset });
+      if (query.action) params.set("action", query.action);
+      if (query.outcome) params.set("outcome", query.outcome);
+      if (query.application) params.set("application", query.application);
+      try {
+        const page = await api("GET", "/api/admin/audit?" + params.toString());
+        if (page.items.length === 0) {
+          body.replaceChildren(emptyState(icon("log"), "No matching entries", "Change the filters to see more activity."));
+        } else {
+          body.replaceChildren(table(["When", "Who", "Action", "Target", "Application", "Outcome", ""].map((label) => ({ label })), page.items.map((e) => {
+            const details = h("pre", { class: "details", hidden: true }, JSON.stringify(e.details || {}, null, 2));
+            const toggle = h("button", { type: "button", class: "small", "aria-expanded": "false", onclick: () => {
+              details.hidden = !details.hidden;
+              toggle.setAttribute("aria-expanded", String(!details.hidden));
+            } }, "Details");
+            return [
+              { node: h("span", { title: fullDate(e.occurred_at) }, ago(e.occurred_at)) },
+              { node: h("span", { class: "mono" }, (e.actor_identity || "").slice(0, 12)) },
+              { node: h("span", { class: "mono" }, e.action) },
+              { node: `${e.target_type}${e.target_id ? " " + String(e.target_id).slice(0, 8) : ""}` },
+              e.application_slug || "—",
+              { node: e.outcome === "success" ? badge("Success", "ok") : badge("Failure", "bad") },
+              { className: "actions-cell", node: h("div", null, toggle, details) },
+            ];
+          }), { label: "Audit entries" }));
+        }
+        const from = query.offset + 1;
+        const to = Math.min(query.offset + PAGE, page.total);
+        pager.replaceChildren(
+          h("span", null, page.total ? `Showing ${from}–${to} of ${page.total}` : "No entries"),
+          h("span", { class: "actions" },
+            button("Previous", () => { query.offset = Math.max(0, query.offset - PAGE); load(); }, { small: true, disabled: query.offset === 0 }),
+            button("Next", () => { query.offset += PAGE; load(); }, { small: true, disabled: query.offset + PAGE >= page.total })));
+      } catch (err) {
+        body.replaceChildren(errorNotice(err, load));
+      }
+    };
+
+    const actionInput = h("input", { type: "search", placeholder: "Action, e.g. assignment", "aria-label": "Filter by action", onchange: (e) => { query.action = e.target.value.trim(); query.offset = 0; load(); } });
+    const outcomeSelect = h("select", { "aria-label": "Filter by outcome", onchange: (e) => { query.outcome = e.target.value; query.offset = 0; load(); } },
+      h("option", { value: "" }, "Any outcome"), h("option", { value: "success" }, "Success"), h("option", { value: "failure" }, "Failure"));
+    const appSelect = h("select", { "aria-label": "Filter by application", onchange: (e) => { query.application = e.target.value; query.offset = 0; load(); } },
+      h("option", { value: "" }, "All applications"), apps.map((a) => h("option", { value: a.slug }, a.name)));
+
+    root.replaceChildren(
+      pageHead("Audit log", "Every privileged change, sign-in and refused action, with who did it and when. Entries cannot be edited or deleted."),
+      h("div", { class: "toolbar" }, actionInput, outcomeSelect, appSelect),
+      body, pager);
+    load();
+  }
+
+  /* ================= sign-in and start-up ================= */
+
+  async function start() {
+    const params = new URLSearchParams(location.search);
+    const ssoError = params.get("sso_error");
+    try {
+      const me = await api("GET", "/api/me");
+      showSignedIn(me);
+      if (!location.hash) location.hash = "#/apps";
+      window.addEventListener("hashchange", navigate);
+      await navigate();
+    } catch (_) {
+      showSignedOut(ssoError ? "Sign-in did not complete. Please try again." : "");
+    }
+  }
+
+  start();
+</script>
 </body>
 </html>

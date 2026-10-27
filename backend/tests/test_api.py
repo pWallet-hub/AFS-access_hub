@@ -285,7 +285,7 @@ def test_admin_changes_are_audited(super_admin):
     client = client_for(super_admin)
     email = _unique_email()
     created = client.post("/api/admin/users", json={"email": email}).json()
-    entries = client.get("/api/admin/audit", params={"limit": 50}).json()
+    entries = client.get("/api/admin/audit", params={"limit": 50}).json()["items"]
     matching = [e for e in entries if e["action"] == "user.create" and e["target_id"] == str(created["id"])]
     assert matching and matching[0]["outcome"] == "success"
     assert matching[0]["actor_identity"] == super_admin["keycloak_sub"]
