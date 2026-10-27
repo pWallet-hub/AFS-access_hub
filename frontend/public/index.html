@@ -747,10 +747,11 @@
       title: "Edit employee",
       description: user.email + (canScope ? " · Access administrator" : ""),
       submitLabel: "Save changes",
-      fields: [{ label: "Display name", name: "display_name", value: user.display_name || "", required: true, max: 120 }],
+      fields: [{ label: "Display name", name: "display_name", value: user.display_name || "", max: 120, hint: "Leave empty to keep the current name, or to show the email address." }],
       extra,
       onSubmit: async (values, form) => {
-        await api("PATCH", `/api/admin/users/${user.id}`, { display_name: values.display_name.trim() });
+        const name = values.display_name.trim();
+        if (name !== (user.display_name || "")) await api("PATCH", `/api/admin/users/${user.id}`, { display_name: name || user.email });
         if (canScope) {
           const ids = [...form.querySelectorAll("input[name=scope]:checked")].map((box) => box.value);
           await api("PUT", `/api/admin/users/${user.id}/managed-applications`, { application_ids: ids });

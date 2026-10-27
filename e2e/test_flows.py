@@ -69,7 +69,7 @@ def test_employee_lifecycle(watched):
     # Edit the display name.
     row.get_by_role("button", name=f"Edit {email}").click()
     dialog = _dialog(page)
-    dialog.get_by_label("Display name *").fill("Renamed Person")
+    dialog.get_by_label("Display name").fill("Renamed Person")
     dialog.get_by_role("button", name="Save changes").click()
     _toast(page, "Employee updated")
     expect(page.get_by_role("table", name="Employees").locator("tr", has_text=email)).to_contain_text("Renamed Person")
@@ -216,6 +216,8 @@ def test_assignment_grant_and_revoke(watched):
     dialog = _dialog(page)
     dialog.get_by_label("Employee").select_option(label=email)
     dialog.get_by_label("Application").select_option(label=app_name)
+    # The role list loads after the application is chosen, so wait for it as a user would.
+    expect(dialog.get_by_label("Role").locator("option", has_text="member (MEMBER)")).to_have_count(1)
     dialog.get_by_label("Role").select_option(label="member (MEMBER)")
     dialog.get_by_role("button", name="Grant access").click()
     _toast(page, "Access granted")
@@ -258,6 +260,10 @@ def test_employee_flow_and_sign_out(browser):
         expect(page.locator("main")).to_contain_text("not found")
         page.goto(BASE_URL + "/#/project/nope")
         expect(page.locator("main h1")).to_have_text("Project")
+        # Admin screens are not reachable by typing their address.
+        page.goto(BASE_URL + "/#/employees")
+        expect(page.locator("main h1")).to_have_text("Project")
+        expect(page.locator("#nav a")).to_have_text(["Project"])
         context.close()
     finally:
         _http("DELETE", f"{KEYCLOAK_URL}/admin/realms/{REALM}/users/{keycloak_id}", token=token)
