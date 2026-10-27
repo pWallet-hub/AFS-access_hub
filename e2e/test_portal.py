@@ -81,14 +81,6 @@ def employee():
     _http("DELETE", f"{KEYCLOAK_URL}/admin/realms/{REALM}/users/{user_id}", token=token)
 
 
-@pytest.fixture(scope="session")
-def browser():
-    with sync_playwright() as p:
-        instance = p.chromium.launch()
-        yield instance
-        instance.close()
-
-
 def _sign_in(browser, email, password):
     context = browser.new_context()
     page = context.new_page()

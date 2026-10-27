@@ -74,3 +74,21 @@ def test_project_changes_are_audited_without_failing():
     response = admin.patch(f"/api/admin/applications/{app_row['id']}", json={"project_id": project["id"]})
     assert response.status_code == 200
     assert response.json()["project_id"] == project["id"]
+
+
+def test_duplicate_project_slug_conflicts():
+    admin = _client(_user("super_admin"))
+    slug = f"dupp-{uuid.uuid4().hex[:6]}"
+    assert admin.post("/api/admin/projects", json={"slug": slug, "name": "First"}).status_code == 201
+    assert admin.post("/api/admin/projects", json={"slug": slug, "name": "Second"}).status_code == 409
+
+
+def test_access_admin_cannot_create_projects():
+    with connect() as conn:
+        access_admin = conn.execute(
+            "INSERT INTO users (keycloak_sub, email, display_name, email_verified, platform_role)"
+            " VALUES (%s, %s, 'AA', true, 'access_admin') RETURNING *",
+            (f"test-{uuid.uuid4()}", f"aa-{uuid.uuid4().hex[:8]}@example.test"),
+        ).fetchone()
+    response = _client(access_admin).post("/api/admin/projects", json={"slug": f"nope-{uuid.uuid4().hex[:6]}", "name": "No"})
+    assert response.status_code == 403

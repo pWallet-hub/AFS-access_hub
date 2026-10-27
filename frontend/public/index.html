@@ -387,7 +387,8 @@
     const id = `f-${name}-${Math.random().toString(36).slice(2, 7)}`;
     let control;
     if (options) {
-      control = h("select", { id, name, required }, options.map((o) => h("option", { value: o.value, selected: o.value === value }, o.label)));
+      control = h("select", { id, name, required }, options.map((o) => h("option", { value: o.value }, o.label)));
+      control.value = value; // an empty value selects a placeholder option when one exists
     } else if (type === "textarea") {
       control = h("textarea", { id, name, required, maxlength: max || null }, value);
     } else {
@@ -809,7 +810,7 @@
       submitLabel: "Create project",
       fields: [
         { label: "Name", name: "name", required: true, max: 120 },
-        { label: "Slug", name: "slug", required: true, pattern: "[a-z0-9][a-z0-9-]{1,40}", hint: "Lowercase letters, digits and hyphens. Cannot be changed later." },
+        { label: "Slug", name: "slug", required: true, pattern: "[a-z0-9][a-z0-9\\-]{1,40}", hint: "Lowercase letters, digits and hyphens. Cannot be changed later." },
         { label: "Description", name: "description", type: "textarea", max: 1000 },
       ],
       onSubmit: async (values) => {
@@ -827,7 +828,7 @@
       submitLabel: "Register",
       fields: [
         { label: "Name", name: "name", required: true, max: 120 },
-        { label: "Slug", name: "slug", required: true, pattern: "[a-z0-9][a-z0-9-]{1,40}", hint: "Lowercase letters, digits and hyphens. Used in integrations; cannot be changed later." },
+        { label: "Slug", name: "slug", required: true, pattern: "[a-z0-9][a-z0-9\\-]{1,40}", hint: "Lowercase letters, digits and hyphens. Used in integrations; cannot be changed later." },
         { label: "Description", name: "description", type: "textarea", max: 1000 },
         { label: "Launch URL", name: "launch_url", type: "url", hint: "Optional for now. Required before the application can be enabled." },
         { label: "Project", name: "project_id", options: [{ value: "", label: "No project" }, ...projects.map((p) => ({ value: p.id, label: p.name }))] },
@@ -910,7 +911,7 @@
 
   function addRoleForm(app, dialog) {
     const errorBox = h("div", { class: "notice bad", role: "alert", hidden: true });
-    const name = h("input", { name: "name", required: true, pattern: "[a-z0-9][a-z0-9_-]{0,39}", placeholder: "viewer", "aria-label": "Central role name" });
+    const name = h("input", { name: "name", required: true, pattern: "[a-z0-9][a-z0-9_\\-]{0,39}", placeholder: "viewer", "aria-label": "Central role name" });
     const external = h("input", { name: "external_role", required: true, placeholder: "Value the application checks", "aria-label": "Value in the application" });
     const description = h("input", { name: "description", placeholder: "Optional description", "aria-label": "Description" });
     return h("form", { class: "panel", style: "padding:14px", onsubmit: async (e) => {
@@ -987,7 +988,7 @@
       title: "Grant access",
       description: "The employee can open the application at their next request. They are emailed about the change.",
       submitLabel: "Grant access",
-      fields: [{ label: "Employee", name: "user_id", options: active.map((u) => ({ value: u.id, label: u.email })), required: true }],
+      fields: [{ label: "Employee", name: "user_id", options: [{ value: "", label: "Choose an employee…" }, ...active.map((u) => ({ value: u.id, label: u.email }))], required: true }],
       extra: [h("div", { class: "field" }, h("label", { for: "grant-app" }, "Application *"), (appSelect.id = "grant-app", appSelect)),
               h("div", { class: "field" }, h("label", { for: "grant-role" }, "Role"), (roleSelect.id = "grant-role", roleSelect))],
       onSubmit: async (values) => {
@@ -1039,7 +1040,7 @@
               h("div", null, "Last successful check: ", h("b", null, ago(a.last_access_ok_at))),
               h("div", null, "Last error: ", a.last_error ? h("b", { class: "bad" }, a.last_error) : "None"),
               h("div", null, "Enabled: ", h("b", null, a.enabled ? "Yes" : "No"))),
-            h("div", { class: "foot" }, button("View events", () => showEvents(a), { small: true, ariaLabel: `Events for ${a.name}` })));
+            h("div", { class: "foot" }, button("View events", () => showEvents(a), { small: true, ariaLabel: `View events for ${a.name}` })));
         }));
     root.replaceChildren(
       pageHead("Integrations", "Each application's access checks and any failures it reports. A failing status means a failure was reported after the last successful check."),
