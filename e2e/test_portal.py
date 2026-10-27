@@ -132,7 +132,7 @@ def test_administrator_sees_the_console_and_integration_health(browser):
 def test_new_employee_has_no_admin_tabs_and_no_applications(browser, employee):
     context, page = _sign_in(browser, employee["email"], employee["password"])
     links = page.locator("#nav a").all_inner_texts()
-    assert links == ["My applications"]
+    assert links == ["Project"]
     expect(page.locator("main")).to_contain_text("No applications yet")
     context.close()
 
@@ -266,3 +266,30 @@ def test_access_admin_sees_only_the_applications_in_their_scope(browser):
     finally:
         _http("DELETE", f"{KEYCLOAK_URL}/admin/realms/{REALM}/users/{keycloak_id}", token=token)
         admin_context.close()
+
+
+def test_application_opens_inside_the_portal_and_in_a_new_tab(browser, employee):
+    admin_context, _ = _sign_in(browser, ADMIN_EMAIL, ADMIN_PASSWORD)
+    name = f"E2E Embedded {uuid.uuid4().hex[:6]}"
+    created = admin_context.request.post(BASE_URL + "/api/admin/applications", data={
+        "slug": f"e2e-{uuid.uuid4().hex[:8]}", "name": name, "description": "Opens inside the portal",
+        "launch_url": BASE_URL + "/demo/", "enabled": True})
+    assert created.status == 201
+    app_id = created.json()["id"]
+    users = admin_context.request.get(BASE_URL + "/api/admin/users").json()
+    user_id = next(u["id"] for u in users if u["email"] == employee["email"])
+    assert admin_context.request.post(BASE_URL + "/api/admin/assignments", data={"user_id": user_id, "application_id": app_id}).status == 201
+
+    context, page = _sign_in(browser, employee["email"], employee["password"])
+    page.locator("a.btn.primary", has_text="Open here").first.wait_for(timeout=10000)
+    page.get_by_role("link", name="Open here").first.click()
+    frame = page.locator("iframe.app-frame")
+    expect(frame).to_have_count(1)
+    assert frame.get_attribute("title") == name
+    assert "/demo/" in frame.get_attribute("src")
+    expect(page.locator("main h1", has_text=name)).to_be_visible()
+    expect(page.get_by_role("link", name="New tab")).to_have_attribute("target", "_blank")
+    page.get_by_role("link", name="Back to Project").click()
+    expect(page.locator(".project-list")).to_be_visible()
+    context.close()
+    admin_context.close()

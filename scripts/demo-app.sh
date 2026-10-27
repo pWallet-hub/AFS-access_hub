@@ -16,10 +16,10 @@ case "$action" in
   add)
     {
       cat <<'SQL'
-INSERT INTO applications (slug, name, description, launch_url, enabled, integration_type)
+INSERT INTO applications (slug, name, description, launch_url, enabled, integration_type, project_id)
 VALUES ('demo', 'Demo App', 'A placeholder application for demonstrations. It shows the launcher working end to end.',
-        'http://localhost:8080/demo/', true, 'none')
-ON CONFLICT (slug) DO UPDATE SET launch_url = EXCLUDED.launch_url, enabled = true, updated_at = now();
+        'http://localhost:8080/demo/', true, 'none', (SELECT id FROM projects WHERE slug = 'demo'))
+ON CONFLICT (slug) DO UPDATE SET launch_url = EXCLUDED.launch_url, enabled = true, project_id = EXCLUDED.project_id, updated_at = now();
 
 INSERT INTO app_roles (application_id, name, external_role, description)
 SELECT a.id, r.name, r.name, r.description FROM applications a
@@ -40,7 +40,14 @@ SQL
       fi
     } | psql_cmd
     echo "demo app is registered and enabled: http://localhost:8080/demo/"
-    [ -n "$employee" ] && echo "assigned $employee as editor (if the account exists)"
+    if [ -n "$employee" ]; then
+      # An account exists only after its first sign-in, so the assignment is skipped until then.
+      if [ -n "$(docker compose exec -T db sh -c "psql -tA -U \"\$POSTGRES_USER\" -d afs_command_center -c \"SELECT 1 FROM assignments s JOIN users u ON u.id = s.user_id JOIN applications a ON a.id = s.application_id WHERE a.slug = 'demo' AND s.revoked_at IS NULL AND lower(u.email) = lower('$employee')\"")" ]; then
+        echo "assigned $employee as editor"
+      else
+        echo "no assignment made: $employee has not signed in to Command Center yet. Sign in once, then run this again." >&2
+      fi
+    fi
     ;;
   remove)
     cat <<'SQL' | psql_cmd

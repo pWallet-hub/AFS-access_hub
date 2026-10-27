@@ -1,4 +1,10 @@
+import json
+from functools import partial
+
 from psycopg.types.json import Jsonb
+
+# Audit details may hold UUIDs and dates; store them as plain text rather than failing the audit write.
+JSON = partial(json.dumps, default=str)
 
 
 def record(conn, *, action, outcome, target_type, actor=None, target_id=None, application_slug=None, details=None):
@@ -18,6 +24,6 @@ def record(conn, *, action, outcome, target_type, actor=None, target_id=None, ap
             str(target_id) if target_id is not None else None,
             application_slug,
             outcome,
-            Jsonb(details or {}),
+            Jsonb(details or {}, dumps=JSON),
         ),
     )

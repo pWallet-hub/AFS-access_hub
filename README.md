@@ -109,6 +109,7 @@ The first person to sign in with the realm role `afs-super-admin` (the bootstrap
 - **Applications & roles**: register an application (disabled by default), set its verified `https` launch URL, enable it, and define its application-specific roles.
 - **Assignments**: grant or update an employee's access to an enabled application, optionally with one of its roles. Revoke access here.
 - **Audit log**: every privileged change, denied attempt, and sign-in is recorded.
+- **Projects**: applications are grouped under a project (a product, such as ImageUnit or Procurement). Employees open **Project** to see their applications by project. Super administrators create projects in **Applications** → **New project**, and set each application's project.
 - **Application scope**: an access administrator manages access only for the applications a super administrator gives them. Open the employee's **Edit** dialog to tick their applications. Super administrators are not limited.
 
 The five AFS applications are registered (disabled, without launch URLs) by `backend/migrations/002_seed_applications.sql`. Set their URLs in the console before enabling them.
