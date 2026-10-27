@@ -92,15 +92,30 @@ def admin_token():
     return body["access_token"]
 
 
+# Realm security settings, applied on every run so they cannot drift. Brute-force protection locks an account
+# after repeated failed sign-ins (Keycloak's own counter, separate from Command Center's).
+REALM_SETTINGS = {
+    "bruteForceProtected": True,
+    "failureFactor": 5,
+    "maxFailureWaitSeconds": 900,
+    "waitIncrementSeconds": 60,
+    "permanentLockout": False,
+}
+
+
 def ensure_realm(token):
     status, _ = call("GET", f"/admin/realms/{REALM}", token=token)
-    if status == 200:
+    if status != 200:
+        status, body = call("POST", "/admin/realms", token=token, json_body={"realm": REALM, "enabled": True})
+        if status != 201:
+            sys.exit(f"Failed to create realm '{REALM}' (HTTP {status}): {body}")
+        log(f"created realm '{REALM}'")
+    else:
         log(f"realm '{REALM}' exists")
-        return
-    status, body = call("POST", "/admin/realms", token=token, json_body={"realm": REALM, "enabled": True})
-    if status != 201:
-        sys.exit(f"Failed to create realm '{REALM}' (HTTP {status}): {body}")
-    log(f"created realm '{REALM}'")
+    status, body = call("PUT", f"/admin/realms/{REALM}", token=token, json_body={"realm": REALM, **REALM_SETTINGS})
+    if status != 204:
+        sys.exit(f"Failed to apply security settings to realm '{REALM}' (HTTP {status}): {body}")
+    log(f"applied realm security settings (brute-force protection on)")
 
 
 def ensure_client(token, client):

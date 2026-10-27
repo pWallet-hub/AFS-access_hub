@@ -1,15 +1,19 @@
-"""Service-to-service access check for integrated applications.
+"""Service-to-service endpoints for integrated applications.
 
-An application's backend calls this with its own service token to decide whether a signed-in employee
-may use it, and which application role to apply. Each application has a separate token,
-AFS_SERVICE_TOKEN_<SLUG> (for example AFS_SERVICE_TOKEN_PROCUREMENT), so a token can only ask about
-its own application. Browsers never call it: nginx does not expose /api/internal.
+An application's backend calls these with its own service token. Each application has a separate token,
+AFS_SERVICE_TOKEN_<APP> (for example AFS_SERVICE_TOKEN_PROCUREMENT), so a token can only act for its own
+application. Browsers never call them: nginx does not expose /api/internal.
+
+- GET  /api/internal/access: may this identity use the application, and with which role?
+- POST /api/internal/events: the application reports a sync or revocation failure, or an informational event.
 """
 
 import hmac
 import os
+from typing import Literal
 
 from fastapi import APIRouter, Header, HTTPException, Query
+from pydantic import BaseModel, Field
 
 from .audit import record
 from .db import connect
@@ -22,11 +26,28 @@ def service_token_env(application):
     return "AFS_SERVICE_TOKEN_" + application.upper().replace("-", "_")
 
 
-def _verify_service_token(application, presented):
+def _token_matches(application, presented):
     expected = os.environ.get(service_token_env(application), "")
     # An unset token means no caller can authenticate, rather than an empty one matching.
-    if not expected or not presented or not hmac.compare_digest(presented, expected):
-        raise HTTPException(status_code=401, detail="Invalid service token")
+    return bool(expected and presented and hmac.compare_digest(presented, expected))
+
+
+def _authorize(application, presented):
+    if _token_matches(application, presented):
+        return
+    with connect() as conn:
+        app = conn.execute("SELECT id FROM applications WHERE slug = %s", (application,)).fetchone()
+        if app is not None:
+            # Rejected tokens are visible to administrators against the application they were sent for.
+            conn.execute(
+                "INSERT INTO integration_events (application_id, kind, outcome, detail) VALUES (%s, 'token_rejected', 'failure', %s)",
+                (app["id"], "service token missing" if not presented else "service token does not match"),
+            )
+            conn.execute(
+                "UPDATE applications SET last_error_at = now(), last_error = 'service token rejected' WHERE id = %s",
+                (app["id"],),
+            )
+    raise HTTPException(status_code=401, detail="Invalid service token")
 
 
 @router.get("/access")
@@ -36,7 +57,7 @@ def check_access(
     x_service_token: str | None = Header(default=None),
 ):
     """Return whether `subject` (a Keycloak sub) may use `application`, and the role to apply."""
-    _verify_service_token(application, x_service_token)
+    _authorize(application, x_service_token)
     with connect() as conn:
         user = conn.execute("SELECT * FROM users WHERE keycloak_sub = %s", (subject,)).fetchone()
         app = conn.execute("SELECT * FROM applications WHERE slug = %s", (application,)).fetchone()
@@ -63,6 +84,13 @@ def check_access(
             else:
                 external_role = assignment["external_role"]
 
+        if app is not None:
+            # The check itself worked whatever the answer; "not assigned" is a decision, not an integration failure.
+            conn.execute(
+                "UPDATE applications SET last_access_check_at = now(), last_access_ok_at = now() WHERE id = %s",
+                (app["id"],),
+            )
+
         if reason is not None:
             record(
                 conn,
@@ -76,3 +104,33 @@ def check_access(
             )
             return {"allowed": False, "external_role": None, "reason": reason}
         return {"allowed": True, "external_role": external_role, "reason": "assigned"}
+
+
+class IntegrationEvent(BaseModel):
+    kind: Literal["sync_failure", "revocation_failure", "info"]
+    outcome: Literal["success", "failure"]
+    detail: str = Field(default="", max_length=1000)
+
+
+@router.post("/events", status_code=201)
+def report_event(
+    body: IntegrationEvent,
+    application: str = Query(pattern=SLUG_PATTERN),
+    x_service_token: str | None = Header(default=None),
+):
+    """Record a failure an application hit while syncing or revoking access, so administrators can see it."""
+    _authorize(application, x_service_token)
+    with connect() as conn:
+        app = conn.execute("SELECT id FROM applications WHERE slug = %s", (application,)).fetchone()
+        if app is None:
+            raise HTTPException(status_code=404, detail="Unknown application")
+        conn.execute(
+            "INSERT INTO integration_events (application_id, kind, outcome, detail) VALUES (%s, %s, %s, %s)",
+            (app["id"], body.kind, body.outcome, body.detail),
+        )
+        if body.outcome == "failure":
+            conn.execute(
+                "UPDATE applications SET last_error_at = now(), last_error = %s WHERE id = %s",
+                ((body.detail or body.kind)[:500], app["id"]),
+            )
+    return {"ok": True}

@@ -430,3 +430,37 @@ def list_audit(limit: int = Query(default=100, ge=1, le=500), actor=Depends(ACCE
             " details FROM audit_log ORDER BY id DESC LIMIT %s",
             (limit,),
         ).fetchall()
+
+
+# ---------- Integration health ----------
+
+
+def _integration_status(row):
+    """ok: checks succeed and no later failure; error: a failure was reported after the last good check;
+    not_connected: no access check has reached Command Center yet."""
+    if row["last_access_check_at"] is None:
+        return "not_connected"
+    if row["last_error_at"] is not None and (row["last_access_ok_at"] is None or row["last_error_at"] > row["last_access_ok_at"]):
+        return "error"
+    return "ok"
+
+
+@router.get("/integrations")
+def list_integrations(actor=Depends(ACCESS_ADMIN)):
+    with connect() as conn:
+        rows = conn.execute(
+            "SELECT id, slug, name, enabled, integration_type, launch_url, last_access_check_at, last_access_ok_at,"
+            " last_error_at, last_error FROM applications ORDER BY name"
+        ).fetchall()
+    return [{**row, "status": _integration_status(row)} for row in rows]
+
+
+@router.get("/integrations/{application_id}/events")
+def list_integration_events(application_id: UUID, actor=Depends(ACCESS_ADMIN), limit: int = Query(default=50, ge=1, le=200)):
+    with connect() as conn:
+        _get_application(conn, application_id)
+        return conn.execute(
+            "SELECT id, occurred_at, kind, outcome, detail FROM integration_events WHERE application_id = %s"
+            " ORDER BY id DESC LIMIT %s",
+            (application_id, limit),
+        ).fetchall()

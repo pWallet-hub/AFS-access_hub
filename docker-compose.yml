@@ -31,7 +31,8 @@ services:
       KC_HTTP_ENABLED: "true"
       KC_HEALTH_ENABLED: "true"
     ports:
-      - "8081:8080"
+      # Local only: the identity provider and its admin console are not exposed to the network.
+      - "127.0.0.1:8081:8080"
     depends_on:
       db:
         condition: service_healthy

@@ -79,14 +79,25 @@ def me(user=Depends(current_user)):
 
 @app.get("/api/apps")
 def my_applications(user=Depends(current_user)):
-    """Applications the signed-in employee is assigned to and that are enabled for launching."""
+    """Applications the signed-in employee is assigned to. Disabled ones are listed as unavailable, without a link."""
     with connect() as conn:
-        return conn.execute(
-            "SELECT a.slug, a.name, a.description, a.launch_url, r.name AS role_name"
+        rows = conn.execute(
+            "SELECT a.slug, a.name, a.description, a.enabled, a.launch_url, r.name AS role_name"
             " FROM assignments s"
             " JOIN applications a ON a.id = s.application_id"
             " LEFT JOIN app_roles r ON r.id = s.app_role_id"
-            " WHERE s.user_id = %s AND s.revoked_at IS NULL AND a.enabled"
+            " WHERE s.user_id = %s AND s.revoked_at IS NULL"
             " ORDER BY a.name",
             (user["id"],),
         ).fetchall()
+    return [
+        {
+            "slug": row["slug"],
+            "name": row["name"],
+            "description": row["description"],
+            "role_name": row["role_name"],
+            "available": row["enabled"],
+            "launch_url": row["launch_url"] if row["enabled"] else None,
+        }
+        for row in rows
+    ]

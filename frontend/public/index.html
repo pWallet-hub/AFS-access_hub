@@ -160,6 +160,7 @@
       { id: "users", label: "Employees", roles: ["super_admin", "access_admin"], render: renderUsers },
       { id: "applications", label: "Applications & roles", roles: ["super_admin", "access_admin"], render: renderApplications },
       { id: "assignments", label: "Assignments", roles: ["super_admin", "access_admin"], render: renderAssignments },
+      { id: "integrations", label: "Integrations", roles: ["super_admin", "access_admin"], render: renderIntegrations },
       { id: "audit", label: "Audit log", roles: ["super_admin", "access_admin"], render: renderAudit },
     ];
 
@@ -196,8 +197,13 @@
               h("div", { class: "card" },
                 h("h3", null, app.name),
                 h("p", null, app.description),
-                h("div", null, app.role_name ? h("span", { class: "tag" }, "Role: " + app.role_name) : null),
-                h("a", { class: "button primary", href: app.launch_url, target: "_blank", rel: "noopener noreferrer" }, "Open application")
+                h("div", null,
+                  app.role_name ? h("span", { class: "tag" }, "Role: " + app.role_name) : null,
+                  " ",
+                  app.available ? null : h("span", { class: "tag bad" }, "Unavailable")),
+                app.available
+                  ? h("a", { class: "button primary", href: app.launch_url, target: "_blank", rel: "noopener noreferrer" }, "Open application")
+                  : h("p", { class: "muted" }, "This application is temporarily unavailable. Try again later or contact an administrator.")
               )))
       ));
     }
@@ -392,6 +398,43 @@
         panel("Current assignments", table(["Employee", "Application", "Role", "Granted", ""], rows))
       );
       if (enabledApps.length) loadRolesFor();
+    }
+
+    // ---------- Integrations ----------
+
+    const STATUS_LABEL = { ok: ["ok", "Healthy"], error: ["bad", "Failing"], not_connected: ["muted", "Not connected yet"] };
+
+    async function renderIntegrations(root) {
+      const apps = await api("GET", "/api/admin/integrations");
+      const rows = apps.map((a) => {
+        const [cls, label] = STATUS_LABEL[a.status] || ["muted", a.status];
+        return [
+          h("strong", null, a.name),
+          h("span", { class: cls }, label),
+          a.last_access_ok_at ? when(a.last_access_ok_at) : "—",
+          a.last_error ? h("span", { class: "bad" }, a.last_error) : "—",
+          a.last_error_at ? when(a.last_error_at) : "—",
+          button("Events", async () => {
+            try {
+              const events = await api("GET", `/api/admin/integrations/${a.id}/events?limit=50`);
+              eventsBox.replaceChildren(
+                panel(`Events: ${a.name}`, events.length
+                  ? table(["When", "Kind", "Outcome", "Detail"], events.map((e) => [
+                      when(e.occurred_at), e.kind,
+                      e.outcome === "success" ? h("span", { class: "ok" }, "success") : h("span", { class: "bad" }, "failure"),
+                      e.detail || "—",
+                    ]))
+                  : h("p", { class: "muted" }, "No events recorded.")));
+            } catch (err) { toast(err.message, true); }
+          }),
+        ];
+      });
+      const eventsBox = h("div", null);
+      root.replaceChildren(
+        panel("Integration health",
+          h("p", { class: "muted" }, "Each application's access checks and any failures it reports. A failing status means a failure was reported after the last successful check."),
+          table(["Application", "Status", "Last successful check", "Last error", "Error time", ""], rows)),
+        eventsBox);
     }
 
     // ---------- Audit ----------
