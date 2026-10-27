@@ -211,3 +211,58 @@ def test_audit_log_can_be_filtered_by_outcome(browser):
         text = rows.nth(i).inner_text()
         assert "Failure" in text and "Success" not in text, text
     context.close()
+
+
+def _new_keycloak_user(prefix):
+    email = f"{prefix}-{uuid.uuid4().hex[:10]}@example.test"
+    password = "E2e-Password-2026!"
+    token = _keycloak_token()
+    _http("POST", f"{KEYCLOAK_URL}/admin/realms/{REALM}/users",
+          {"username": email, "email": email, "emailVerified": True, "enabled": True, "firstName": "E2E", "lastName": prefix}, token=token)
+    _, users = _http("GET", f"{KEYCLOAK_URL}/admin/realms/{REALM}/users?username={urllib.parse.quote(email)}&exact=true", token=token)
+    user_id = users[0]["id"]
+    _http("PUT", f"{KEYCLOAK_URL}/admin/realms/{REALM}/users/{user_id}/reset-password",
+          {"type": "password", "value": password, "temporary": False}, token=token)
+    return email, password, user_id, token
+
+
+def test_access_admin_sees_only_the_applications_in_their_scope(browser):
+    admin_context, _ = _sign_in(browser, ADMIN_EMAIL, ADMIN_PASSWORD)
+    scoped_name = f"E2E Scoped {uuid.uuid4().hex[:6]}"
+    other_name = f"E2E Other {uuid.uuid4().hex[:6]}"
+    apps = {}
+    for name in (scoped_name, other_name):
+        created = admin_context.request.post(BASE_URL + "/api/admin/applications", data={
+            "slug": f"e2e-{uuid.uuid4().hex[:8]}", "name": name, "description": "Created by the test run",
+            "launch_url": "https://example.test/app", "enabled": True})
+        assert created.status == 201
+        apps[name] = created.json()["id"]
+
+    email, password, keycloak_id, token = _new_keycloak_user("ops")
+    try:
+        created = admin_context.request.post(BASE_URL + "/api/admin/users", data={"email": email})
+        assert created.status == 201
+        user_id = created.json()["id"]
+        assert admin_context.request.patch(BASE_URL + f"/api/admin/users/{user_id}", data={"platform_role": "access_admin"}).status == 200
+        scope = admin_context.request.put(BASE_URL + f"/api/admin/users/{user_id}/managed-applications",
+                                          data={"application_ids": [apps[scoped_name]]})
+        assert scope.status == 200
+
+        ops_context, ops_page = _sign_in(browser, email, password)
+        ops_page.click("#nav a:has-text('Assignments')")
+        filter_select = ops_page.get_by_label("Filter by application")
+        filter_select.wait_for(timeout=10000)
+        expect(filter_select.locator("option").nth(1)).to_have_count(1)
+        filter_options = filter_select.locator("option").all_inner_texts()
+        assert scoped_name in filter_options
+        assert other_name not in filter_options
+
+        ops_page.click("button:has-text('Grant access')")
+        dialog = ops_page.locator("dialog[open]")
+        app_options = dialog.get_by_label("Application").locator("option").all_inner_texts()
+        assert app_options == [scoped_name]
+        dialog.get_by_role("button", name="Cancel").click()
+        ops_context.close()
+    finally:
+        _http("DELETE", f"{KEYCLOAK_URL}/admin/realms/{REALM}/users/{keycloak_id}", token=token)
+        admin_context.close()

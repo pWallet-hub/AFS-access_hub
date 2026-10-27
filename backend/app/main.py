@@ -69,11 +69,15 @@ def health():
 
 @app.get("/api/me")
 def me(user=Depends(current_user)):
+    with connect() as conn:
+        managed = admin.managed_application_ids(conn, user)
     return {
         "id": user["id"],
         "email": user["email"],
         "name": user["display_name"],
         "platform_role": user["platform_role"],
+        # null means no limit (super administrator); otherwise the applications this administrator manages.
+        "managed_application_ids": None if managed is None else [str(a) for a in managed],
     }
 
 

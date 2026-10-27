@@ -511,6 +511,12 @@
     note.textContent = message || "";
   }
 
+  // null scope means no limit (super administrator); otherwise only the listed applications.
+  const managesApp = (applicationId) => {
+    const scope = state.me && state.me.managed_application_ids;
+    return scope === null || scope === undefined || scope.includes(applicationId);
+  };
+
   function showSignedIn(me) {
     state.me = me;
     $("#view-signin").hidden = true;
@@ -630,14 +636,36 @@
     });
   }
 
-  function editEmployee(user) {
+  async function editEmployee(user) {
+    const canScope = state.me.platform_role === "super_admin" && user.platform_role === "access_admin";
+    let scopeBoxes = [];
+    let extra = null;
+    if (canScope) {
+      const [apps, managed] = await Promise.all([
+        api("GET", "/api/admin/applications"),
+        api("GET", `/api/admin/users/${user.id}/managed-applications`),
+      ]);
+      const mine = new Set(managed.map((a) => a.id));
+      scopeBoxes = apps.map((a) => ({ id: a.id, checkbox: h("input", { type: "checkbox", name: "scope", value: a.id, checked: mine.has(a.id) }), label: a.name }));
+      extra = h("fieldset", { class: "field", style: "border:0;padding:0;margin:0" },
+        h("legend", { style: "font-size:13px;font-weight:600;margin-bottom:6px" }, "Applications this administrator manages"),
+        h("span", { class: "hint", style: "margin-bottom:6px" }, "Access administrators can grant and revoke access only for the applications ticked here."),
+        scopeBoxes.length
+          ? scopeBoxes.map((b) => h("label", { class: "switch", style: "padding:4px 0" }, b.checkbox, h("span", null, b.label)))
+          : h("p", { class: "muted" }, "No applications are registered yet."));
+    }
     openForm({
       title: "Edit employee",
-      description: user.email,
+      description: user.email + (canScope ? " · Access administrator" : ""),
       submitLabel: "Save changes",
       fields: [{ label: "Display name", name: "display_name", value: user.display_name || "", required: true, max: 120 }],
-      onSubmit: async (values) => {
+      extra,
+      onSubmit: async (values, form) => {
         await api("PATCH", `/api/admin/users/${user.id}`, { display_name: values.display_name.trim() });
+        if (canScope) {
+          const ids = [...form.querySelectorAll("input[name=scope]:checked")].map((box) => box.value);
+          await api("PUT", `/api/admin/users/${user.id}/managed-applications`, { application_ids: ids });
+        }
         toast("Employee updated.");
       },
       done: () => navigate(),
@@ -672,7 +700,7 @@
       { node: a.launch_url ? h("a", { href: a.launch_url, target: "_blank", rel: "noopener noreferrer", class: "mono" }, a.launch_url) : badge("No launch URL", "warn") },
       { node: a.integration_type === "none" ? "Not integrated" : "Single sign-on" },
       { className: "actions-cell", node: h("span", null,
-        button("Roles", () => manageRoles(a), { small: true, ariaLabel: `Roles for ${a.name}` }),
+        managesApp(a.id) ? button("Roles", () => manageRoles(a), { small: true, ariaLabel: `Roles for ${a.name}` }) : null,
         isSuper ? button("Edit", () => editApplication(a), { small: true, ariaLabel: `Edit ${a.name}` }) : null,
         isSuper ? button(a.enabled ? "Disable" : "Enable", () => toggleApplication(a), { small: true, danger: a.enabled, ariaLabel: `${a.enabled ? "Disable" : "Enable"} ${a.name}` }) : null) },
     ]);
@@ -741,7 +769,7 @@
   }
 
   async function manageRoles(app) {
-    const canEdit = ADMIN_ROLES.includes(state.me.platform_role);
+    const canEdit = ADMIN_ROLES.includes(state.me.platform_role) && managesApp(app.id);
     const roles = await api("GET", `/api/admin/applications/${app.id}/roles`);
     const dialog = h("dialog", { class: "wide", "aria-labelledby": "roles-title" });
     const close = h("button", { type: "button", onclick: () => dialog.close() }, "Done");
@@ -817,8 +845,9 @@
         { className: "actions-cell", node: button("Revoke", () => revoke(a), { small: true, danger: true, ariaLabel: `Revoke ${a.application_name} from ${a.email}` }) },
       ]), { label: "Assignments" }));
     };
+    const managedApps = apps.filter((a) => managesApp(a.id));
     const appFilter = h("select", { "aria-label": "Filter by application", onchange: (e) => { filter.app = e.target.value; paint(); } },
-      h("option", { value: "" }, "All applications"), apps.map((a) => h("option", { value: a.id }, a.name)));
+      h("option", { value: "" }, "All applications"), managedApps.map((a) => h("option", { value: a.id }, a.name)));
     root.replaceChildren(
       pageHead("Assignments", "Who can open which application, and with which role. Revoking takes effect at the next request.",
         h("button", { type: "button", class: "primary", onclick: () => grantAccess(users, apps) }, "Grant access")),
@@ -829,9 +858,9 @@
 
   function grantAccess(users, apps) {
     const active = users.filter((u) => u.status === "active");
-    const enabled = apps.filter((a) => a.enabled);
+    const enabled = apps.filter((a) => a.enabled && managesApp(a.id));
     if (!active.length || !enabled.length) {
-      toast(!active.length ? "Add an active employee first." : "Enable an application first.", true);
+      toast(!active.length ? "Add an active employee first." : "No enabled application is available for you to manage.", true);
       return;
     }
     const roleSelect = h("select", { name: "app_role_id", "aria-label": "Role" }, h("option", { value: "" }, "Standard access"));

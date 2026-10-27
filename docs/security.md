@@ -44,6 +44,15 @@ Existing application sessions are bounded by each application's own session life
 - The `audit_log` table is append-only: database triggers reject `UPDATE`, `DELETE` and `TRUNCATE`. The application's database role is still the database owner in the Compose setup, so production must use a separate, least-privilege application role and restrict ownership.
 - Secrets never appear in audit details, logs or the browser. Audit details contain identifiers and before/after values of ordinary fields only.
 
+## Scoped delegation
+
+Platform roles decide what kind of administrator someone is. Application scope decides which applications an access administrator may manage:
+
+- **Super administrators** manage every application, and are the only ones who set another administrator's scope.
+- **Access administrators** may grant and revoke access, and read or change role mappings, only for the applications listed for them (`application_managers`). Everything else is refused on the server with 403, and the refusal is audited. The assignment list shows only in-scope applications.
+- Scope applies only to access administrators. Changing an administrator's role away from that clears their scope.
+- Access administrators can still manage employee accounts and read the integration and audit views, which are not scoped.
+
 ## Email
 
 Command Center notices go through Resend, and Keycloak's verification and reset mail goes through Resend's SMTP service. Notices carry no secrets, only plain text and a link to the portal. Dynamic text is escaped. The audit log records the recipient's account, not their address.

@@ -8,6 +8,7 @@ from typing import Literal
 from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
+from pydantic import BaseModel, Field
 from psycopg import errors
 
 from .audit import record
@@ -39,6 +40,41 @@ def _deny(conn, actor, action, target_type, target_id=None, application_slug=Non
         details={"reason": "insufficient platform role"},
     )
     raise HTTPException(status_code=403, detail="You do not have permission for this action.")
+
+
+def _manages(conn, actor, application_id):
+    """Super administrators manage every application. Access administrators manage only the applications listed for them."""
+    if actor["platform_role"] == "super_admin":
+        return True
+    row = conn.execute(
+        "SELECT 1 AS ok FROM application_managers WHERE user_id = %s AND application_id = %s",
+        (actor["id"], application_id),
+    ).fetchone()
+    return row is not None
+
+
+def _require_manages(conn, actor, application, action, target_type, target_id=None):
+    if _manages(conn, actor, application["id"]):
+        return
+    record(
+        conn,
+        actor=actor,
+        action=action,
+        outcome="failure",
+        target_type=target_type,
+        target_id=target_id,
+        application_slug=application["slug"],
+        details={"reason": "not a manager of this application"},
+    )
+    raise HTTPException(status_code=403, detail=f"You do not manage access to {application['name']}.")
+
+
+def managed_application_ids(conn, actor):
+    """None for super administrators (no limit); otherwise the list of application ids this administrator manages."""
+    if actor["platform_role"] == "super_admin":
+        return None
+    return [row["application_id"] for row in conn.execute(
+        "SELECT application_id FROM application_managers WHERE user_id = %s", (actor["id"],)).fetchall()]
 
 
 def _active_super_admin_count(conn):
@@ -142,6 +178,10 @@ def update_user(user_id: UUID, body: UserUpdate, background: BackgroundTasks, ac
                     details={"reason": "last active super administrator"},
                 )
                 raise HTTPException(status_code=409, detail="The last active super administrator cannot be disabled or demoted")
+
+        if "platform_role" in changes and changes["platform_role"] != "access_admin":
+            # Application scope belongs to access administrators; it is cleared when the role changes away from that.
+            conn.execute("DELETE FROM application_managers WHERE user_id = %s", (user_id,))
 
         if changes:
             allowed = {"status", "platform_role", "display_name"}
@@ -279,7 +319,8 @@ def update_application(application_id: UUID, body: ApplicationUpdate, actor=Depe
 @router.get("/applications/{application_id}/roles")
 def list_roles(application_id: UUID, actor=Depends(ACCESS_ADMIN)):
     with connect() as conn:
-        _get_application(conn, application_id)
+        application = _get_application(conn, application_id)
+        _require_manages(conn, actor, application, "role_mapping.list", "application", application_id)
         return conn.execute(
             "SELECT id, name, external_role, description FROM app_roles WHERE application_id = %s ORDER BY name",
             (application_id,),
@@ -290,6 +331,7 @@ def list_roles(application_id: UUID, actor=Depends(ACCESS_ADMIN)):
 def create_role(application_id: UUID, body: RoleCreate, actor=Depends(ACCESS_ADMIN)):
     with connect() as conn:
         application = _get_application(conn, application_id)
+        _require_manages(conn, actor, application, "role_mapping.create", "application", application_id)
         try:
             with conn.transaction():
                 row = conn.execute(
@@ -316,12 +358,14 @@ def create_role(application_id: UUID, body: RoleCreate, actor=Depends(ACCESS_ADM
 def delete_role(role_id: UUID, actor=Depends(ACCESS_ADMIN)):
     with connect() as conn:
         role = conn.execute(
-            "SELECT r.id, r.name, a.slug FROM app_roles r JOIN applications a ON a.id = r.application_id"
-            " WHERE r.id = %s",
+            "SELECT r.id, r.name, a.id AS application_id, a.name AS application_name, a.slug FROM app_roles r"
+            " JOIN applications a ON a.id = r.application_id WHERE r.id = %s",
             (role_id,),
         ).fetchone()
         if role is None:
             raise HTTPException(status_code=404, detail="Role not found")
+        _require_manages(conn, actor, {"id": role["application_id"], "slug": role["slug"], "name": role["application_name"]},
+                         "role_mapping.delete", "app_role", role_id)
         try:
             with conn.transaction():
                 conn.execute("DELETE FROM app_roles WHERE id = %s", (role_id,))
@@ -367,6 +411,10 @@ def list_assignments(
         filters.append("s.application_id = %s")
         params.append(application_id)
     with connect() as conn:
+        managed = managed_application_ids(conn, actor)
+        if managed is not None:
+            filters.append("s.application_id = ANY(%s)")
+            params.append(managed)
         return conn.execute(
             "SELECT s.id, s.user_id, u.email, s.application_id, a.slug AS application_slug, a.name AS application_name,"
             " s.app_role_id, r.name AS role_name, s.granted_at"
@@ -384,6 +432,7 @@ def grant_assignment(body: AssignmentCreate, background: BackgroundTasks, actor=
     with connect() as conn:
         user = _get_user(conn, body.user_id)
         application = _get_application(conn, body.application_id)
+        _require_manages(conn, actor, application, "assignment.grant", "assignment", body.user_id)
         if user["status"] != "active":
             raise HTTPException(status_code=409, detail="Disabled accounts cannot receive application access")
         if not application["enabled"]:
@@ -453,13 +502,15 @@ def grant_assignment(body: AssignmentCreate, background: BackgroundTasks, actor=
 def revoke_assignment(assignment_id: UUID, background: BackgroundTasks, actor=Depends(ACCESS_ADMIN)):
     with connect() as conn:
         row = conn.execute(
-            "SELECT s.id, s.user_id, u.email, a.slug, a.name AS app_name FROM assignments s"
+            "SELECT s.id, s.user_id, s.application_id, u.email, a.slug, a.name AS app_name FROM assignments s"
             " JOIN users u ON u.id = s.user_id JOIN applications a ON a.id = s.application_id"
             " WHERE s.id = %s AND s.revoked_at IS NULL FOR UPDATE OF s",
             (assignment_id,),
         ).fetchone()
         if row is None:
             raise HTTPException(status_code=404, detail="Active assignment not found")
+        _require_manages(conn, actor, {"id": row["application_id"], "slug": row["slug"], "name": row["app_name"]},
+                         "assignment.revoke", "assignment", assignment_id)
         conn.execute(
             "UPDATE assignments SET revoked_at = now(), revoked_by = %s WHERE id = %s",
             (actor["id"], assignment_id),
@@ -548,4 +599,64 @@ def list_integration_events(application_id: UUID, actor=Depends(ACCESS_ADMIN), l
             "SELECT id, occurred_at, kind, outcome, detail FROM integration_events WHERE application_id = %s"
             " ORDER BY id DESC LIMIT %s",
             (application_id, limit),
+        ).fetchall()
+
+
+# ---------- Scoped delegation ----------
+
+
+class ManagedApplications(BaseModel):
+    application_ids: list[UUID] = Field(default_factory=list, max_length=200)
+
+
+@router.get("/users/{user_id}/managed-applications")
+def get_managed_applications(user_id: UUID, actor=Depends(ACCESS_ADMIN)):
+    with connect() as conn:
+        _get_user(conn, user_id)
+        return conn.execute(
+            "SELECT a.id, a.slug, a.name FROM application_managers m JOIN applications a ON a.id = m.application_id"
+            " WHERE m.user_id = %s ORDER BY a.name",
+            (user_id,),
+        ).fetchall()
+
+
+@router.put("/users/{user_id}/managed-applications")
+def set_managed_applications(user_id: UUID, body: ManagedApplications, actor=Depends(SUPER_ADMIN)):
+    """Replace the applications an access administrator manages. Only super administrators can set this."""
+    with connect() as conn:
+        user = conn.execute("SELECT * FROM users WHERE id = %s FOR UPDATE", (user_id,)).fetchone()
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        if user["platform_role"] != "access_admin":
+            record(conn, actor=actor, action="app_scope.update", outcome="failure", target_type="user", target_id=user_id,
+                   details={"reason": "scope applies only to access administrators"})
+            raise HTTPException(status_code=409, detail="Application scope applies only to access administrators. Super administrators manage every application.")
+        wanted = set(body.application_ids)
+        known = {row["id"] for row in conn.execute("SELECT id FROM applications WHERE id = ANY(%s)", (list(wanted),)).fetchall()}
+        if known != wanted:
+            raise HTTPException(status_code=422, detail="One or more applications do not exist")
+        current = {row["application_id"] for row in conn.execute(
+            "SELECT application_id FROM application_managers WHERE user_id = %s", (user_id,)).fetchall()}
+        added, removed = wanted - current, current - wanted
+        conn.execute("DELETE FROM application_managers WHERE user_id = %s", (user_id,))
+        for application_id in wanted:
+            conn.execute(
+                "INSERT INTO application_managers (user_id, application_id, granted_by) VALUES (%s, %s, %s)",
+                (user_id, application_id, actor["id"]),
+            )
+        names = {row["id"]: row["name"] for row in conn.execute(
+            "SELECT id, name FROM applications WHERE id = ANY(%s)", (list(added | removed) or [None],)).fetchall()}
+        record(
+            conn,
+            actor=actor,
+            action="app_scope.update",
+            outcome="success",
+            target_type="user",
+            target_id=user_id,
+            details={"added": sorted(names.get(a, str(a)) for a in added), "removed": sorted(names.get(r, str(r)) for r in removed)},
+        )
+        return conn.execute(
+            "SELECT a.id, a.slug, a.name FROM application_managers m JOIN applications a ON a.id = m.application_id"
+            " WHERE m.user_id = %s ORDER BY a.name",
+            (user_id,),
         ).fetchall()
