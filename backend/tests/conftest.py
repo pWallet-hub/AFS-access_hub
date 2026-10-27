@@ -24,3 +24,5 @@ def _test_database_url(base_url):
 
 
 os.environ["DATABASE_URL"] = _test_database_url(os.environ["DATABASE_URL"])
+# Fixed service token for the test process, independent of the working .env.
+os.environ["AFS_SERVICE_TOKEN"] = "test-service-token"

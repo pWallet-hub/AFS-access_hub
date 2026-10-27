@@ -2,7 +2,18 @@
 
 Centralized application access and SSO platform for the AFS ecosystem. The full specification is in [Task.md](Task.md).
 
-This repository currently contains the **Phase 2 foundation**: a Docker Compose environment with PostgreSQL, Keycloak (AFS realm and Command Center OIDC client), a FastAPI backend that completes the OpenID Connect login, and an nginx-served portal.
+This repository contains the Command Center platform:
+
+- A Docker Compose environment with PostgreSQL, Keycloak (AFS realm and OIDC client), a FastAPI backend and an nginx-served portal.
+- Central sign-in through Keycloak (OpenID Connect), with account resolution and a disabled-account check on every request.
+- Employee management (pre-provisioned accounts, enable/disable), platform roles (`super_admin`, `access_admin`, `employee`).
+- Application registry, application-specific role mappings, and assignments with revocation.
+- The employee launcher, showing only assigned, enabled applications.
+- An append-only audit log for privileged changes and sign-ins.
+
+Documentation: [security model and revocation policy](docs/security.md) and [integrating an application](docs/integration-guide.md). The full specification is in [Task.md](Task.md).
+
+Not yet included: integration of the five AFS applications themselves (see "Status" below).
 
 ## Prerequisites
 
@@ -95,6 +106,32 @@ docker compose up -d
 - **Frontend stays "starting"**: the backend is unhealthy. Check `curl -s http://localhost:8080/api/health`; a 503 names the failing dependency.
 - **Postgres image fails with `exec format error`**: a local `postgres:16-alpine` image was corrupt on the development machine. Re-pull the image, or use the Debian-based `postgres:16` tag as this repository does.
 
-## Not yet implemented
+## Using the administrative console
 
-Per [Task.md](Task.md), these are later phases: employee management, the application registry, access assignments and role mappings, the application launcher, audit logging, and the pilot integration with the five AFS applications. The backend currently has no application tables; migrations will be added with the first schema.
+The first person to sign in with the realm role `afs-super-admin` (the bootstrap account) becomes the super administrator. After that:
+
+- **Employees**: add an employee by email before they sign in. Their account links to the central identity on first sign-in with a verified email. Disable or reactivate accounts here. Only super administrators change platform roles.
+- **Applications & roles**: register an application (disabled by default), set its verified `https` launch URL, enable it, and define its application-specific roles.
+- **Assignments**: grant or update an employee's access to an enabled application, optionally with one of its roles. Revoke access here.
+- **Audit log**: every privileged change, denied attempt, and sign-in is recorded.
+
+The five AFS applications are registered (disabled, without launch URLs) by `backend/migrations/002_seed_applications.sql`. Set their URLs in the console before enabling them.
+
+## Testing
+
+```bash
+docker compose run --rm --no-deps backend python -m pytest tests -q -p no:cacheprovider
+```
+
+The tests run against a separate `<POSTGRES_DB>_test` database, created automatically, so they never touch working data. They cover authentication failures, role enforcement, disabled accounts, role-to-application validation, assignment and revocation, identity linking, and the append-only audit log.
+
+## Status
+
+| Phase (Task.md section 12) | Status |
+| --- | --- |
+| 1. Repository audit and design | Done for all five repositories: see [integration-audit.md](docs/integration-audit.md). |
+| 2. Docker foundation and identity | Done. |
+| 3. Core Command Center | Done: employees, application registry, role mappings, assignments, launcher, audit log. |
+| 4. Pilot integration | Not started. Needs a chosen pilot application and access to its repository. |
+| 5. Remaining integrations | Not started. |
+| 6. Hardening and release | Partly done. See [security.md](docs/security.md) "Known limits". Production deployment, backup validation and cross-application logout remain. |

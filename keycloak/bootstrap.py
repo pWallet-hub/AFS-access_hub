@@ -20,6 +20,10 @@ ADMIN_USER = os.environ["KEYCLOAK_ADMIN"]
 ADMIN_PASSWORD = os.environ["KEYCLOAK_ADMIN_PASSWORD"]
 CLIENT_ID = os.environ["OIDC_CLIENT_ID"]
 CLIENT_SECRET = os.environ["OIDC_CLIENT_SECRET"]
+IMAGEUNIT_CLIENT_ID = os.environ.get("IMAGEUNIT_OIDC_CLIENT_ID", "imageunit")
+IMAGEUNIT_CLIENT_SECRET = os.environ["IMAGEUNIT_OIDC_CLIENT_SECRET"]
+IMAGEUNIT_REDIRECT_URI = os.environ["IMAGEUNIT_REDIRECT_URI"]
+IMAGEUNIT_ORIGIN = os.environ["IMAGEUNIT_ORIGIN"].rstrip("/")
 PUBLIC_BASE_URL = os.environ["PUBLIC_BASE_URL"].rstrip("/")
 BOOTSTRAP_EMAIL = os.environ["BOOTSTRAP_ADMIN_EMAIL"]
 BOOTSTRAP_PASSWORD = os.environ["BOOTSTRAP_ADMIN_PASSWORD"]
@@ -94,32 +98,63 @@ def ensure_realm(token):
     log(f"created realm '{REALM}'")
 
 
-def ensure_client(token):
+def ensure_client(token, client):
+    """Create or reconcile one confidential OIDC client. `client` is a dict with id, name, secret, redirect and origin."""
     representation = {
-        "clientId": CLIENT_ID,
-        "name": "AFS Command Center",
+        "clientId": client["id"],
+        "name": client["name"],
         "enabled": True,
         "protocol": "openid-connect",
         "publicClient": False,
-        "secret": CLIENT_SECRET,
+        "secret": client["secret"],
         "standardFlowEnabled": True,
         "directAccessGrantsEnabled": False,
         "serviceAccountsEnabled": False,
-        "redirectUris": [f"{PUBLIC_BASE_URL}/auth/callback"],
-        "webOrigins": [PUBLIC_BASE_URL],
-        "attributes": {"post.logout.redirect.uris": f"{PUBLIC_BASE_URL}/"},
+        "attributes": {
+            "post.logout.redirect.uris": client["logout_redirect"],
+            # Clients that send a PKCE challenge (ImageUnit) require S256; others are left unchanged.
+            **({"pkce.code.challenge.method": "S256"} if client.get("pkce") else {}),
+        },
+        "redirectUris": [client["redirect"]],
+        "webOrigins": [client["origin"]],
     }
-    _, existing = call("GET", f"/admin/realms/{REALM}/clients?clientId={CLIENT_ID}", token=token)
+    _, existing = call("GET", f"/admin/realms/{REALM}/clients?clientId={client['id']}", token=token)
     if existing:
         status, body = call("PUT", f"/admin/realms/{REALM}/clients/{existing[0]['id']}", token=token, json_body=representation)
         if status != 204:
-            sys.exit(f"Failed to update client '{CLIENT_ID}' (HTTP {status}): {body}")
-        log(f"updated client '{CLIENT_ID}'")
+            sys.exit(f"Failed to update client '{client['id']}' (HTTP {status}): {body}")
+        log(f"updated client '{client['id']}'")
         return
     status, body = call("POST", f"/admin/realms/{REALM}/clients", token=token, json_body=representation)
     if status != 201:
-        sys.exit(f"Failed to create client '{CLIENT_ID}' (HTTP {status}): {body}")
-    log(f"created client '{CLIENT_ID}'")
+        sys.exit(f"Failed to create client '{client['id']}' (HTTP {status}): {body}")
+    log(f"created client '{client['id']}'")
+
+
+def ensure_clients(token):
+    ensure_client(
+        token,
+        {
+            "id": CLIENT_ID,
+            "name": "AFS Command Center",
+            "secret": CLIENT_SECRET,
+            "redirect": f"{PUBLIC_BASE_URL}/auth/callback",
+            "origin": PUBLIC_BASE_URL,
+            "logout_redirect": f"{PUBLIC_BASE_URL}/",
+        },
+    )
+    ensure_client(
+        token,
+        {
+            "id": IMAGEUNIT_CLIENT_ID,
+            "name": "ImageUnit",
+            "secret": IMAGEUNIT_CLIENT_SECRET,
+            "redirect": IMAGEUNIT_REDIRECT_URI,
+            "origin": IMAGEUNIT_ORIGIN,
+            "logout_redirect": IMAGEUNIT_ORIGIN + "/",
+            "pkce": True,
+        },
+    )
 
 
 def ensure_realm_role(token):
@@ -193,7 +228,7 @@ def main():
     wait_for_keycloak()
     token = admin_token()
     ensure_realm(token)
-    ensure_client(token)
+    ensure_clients(token)
     ensure_realm_role(token)
     ensure_bootstrap_user(token)
     log("configuration complete")
