@@ -4,6 +4,9 @@ Audience: the AFS engineering team, to choose the pilot and plan the integration
 
 ## Summary
 
+**Correction (product pairing):** the five repositories form three products. Biocap Rwanda (frontend) and Biocap Dashboard Backend are one product: the frontend calls the backend's routes and uses the same six roles. Procurement FN (frontend) and Procurement BN (backend) are one product: the frontend calls the backend's `/api/v1` prefix. ImageUnit is one repository with its web app and API. Integrations are therefore planned per product, with the backend running the sign-in. The earlier note that the Biocap backend was out of reach does not apply: it is the Biocap Dashboard repository, which was audited. Per-product guides are in `docs/integrations/`.
+
+
 | Application | Repository(ies) | Stack | Login today | Authorization enforced | SSO fit |
 | --- | --- | --- | --- | --- | --- |
 | Biocap Rwanda | `felixaveiro/Biocap-rwanda` | Next.js 15 (frontend only) | Bearer JWT from external API | Client-side only here; backend not visible | Depends on backend. Put SSO in the API, or in a Next.js server layer |

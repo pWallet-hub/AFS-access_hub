@@ -135,5 +135,5 @@ The tests run against a separate `<POSTGRES_DB>_test` database, created automati
 | 2. Docker foundation and identity | Done. |
 | 3. Core Command Center | Done: employees, application registry, role mappings, assignments, launcher, audit log. |
 | 4. Pilot integration | ImageUnit verified end to end on the local stack. Its production rollout is open. |
-| 5. Remaining integrations | Guides written for Procurement BN and FN, Biocap Dashboard, and Biocap Rwanda. Code changes are owned by each application's team. Biocap Rwanda is blocked until its backend repository is available. |
+| 5. Remaining integrations | Guides written for Biocap and Procurement, each one product (frontend and backend). Code changes are owned by each product's team. |
 | 6. Hardening and release | Partly done. See [security.md](docs/security.md) "Known limits". Production deployment, backup validation and cross-application logout remain. |

@@ -2,14 +2,17 @@
 
 Audience: the administrator who registers each application, and the developers who connect it to AFS SSO. Read [integration-audit.md](../integration-audit.md) for what each application's code looks like today, and [security.md](../security.md) for the rules the integrations must keep.
 
-## Status
+## Applications
 
-| Application | Guide | Status | What blocks it |
+Each product is one application in Command Center. A product with a frontend and a backend is registered once, and its backend runs the sign-in.
+
+| Application (slug) | Made of | Guide | Status |
 | --- | --- | --- | --- |
-| ImageUnit | [imageunit.md](imageunit.md) | Pilot verified on the local stack (reference patch in `imageunit/`) | Production deployment and the decisions listed in its guide |
-| Procurement BN (backend) and Procurement FN (portal) | [procurement-bn.md](procurement-bn.md), [procurement-fn.md](procurement-fn.md) | Ready to build. The BN backend runs the sign-in for FN | BN backend changes; FN token handling |
-| Biocap Dashboard Backend | [biocap-dashboard.md](biocap-dashboard.md) | Ready to build, after the security fixes in its guide | Dashboard frontend URL is not known |
-| Biocap Rwanda | [biocap-rwanda.md](biocap-rwanda.md) | Blocked | Its backend repository is not accessible to us |
+| ImageUnit (`imageunit`) | One repository: web app and API | [imageunit.md](imageunit.md) | Pilot verified on the local stack; reference patch in `imageunit/` |
+| Biocap (`biocap`) | Biocap Rwanda frontend (Next.js) and Biocap Dashboard backend (Express, MongoDB) | [biocap.md](biocap.md) | Ready to build, after the security fixes in its guide |
+| Procurement (`procurement`) | Procurement FN portal (React) and Procurement BN backend (NestJS, PostgreSQL) | [procurement.md](procurement.md) | Ready to build, after the backend gaps in its guide |
+
+The Biocap and Procurement pairings were inferred from the code: the frontend calls the routes the backend serves, with the same role names. The team should confirm each pairing against the deployed addresses.
 
 ## What AFS provides for every application
 
@@ -24,15 +27,13 @@ These are already in this repository and are set up per application:
 | One service token per application (`AFS_SERVICE_TOKEN_<APP>`) | `.env.example` |
 | `/api/internal/` blocked from browsers | `frontend/nginx.conf` |
 
-Application slugs and their client settings:
+Application slugs and their client settings. Each client belongs to the product's backend, which runs the sign-in:
 
 | Slug | Keycloak client | Env prefix | Service token |
 | --- | --- | --- | --- |
 | `imageunit` | `imageunit` | `IMAGEUNIT_` | `AFS_SERVICE_TOKEN_IMAGEUNIT` |
-| `biocap-rwanda` | `biocap-rwanda` | `BIOCAP_RWANDA_` | `AFS_SERVICE_TOKEN_BIOCAP_RWANDA` |
-| `biocap-dashboard` | `biocap-dashboard` | `BIOCAP_DASHBOARD_` | `AFS_SERVICE_TOKEN_BIOCAP_DASHBOARD` |
-| `procurement-bn` | `procurement-bn` | `PROCUREMENT_BN_` | `AFS_SERVICE_TOKEN_PROCUREMENT_BN` |
-| `procurement-fn` | none (uses the BN sign-in) | none | `AFS_SERVICE_TOKEN_PROCUREMENT_FN` |
+| `biocap` | `biocap` | `BIOCAP_` | `AFS_SERVICE_TOKEN_BIOCAP` |
+| `procurement` | `procurement` | `PROCUREMENT_` | `AFS_SERVICE_TOKEN_PROCUREMENT` |
 
 ## The rules every integration follows
 
@@ -46,8 +47,8 @@ Application slugs and their client settings:
 
 ## Order of work for any application
 
-1. Command Center: register or confirm the application, set its launch URL, and create its roles (already seeded for the five applications).
-2. AFS `.env`: set the application's client secret, redirect URI and origin, and its service token. Run `docker compose up -d` so Keycloak creates the client, or re-run `keycloak-init`.
-3. Application backend: implement the sign-in flow, the access check and the identity link, as described in the application's guide.
+1. Command Center: confirm the application, set its launch URL to the frontend, and check its roles (already seeded).
+2. AFS `.env`: set the product's client secret, redirect URI (its backend callback), origin (its frontend), and service token. Run `docker compose up -d` so Keycloak creates the client, or re-run `keycloak-init`.
+3. Backend: implement the sign-in flow, the access check and the identity link, as described in the product's guide. The frontend only starts the sign-in and receives the result.
 4. Test: an assigned employee signs in; an unassigned one is refused; revoking access blocks the next sign-in; the original login still works.
 5. Enable the application in Command Center only after step 4 passes.
