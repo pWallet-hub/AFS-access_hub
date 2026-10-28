@@ -273,15 +273,13 @@ def test_application_opens_inside_the_portal_and_in_a_new_tab(browser, employee)
     assert admin_context.request.post(BASE_URL + "/api/admin/assignments", data={"user_id": user_id, "application_id": app_id}).status == 201
 
     context, page = _sign_in(browser, employee["email"], employee["password"])
-    page.locator("a.btn.primary", has_text="Open here").first.wait_for(timeout=10000)
-    page.get_by_role("link", name="Open here").first.click()
-    frame = page.locator("iframe.app-frame")
-    expect(frame).to_have_count(1)
-    assert frame.get_attribute("title") == name
-    assert "/demo/" in frame.get_attribute("src")
-    expect(page.locator("main h1", has_text=name)).to_be_visible()
-    expect(page.get_by_role("link", name="New tab")).to_have_attribute("target", "_blank")
-    page.locator("main a", has_text="Back to").first.click()
-    expect(page.locator(".project-list")).to_be_visible()
+    open_link = page.locator("a.btn.primary", has_text="Open").first
+    open_link.wait_for(timeout=10000)
+    # Applications open only in a new tab; nothing is embedded in the portal.
+    expect(page.get_by_role("link", name="Open here")).to_have_count(0)
+    expect(page.locator("iframe")).to_have_count(0)
+    expect(open_link).to_have_attribute("target", "_blank")
+    assert "/demo/" in open_link.get_attribute("href")
+    expect(open_link).to_have_attribute("rel", "noopener noreferrer")
     context.close()
     admin_context.close()

@@ -256,8 +256,9 @@ def test_employee_flow_and_sign_out(browser):
         admin_context.request.post(BASE_URL + "/api/admin/users", data={"email": email})
         context, page = _sign_in(browser, email, password)
         expect(page.locator("main")).to_contain_text("No applications yet")
+        # The in-portal application view no longer exists; its old address falls back to the project page.
         page.goto(BASE_URL + "/#/app/does-not-exist")
-        expect(page.locator("main")).to_contain_text("not found")
+        expect(page.locator("main h1")).to_have_text("Project")
         page.goto(BASE_URL + "/#/project/nope")
         expect(page.locator("main h1")).to_have_text("Project")
         # Admin screens are not reachable by typing their address.

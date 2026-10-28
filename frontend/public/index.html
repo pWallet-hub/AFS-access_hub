@@ -153,13 +153,6 @@
     .card { padding: 18px; display: flex; flex-direction: column; gap: 12px; transition: box-shadow .15s, border-color .15s, transform .15s; }
     .card:hover { box-shadow: 0 6px 18px rgba(16, 24, 40, .10); border-color: color-mix(in srgb, var(--accent) 35%, var(--line)); transform: translateY(-1px); }
     .card .foot .btn { flex: none; }
-    .viewer-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; justify-content: space-between; margin-bottom: 14px; }
-    .viewer-bar .crumbs { color: var(--muted); font-size: 13px; }
-    .viewer-bar .crumbs a { color: var(--muted); text-decoration: none; }
-    .viewer-bar .crumbs a:hover { color: var(--accent); text-decoration: underline; }
-    .viewer-bar h1 { margin: 2px 0 0; font-size: 22px; font-weight: 680; }
-    .app-frame { display: block; width: 100%; height: calc(100vh - 230px); min-height: 480px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); }
-    .viewer-note { font-size: 13px; color: var(--muted); margin: 10px 2px 0; }
     .card h3 { margin: 0; font-size: 16px; font-weight: 650; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .card p { margin: 0; color: var(--muted); font-size: 14px; }
     .card .meta { display: grid; gap: 6px; font-size: 13px; color: var(--muted); }
@@ -482,7 +475,6 @@
   // Route table: id, label, icon, group, admin-only flag, renderer.
   const ROUTES = [
     { id: "project", label: "Project", icon: "apps", group: "Portal", render: renderProjects },
-    { id: "app", label: "Application", icon: "apps", group: "Portal", hidden: true, render: renderAppViewer },
     { id: "employees", label: "Employees", icon: "people", group: "Administration", admin: true, render: renderEmployees },
     { id: "applications", label: "Applications", icon: "box", group: "Administration", admin: true, render: renderApplications },
     { id: "assignments", label: "Assignments", icon: "key", group: "Administration", admin: true, render: renderAssignments },
@@ -573,51 +565,8 @@
       h("div", { class: "foot" },
         app.available
           ? h("span", { class: "actions" },
-              linkButton("Open here", "#/app/" + app.slug, { primary: true }),
-              linkButton("New tab", app.launch_url, { external: true }))
+              linkButton("Open", app.launch_url, { primary: true, external: true }))
           : h("span", { class: "muted" }, "Temporarily unavailable. Try again later.")));
-  }
-
-  // An application opened inside the portal. Its own page is embedded; the toolbar keeps the way back and the new-tab option.
-  async function renderAppViewer(root, slug) {
-    const projects = await api("GET", "/api/projects");
-    let app = null;
-    let group = null;
-    for (const p of projects) {
-      const found = p.applications.find((a) => a.slug === slug);
-      if (found) { app = found; group = p; break; }
-    }
-    if (!app) {
-      root.replaceChildren(
-        emptyState(icon("apps"), "Application not found", "It is not assigned to you, or it no longer exists.",
-          linkButton("Back to Project", "#/project", { primary: true })));
-      return;
-    }
-    if (!app.available) {
-      root.replaceChildren(
-        emptyState(icon("apps"), app.name + " is unavailable", "It is temporarily unavailable. Try again later or contact an administrator.",
-          linkButton("Back to Project", "#/project", { primary: true })));
-      return;
-    }
-    const frame = h("iframe", {
-      class: "app-frame",
-      src: app.launch_url,
-      title: app.name,
-      // Applications here are trusted internal systems that need scripts, cookies and forms to work.
-      sandbox: "allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads",
-      referrerpolicy: "strict-origin-when-cross-origin",
-    });
-    root.replaceChildren(
-      h("div", { class: "viewer-bar" },
-        h("div", null,
-          h("div", { class: "crumbs" }, h("a", { href: "#/project" }, "Project"), " / ", h("a", { href: "#/project/" + group.slug }, group.name), " / ", app.name),
-          h("h1", null, app.name),
-          app.role_name ? h("span", { class: "badge accent", style: "margin-top:6px" }, "Your role: " + app.role_name) : null),
-        h("span", { class: "actions" },
-          linkButton("New tab", app.launch_url, { external: true }),
-          linkButton("Back to " + group.name, "#/project/" + group.slug))),
-      frame,
-      h("p", { class: "viewer-note" }, "If the application stays blank, it does not allow being shown inside another page. Use New tab instead."));
   }
 
   // The second sidebar lists every project the employee has applications in; choosing one shows its applications.
