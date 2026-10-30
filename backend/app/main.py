@@ -14,6 +14,10 @@ from .auth import INTERNAL_REALM_URL, current_user
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
+from .production import assert_production_ready
+
+assert_production_ready()
+
 SESSION_SECRET = os.environ["SESSION_SECRET"]
 SESSION_HTTPS_ONLY = os.environ.get("SESSION_HTTPS_ONLY", "false").lower() == "true"
 
