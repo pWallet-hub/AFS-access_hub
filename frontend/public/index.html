@@ -479,12 +479,14 @@
     { id: "applications", label: "Applications", icon: "box", group: "Administration", admin: true, render: renderApplications },
     { id: "assignments", label: "Assignments", icon: "key", group: "Administration", admin: true, render: renderAssignments },
     { id: "integrations", label: "Integrations", icon: "pulse", group: "Administration", admin: true, render: renderIntegrations },
+    { id: "usage", label: "Usage", icon: "pulse", group: "Administration", admin: true, superOnly: true, render: renderUsage },
     { id: "audit", label: "Audit log", icon: "log", group: "Administration", admin: true, render: renderAudit },
   ];
 
   function allowedRoutes() {
     const isAdmin = ADMIN_ROLES.includes(state.me.platform_role);
-    return ROUTES.filter((r) => !r.admin || isAdmin);
+    const isSuper = state.me.platform_role === "super_admin";
+    return ROUTES.filter((r) => (!r.admin || isAdmin) && (!r.superOnly || isSuper));
   }
 
   function renderNav(activeId) {
@@ -1019,6 +1021,47 @@
     root.replaceChildren(
       pageHead("Integrations", "Each application's access checks and any failures it reports. A failing status means a failure was reported after the last successful check."),
       kpis, cards);
+  }
+
+  // Usage of every integrated application: sessions Command Center granted, plus live figures from applications that
+  // report them. Counts only; no personal details are shown here.
+  async function renderUsage(root) {
+    const data = await api("GET", "/api/admin/usage");
+    const apps = data.applications;
+    const sum = (key) => apps.reduce((n, a) => n + Number(a[key]), 0);
+    const kpis = h("div", { class: "kpis" },
+      [["Applications", apps.length], ["Sessions, 7 days", sum("sessions_7d")], ["Sessions, 30 days", sum("sessions_30d")]].map(([label, value]) =>
+        h("div", { class: "panel kpi" }, h("div", { class: "label" }, label), h("div", { class: "value" }, value))));
+
+    const live = data.live.biocap;
+    let liveBlock;
+    if (live.status === "ok") {
+      liveBlock = h("div", { class: "kpis" },
+        [["Biocap users", live.users_total], ["Active users", live.users_active], ["Logged in, 30 days", live.users_logged_in_30d],
+         ["Stories", live.stories_total], ["Published", live.stories_published], ["Pending review", live.stories_pending_review]].map(([label, value]) =>
+          h("div", { class: "panel kpi" }, h("div", { class: "label" }, label), h("div", { class: "value" }, value))));
+    } else {
+      const text = live.status === "not_configured"
+        ? "Biocap's live figures are not connected yet. An administrator sets BIOCAP_DB_URI for the Command Center."
+        : "Biocap's live figures are unavailable right now. They are retried automatically.";
+      liveBlock = h("p", { class: "muted" }, text);
+    }
+
+    const rows = apps.map((a) => [
+      h("strong", null, a.name),
+      a.enabled ? badge("Enabled", "accent") : badge("Disabled", "neutral"),
+      String(a.active_employees),
+      String(a.sessions_7d),
+      String(a.sessions_30d),
+      ago(a.last_access_ok_at),
+    ]);
+    root.replaceChildren(
+      pageHead("Usage", "Sessions are counted each time Command Center grants an application access (sign-in, or a token renewal that asks again)."),
+      kpis,
+      h("h2", { style: "margin:22px 0 10px;font-size:16px" }, "Biocap, live"),
+      liveBlock,
+      h("h2", { style: "margin:22px 0 10px;font-size:16px" }, "Applications"),
+      h("div", { class: "panel" }, table(["Application", "Status", "Active employees", "Sessions, 7 days", "Sessions, 30 days", "Last access"].map((label) => ({ label })), rows, { label: "Application usage" })));
   }
 
   async function showEvents(app) {

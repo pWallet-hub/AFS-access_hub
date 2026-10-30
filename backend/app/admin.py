@@ -11,6 +11,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 from psycopg import errors
 
+from .usage import application_usage, biocap_live_stats
 from .audit import record
 from .auth import require_platform_role
 from .db import connect
@@ -427,6 +428,14 @@ def delete_role(role_id: UUID, actor=Depends(ACCESS_ADMIN)):
 
 
 # ---------- Assignments ----------
+
+
+@router.get("/usage")
+def usage(actor=Depends(SUPER_ADMIN)):
+    """Sessions per application, and live figures from applications that report them. Super administrators only."""
+    with connect() as conn:
+        rows = application_usage(conn)
+    return {"applications": rows, "live": {"biocap": biocap_live_stats()}}
 
 
 @router.get("/assignments")

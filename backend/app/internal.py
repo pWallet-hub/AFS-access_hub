@@ -103,6 +103,11 @@ def check_access(
                 details={"reason": reason},
             )
             return {"allowed": False, "external_role": None, "reason": reason}
+        conn.execute(
+            "INSERT INTO application_usage (application_id, day, sessions) VALUES (%s, current_date, 1)"
+            " ON CONFLICT (application_id, day) DO UPDATE SET sessions = application_usage.sessions + 1",
+            (app["id"],),
+        )
         return {"allowed": True, "external_role": external_role, "reason": "assigned"}
 
 

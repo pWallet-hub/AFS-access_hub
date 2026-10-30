@@ -95,6 +95,8 @@ services:
       RESEND_FROM: ${RESEND_FROM:-}
       AFS_SERVICE_TOKEN_IMAGEUNIT: ${AFS_SERVICE_TOKEN_IMAGEUNIT}
       AFS_SERVICE_TOKEN_BIOCAP: ${AFS_SERVICE_TOKEN_BIOCAP}
+      # Read-only counts for the Command Center usage dashboard. Empty = the Biocap figures stay 'not configured'.
+      BIOCAP_DB_URI: ${BIOCAP_DB_URI:-}
       AFS_SERVICE_TOKEN_PROCUREMENT: ${AFS_SERVICE_TOKEN_PROCUREMENT}
     depends_on:
       db:
