@@ -242,6 +242,25 @@ def test_assignment_drives_launcher_and_revocation_removes_it(super_admin, emplo
     assert app["slug"] not in slugs_after
 
 
+def test_role_changes_in_place_without_revoking_access(super_admin, employee):
+    admin = client_for(super_admin)
+    app = _create_enabled_application(admin)
+    editor = admin.post(f"/api/admin/applications/{app['id']}/roles", json={"name": "editor", "external_role": "EDITOR"}).json()
+    approver = admin.post(f"/api/admin/applications/{app['id']}/roles", json={"name": "approver", "external_role": "APPROVER"}).json()
+    body = {"user_id": str(employee["id"]), "application_id": app["id"]}
+
+    first = admin.post("/api/admin/assignments", json={**body, "app_role_id": editor["id"]})
+    assert first.status_code == 201
+    changed = admin.post("/api/admin/assignments", json={**body, "app_role_id": approver["id"]})
+    assert changed.status_code == 201
+    # Same assignment row, so the employee never loses access in between.
+    assert changed.json()["id"] == first.json()["id"]
+
+    employee_client = client_for(employee)
+    launched = next(item for item in employee_client.get("/api/apps").json() if item["slug"] == app["slug"])
+    assert launched["role_name"] == "approver"
+
+
 def test_disabled_application_cannot_be_assigned(super_admin, employee):
     admin = client_for(super_admin)
     app = _create_enabled_application(admin)

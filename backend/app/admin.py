@@ -518,16 +518,29 @@ def grant_assignment(body: AssignmentCreate, background: BackgroundTasks, actor=
             role = conn.execute("SELECT name FROM app_roles WHERE id = %s", (body.app_role_id,)).fetchone()
         role_name = role["name"] if role else None
     role_text = f" with the role {role_name}" if role_name else ""
-    background.add_task(
-        notify,
-        user["email"],
-        user["id"],
-        "access.granted",
-        f"You now have access to {application['name']}",
-        [f"You have been given access to {application['name']}{role_text}."],
-        f"Open {application['name']}",
-        "/",
-    )
+    if existing:
+        # The access was already there: only the role changed, so the employee is told that instead.
+        background.add_task(
+            notify,
+            user["email"],
+            user["id"],
+            "access.role_changed",
+            f"Your role in {application['name']} changed",
+            [f"Your role in {application['name']} is now {role_name or 'standard access'}. It applies at your next sign-in."],
+            f"Open {application['name']}",
+            "/",
+        )
+    else:
+        background.add_task(
+            notify,
+            user["email"],
+            user["id"],
+            "access.granted",
+            f"You now have access to {application['name']}",
+            [f"You have been given access to {application['name']}{role_text}."],
+            f"Open {application['name']}",
+            "/",
+        )
     return {"id": row["id"]}
 
 

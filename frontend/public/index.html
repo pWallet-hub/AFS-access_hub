@@ -905,7 +905,9 @@
         { node: h("strong", null, a.application_name) },
         { node: a.role_name ? badge(a.role_name, "accent") : badge("Standard access", "neutral") },
         { node: h("span", { title: fullDate(a.granted_at) }, ago(a.granted_at)) },
-        { className: "actions-cell", node: button("Revoke", () => revoke(a), { small: true, danger: true, ariaLabel: `Revoke ${a.application_name} from ${a.email}` }) },
+        { className: "actions-cell", node: h("span", { class: "actions" },
+            button("Change role", () => changeRole(a), { small: true, ariaLabel: `Change ${a.email}'s role in ${a.application_name}` }),
+            button("Revoke", () => revoke(a), { small: true, danger: true, ariaLabel: `Revoke ${a.application_name} from ${a.email}` })) },
       ]), { label: "Assignments" }));
     };
     const managedApps = apps.filter((a) => managesApp(a.id));
@@ -951,6 +953,28 @@
     });
     loadRoles(appSelect.value).catch((err) => toast(err.message, true));
     return dialog;
+  }
+
+  // Changes the role in place. The employee keeps access throughout, so nothing is revoked and granted again.
+  function changeRole(assignment) {
+    const roleSelect = h("select", { name: "app_role_id", "aria-label": "Role" }, h("option", { value: "" }, "Standard access"));
+    api("GET", `/api/admin/applications/${assignment.application_id}/roles`)
+      .then((roles) => {
+        roleSelect.append(...roles.map((r) => h("option", { value: r.id }, `${r.name} (${r.external_role})`)));
+        roleSelect.value = assignment.app_role_id || "";
+      })
+      .catch((err) => toast(err.message, true));
+    return openForm({
+      title: `Change role in ${assignment.application_name}`,
+      description: `${assignment.email} keeps access. The new role applies at their next sign-in, and they are emailed about the change.`,
+      submitLabel: "Save role",
+      fields: [],
+      extra: [h("div", { class: "field" }, h("label", { for: "change-role" }, "Role"), (roleSelect.id = "change-role", roleSelect))],
+      onSubmit: () => api("POST", "/api/admin/assignments", {
+        user_id: assignment.user_id, application_id: assignment.application_id, app_role_id: roleSelect.value || null,
+      }),
+      done: () => { toast("Role changed."); navigate(); },
+    });
   }
 
   function revoke(assignment) {
