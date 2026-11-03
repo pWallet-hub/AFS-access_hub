@@ -48,16 +48,24 @@ def call(method, path, token=None, json_body=None, form=None):
     if token:
         headers["Authorization"] = f"Bearer {token}"
     request = urllib.request.Request(f"{KC}{path}", data=data, method=method, headers=headers)
-    try:
-        with urllib.request.urlopen(request, timeout=15) as response:
-            body = response.read()
-            return response.status, json.loads(body) if body else None
-    except urllib.error.HTTPError as error:
-        body = error.read()
+    # Keycloak can reset or time out a connection while it is still settling after startup. Retry those network errors
+    # (not HTTP error responses, which are answers from Keycloak and are returned to the caller).
+    for attempt in range(1, 6):
         try:
-            return error.code, json.loads(body) if body else None
-        except json.JSONDecodeError:
-            return error.code, None
+            with urllib.request.urlopen(request, timeout=30) as response:
+                body = response.read()
+                return response.status, json.loads(body) if body else None
+        except urllib.error.HTTPError as error:
+            body = error.read()
+            try:
+                return error.code, json.loads(body) if body else None
+            except json.JSONDecodeError:
+                return error.code, None
+        except OSError as error:  # URLError, connection reset, timeout
+            if attempt == 5:
+                raise
+            log(f"network error talking to Keycloak ({error}); retrying")
+            time.sleep(3)
 
 
 def log(message):
@@ -70,7 +78,7 @@ def wait_for_keycloak(attempts=60):
             status, _ = call("GET", "/realms/master/.well-known/openid-configuration")
             if status == 200:
                 return
-        except urllib.error.URLError:
+        except OSError:
             pass
         time.sleep(2)
     sys.exit("Keycloak did not become reachable in time")
