@@ -124,7 +124,7 @@ def test_administrator_sees_the_console_and_integration_health(browser):
 def test_new_employee_has_no_admin_tabs_and_no_applications(browser, employee):
     context, page = _sign_in(browser, employee["email"], employee["password"])
     links = page.locator("#nav a").all_inner_texts()
-    assert links == ["My applications"]
+    assert links == ["Home"]
     expect(page.locator("main")).to_contain_text("Nothing to open yet")
     context.close()
 

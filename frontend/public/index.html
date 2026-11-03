@@ -78,6 +78,7 @@
     nav.side a[aria-current="page"] { background: var(--accent-soft); color: var(--accent); }
     nav.side svg { width: 18px; height: 18px; flex: none; opacity: .85; }
     main { padding: 26px clamp(16px, 3vw, 36px) 60px; min-width: 0; }
+    main:focus { outline: none; } /* focused by script on each page change, not by the user */
     .page-head { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: flex-end; justify-content: space-between; margin-bottom: 20px; }
     .page-head h1 { font-size: 24px; line-height: 1.2; margin: 0 0 4px; font-weight: 680; }
     .page-head p { margin: 0; color: var(--muted); max-width: 70ch; }
@@ -197,7 +198,7 @@
 
     /* ---------- Responsive ---------- */
     @media (max-width: 860px) {
-      .layout { grid-template-columns: 1fr; align-items: start; }
+      .layout { grid-template-columns: 1fr; align-items: start; align-content: start; }
       nav.side { display: flex; gap: 4px; overflow-x: auto; padding: 8px; border-right: none; border-bottom: 1px solid var(--line); position: sticky; top: 60px; z-index: 15; background: var(--surface); }
       nav.side .group { display: none; }
       nav.side { align-items: center; align-self: start; min-height: 0; }
@@ -464,7 +465,7 @@
 
   // Route table: id, label, icon, group, admin-only flag, renderer.
   const ROUTES = [
-    { id: "home", label: "My applications", icon: "apps", group: "Portal", render: renderHome },
+    { id: "home", label: "Home", icon: "apps", group: "Portal", render: renderHome },
     { id: "employees", label: "Employees", icon: "people", group: "Administration", admin: true, render: renderEmployees },
     { id: "applications", label: "Applications", icon: "box", group: "Administration", admin: true, render: renderApplications },
     { id: "assignments", label: "Assignments", icon: "key", group: "Administration", admin: true, render: renderAssignments },

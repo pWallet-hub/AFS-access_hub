@@ -254,7 +254,7 @@ def test_employee_flow_and_sign_out(browser):
         # Admin screens are not reachable by typing their address.
         page.goto(BASE_URL + "/#/employees")
         expect(page.locator("main h1")).to_contain_text("Welcome")
-        expect(page.locator("#nav a")).to_have_text(["My applications"])
+        expect(page.locator("#nav a")).to_have_text(["Home"])
         context.close()
     finally:
         _http("DELETE", f"{KEYCLOAK_URL}/admin/realms/{REALM}/users/{keycloak_id}", token=token)
