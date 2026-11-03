@@ -1,23 +1,136 @@
-# Production overlay. Use with the base file:
-#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
-# Requirements: TLS terminates at a reverse proxy in front of the frontend and Keycloak; PUBLIC_BASE_URL and
-# KEYCLOAK_PUBLIC_URL are https addresses; ENVIRONMENT=production so the backend refuses unsafe settings at startup.
+# Production stack for Coolify (Docker Compose build pack). Standalone: do not combine with docker-compose.yml.
+# Coolify's proxy terminates HTTPS and routes the domains; set them in Coolify on these services:
+#   frontend  -> accesshub.afs-rwanda.org   (port 80)
+#   keycloak  -> sso.afs-rwanda.org         (port 8080)
+# Every value comes from the Coolify environment variables (see deploy notes), never from a .env file.
 services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
   keycloak:
     build: ./keycloak
     command: ["start", "--optimized"]
     environment:
-      KC_HTTP_ENABLED: "false"
-      KC_PROXY_HEADERS: xforwarded
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://db:5432/keycloak
+      KC_DB_USERNAME: ${POSTGRES_USER}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_HOSTNAME: ${KEYCLOAK_PUBLIC_URL}
       KC_HOSTNAME_STRICT: "true"
-    ports: !reset []
+      # Coolify's proxy terminates TLS and forwards the original scheme and host.
+      KC_HTTP_ENABLED: "true"
+      KC_PROXY_HEADERS: xforwarded
+      KC_HEALTH_ENABLED: "true"
+    expose:
+      - "8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000 && printf 'GET /health/ready HTTP/1.0\\r\\n\\r\\n' >&3 && grep -q '\"UP\"' <&3"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
     restart: unless-stopped
 
+  keycloak-init:
+    image: python:3.12-slim
+    command: ["python", "/app/bootstrap.py"]
+    working_dir: /app
+    volumes:
+      - ./keycloak/bootstrap.py:/app/bootstrap.py:ro
+    environment:
+      KEYCLOAK_INTERNAL_URL: http://keycloak:8080
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM}
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID}
+      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL}
+      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM: ${RESEND_FROM:-}
+      RESEND_FROM_NAME: ${RESEND_FROM_NAME:-AFS Command Center}
+      IMAGEUNIT_OIDC_CLIENT_ID: ${IMAGEUNIT_OIDC_CLIENT_ID}
+      IMAGEUNIT_OIDC_CLIENT_SECRET: ${IMAGEUNIT_OIDC_CLIENT_SECRET}
+      IMAGEUNIT_REDIRECT_URI: ${IMAGEUNIT_REDIRECT_URI}
+      IMAGEUNIT_ORIGIN: ${IMAGEUNIT_ORIGIN}
+      BIOCAP_OIDC_CLIENT_ID: ${BIOCAP_OIDC_CLIENT_ID}
+      BIOCAP_OIDC_CLIENT_SECRET: ${BIOCAP_OIDC_CLIENT_SECRET}
+      BIOCAP_REDIRECT_URI: ${BIOCAP_REDIRECT_URI}
+      BIOCAP_ORIGIN: ${BIOCAP_ORIGIN}
+      PROCUREMENT_OIDC_CLIENT_ID: ${PROCUREMENT_OIDC_CLIENT_ID}
+      PROCUREMENT_OIDC_CLIENT_SECRET: ${PROCUREMENT_OIDC_CLIENT_SECRET}
+      PROCUREMENT_REDIRECT_URI: ${PROCUREMENT_REDIRECT_URI}
+      PROCUREMENT_ORIGIN: ${PROCUREMENT_ORIGIN}
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    restart: "no"
+
   backend:
+    build: ./backend
     environment:
       ENVIRONMENT: production
       SESSION_HTTPS_ONLY: "true"
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      SESSION_SECRET: ${SESSION_SECRET}
+      KEYCLOAK_PUBLIC_URL: ${KEYCLOAK_PUBLIC_URL}
+      KEYCLOAK_INTERNAL_URL: http://keycloak:8080
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM}
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID}
+      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM: ${RESEND_FROM:-}
+      AFS_SERVICE_TOKEN_IMAGEUNIT: ${AFS_SERVICE_TOKEN_IMAGEUNIT}
+      AFS_SERVICE_TOKEN_BIOCAP: ${AFS_SERVICE_TOKEN_BIOCAP}
+      # Read-only counts for the Command Center usage dashboard. Empty = the Biocap figures stay 'not configured'.
+      BIOCAP_DB_URI: ${BIOCAP_DB_URI:-}
+      AFS_SERVICE_TOKEN_PROCUREMENT: ${AFS_SERVICE_TOKEN_PROCUREMENT}
+    depends_on:
+      db:
+        condition: service_healthy
+      keycloak-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=4).status == 200 else 1)"]
+      interval: 10s
+      timeout: 6s
+      retries: 10
+      start_period: 15s
     restart: unless-stopped
 
   frontend:
+    build: ./frontend
+    expose:
+      - "80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
+
+volumes:
+  pgdata:
