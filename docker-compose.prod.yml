@@ -42,7 +42,8 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000 && printf 'GET /health/ready HTTP/1.0\\r\\n\\r\\n' >&3 && grep -q '\"UP\"' <&3"]
+      # Checks the public HTTP port, so it works whether or not the image was built with health endpoints.
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/8080 && printf 'GET /realms/master/.well-known/openid-configuration HTTP/1.0\\r\\nHost: sso.afs-rwanda.org\\r\\n\\r\\n' >&3 && head -1 <&3 | grep -q '200 OK'"]
       interval: 10s
       timeout: 5s
       retries: 30
