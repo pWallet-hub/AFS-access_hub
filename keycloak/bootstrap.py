@@ -190,6 +190,9 @@ def application_client_settings(slug, name, prefix):
     secret = os.environ.get(f"{prefix}_OIDC_CLIENT_SECRET", "")
     if not secret:
         return None
+    for variable in (f"{prefix}_ORIGIN", f"{prefix}_REDIRECT_URI"):
+        if not os.environ.get(variable):
+            sys.exit(f"{variable} is not set, but {prefix}_OIDC_CLIENT_SECRET is. Set {variable}, or clear the secret to skip {name}.")
     origin = os.environ[f"{prefix}_ORIGIN"].rstrip("/")
     return {
         "id": os.environ.get(f"{prefix}_OIDC_CLIENT_ID", slug),
@@ -290,7 +293,17 @@ def ensure_bootstrap_user(token):
     log(f"created bootstrap user {BOOTSTRAP_EMAIL}")
 
 
+REQUIRED_SETTINGS = (
+    "KEYCLOAK_INTERNAL_URL", "KEYCLOAK_REALM", "KEYCLOAK_ADMIN", "KEYCLOAK_ADMIN_PASSWORD",
+    "OIDC_CLIENT_ID", "OIDC_CLIENT_SECRET", "PUBLIC_BASE_URL", "BOOTSTRAP_ADMIN_EMAIL", "BOOTSTRAP_ADMIN_PASSWORD",
+)
+
+
 def main():
+    # An unset variable reaches this script as an empty string, so check for values, not just for the name.
+    missing = [name for name in REQUIRED_SETTINGS if not os.environ.get(name)]
+    if missing:
+        sys.exit("Not set in the environment (empty values count as unset): " + ", ".join(missing))
     wait_for_keycloak()
     token = admin_token()
     ensure_realm(token)
