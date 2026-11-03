@@ -35,7 +35,6 @@ class UserUpdate(BaseModel):
 
 class ApplicationCreate(BaseModel):
     slug: str = Field(pattern=SLUG_PATTERN)
-    project_id: UUID | None = None
     name: str = Field(min_length=1, max_length=120)
     description: str = Field(default="", max_length=1000)
     launch_url: str | None = Field(default=None, max_length=500)
@@ -50,7 +49,6 @@ class ApplicationCreate(BaseModel):
 
 
 class ApplicationUpdate(BaseModel):
-    project_id: UUID | None = None
     name: str | None = Field(default=None, min_length=1, max_length=120)
     description: str | None = Field(default=None, max_length=1000)
     launch_url: str | None = Field(default=None, max_length=500)
@@ -62,12 +60,6 @@ class ApplicationUpdate(BaseModel):
     @classmethod
     def check_launch_url(cls, value):
         return _check_launch_url(value)
-
-
-class ProjectCreate(BaseModel):
-    slug: str = Field(pattern=SLUG_PATTERN)
-    name: str = Field(min_length=1, max_length=120)
-    description: str = Field(default="", max_length=1000)
 
 
 class RoleCreate(BaseModel):

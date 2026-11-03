@@ -85,36 +85,6 @@ def me(user=Depends(current_user)):
     }
 
 
-@app.get("/api/projects")
-def my_projects(user=Depends(current_user)):
-    """The signed-in employee's applications grouped by project. Applications without a project are grouped as Other."""
-    with connect() as conn:
-        rows = conn.execute(
-            "SELECT p.slug AS project_slug, p.name AS project_name, a.slug, a.name, a.description, a.enabled,"
-            " a.launch_url, r.name AS role_name"
-            " FROM assignments s"
-            " JOIN applications a ON a.id = s.application_id"
-            " LEFT JOIN projects p ON p.id = a.project_id"
-            " LEFT JOIN app_roles r ON r.id = s.app_role_id"
-            " WHERE s.user_id = %s AND s.revoked_at IS NULL"
-            " ORDER BY p.name NULLS LAST, a.name",
-            (user["id"],),
-        ).fetchall()
-    groups = {}
-    for row in rows:
-        key = row["project_slug"] or "other"
-        group = groups.setdefault(key, {"slug": key, "name": row["project_name"] or "Other applications", "applications": []})
-        group["applications"].append({
-            "slug": row["slug"],
-            "name": row["name"],
-            "description": row["description"],
-            "role_name": row["role_name"],
-            "available": row["enabled"],
-            "launch_url": row["launch_url"] if row["enabled"] else None,
-        })
-    return list(groups.values())
-
-
 @app.get("/api/apps")
 def my_applications(user=Depends(current_user)):
     """Applications the signed-in employee is assigned to. Disabled ones are listed as unavailable, without a link."""

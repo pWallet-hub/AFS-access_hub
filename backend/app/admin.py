@@ -16,7 +16,7 @@ from .audit import record
 from .auth import require_platform_role
 from .db import connect
 from .notifications import notify
-from .schemas import ApplicationCreate, ApplicationUpdate, AssignmentCreate, ProjectCreate, RoleCreate, UserCreate, UserUpdate
+from .schemas import ApplicationCreate, ApplicationUpdate, AssignmentCreate, RoleCreate, UserCreate, UserUpdate
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
@@ -238,42 +238,12 @@ def list_applications(actor=Depends(ACCESS_ADMIN)):
     with connect() as conn:
         return conn.execute(
             "SELECT a.id, a.slug, a.name, a.description, a.launch_url, a.enabled, a.integration_type, a.oidc_client_id,"
-            " a.project_id, p.name AS project_name, a.created_at, a.updated_at"
-            " FROM applications a LEFT JOIN projects p ON p.id = a.project_id ORDER BY a.name"
+            " a.created_at, a.updated_at FROM applications a ORDER BY a.name"
         ).fetchall()
-
-
-@router.get("/projects")
-def list_projects(actor=Depends(ACCESS_ADMIN)):
-    with connect() as conn:
-        return conn.execute(
-            "SELECT p.id, p.slug, p.name, p.description, count(a.id) AS application_count FROM projects p"
-            " LEFT JOIN applications a ON a.project_id = p.id GROUP BY p.id ORDER BY p.name"
-        ).fetchall()
-
-
-@router.post("/projects", status_code=201)
-def create_project(body: ProjectCreate, actor=Depends(SUPER_ADMIN)):
-    with connect() as conn:
-        try:
-            with conn.transaction():
-                row = conn.execute(
-                    "INSERT INTO projects (slug, name, description) VALUES (%s, %s, %s) RETURNING id, slug, name, description",
-                    (body.slug, body.name, body.description),
-                ).fetchone()
-        except errors.UniqueViolation:
-            raise HTTPException(status_code=409, detail="A project with this slug already exists")
-        record(conn, actor=actor, action="project.create", outcome="success", target_type="project", target_id=row["id"],
-               details={"slug": body.slug, "name": body.name})
-        return row
 
 
 @router.post("/applications", status_code=201)
 def create_application(body: ApplicationCreate, actor=Depends(SUPER_ADMIN)):
-    if body.project_id is not None:
-        with connect() as conn:
-            if conn.execute("SELECT 1 AS ok FROM projects WHERE id = %s", (body.project_id,)).fetchone() is None:
-                raise HTTPException(status_code=422, detail="The selected project does not exist")
     if body.enabled and not body.launch_url:
         raise HTTPException(status_code=422, detail="An application needs a launch URL before it can be enabled")
     with connect() as conn:
@@ -281,7 +251,7 @@ def create_application(body: ApplicationCreate, actor=Depends(SUPER_ADMIN)):
             with conn.transaction():
                 row = conn.execute(
                     "INSERT INTO applications (slug, name, description, launch_url, enabled, integration_type,"
-                    " oidc_client_id, project_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING *",
+                    " oidc_client_id) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING *",
                     (
                         body.slug,
                         body.name,
@@ -290,7 +260,6 @@ def create_application(body: ApplicationCreate, actor=Depends(SUPER_ADMIN)):
                         body.enabled,
                         body.integration_type,
                         body.oidc_client_id,
-                        body.project_id,
                     ),
                 ).fetchone()
         except errors.UniqueViolation:
@@ -322,8 +291,6 @@ def update_application(application_id: UUID, body: ApplicationUpdate, actor=Depe
     changes = body.model_dump(exclude_none=True)
     with connect() as conn:
         current = _get_application(conn, application_id)
-        if "project_id" in changes and conn.execute("SELECT 1 AS ok FROM projects WHERE id = %s", (changes["project_id"],)).fetchone() is None:
-            raise HTTPException(status_code=422, detail="The selected project does not exist")
         final_url = changes["launch_url"] if "launch_url" in changes else current["launch_url"]
         final_enabled = changes["enabled"] if "enabled" in changes else current["enabled"]
         if final_enabled and not final_url:

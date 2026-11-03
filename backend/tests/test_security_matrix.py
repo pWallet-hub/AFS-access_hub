@@ -52,8 +52,6 @@ ENDPOINTS = [
     ("GET", "/api/admin/applications", None, {"super_admin", "access_admin"}),
     ("POST", "/api/admin/applications", {"slug": "zz-matrix-slug", "name": "Z"}, {"super_admin"}),
     ("PATCH", "/api/admin/applications/{app}", {"description": "d"}, {"super_admin"}),
-    ("GET", "/api/admin/projects", None, {"super_admin", "access_admin"}),
-    ("POST", "/api/admin/projects", {"slug": "zz-proj", "name": "P"}, {"super_admin"}),
     # Application-specific endpoints: access administrators need the application in their scope (tested below).
     ("GET", "/api/admin/applications/{app}/roles", None, {"super_admin"}),
     ("POST", "/api/admin/applications/{app}/roles", {"name": "editor2", "external_role": "e"}, {"super_admin"}),

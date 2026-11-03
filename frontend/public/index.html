@@ -62,20 +62,10 @@
       background: var(--accent-soft); color: var(--accent); font-weight: 650; font-size: 13px;
     }
 
-    /* Second sidebar on the Project page: the same look as the main sidebar, placed before the page content. */
-    .project-layout { display: grid; grid-template-columns: 232px minmax(0, 1fr); gap: 0; min-height: 100%; }
-    .project-layout > nav.project-list { border-right: 1px solid var(--line); padding: 14px 10px; margin: 0 0 0 calc(-1 * clamp(16px, 3vw, 36px)); min-height: 360px; }
-    .project-layout > section { padding-left: clamp(16px, 3vw, 36px); min-width: 0; }
-    .project-list a .mark { width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; flex: none; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 700; }
-    .project-list a[aria-current="page"] .mark { background: var(--accent); color: var(--accent-fg); }
-    .project-list a .count { margin-left: auto; font-size: 12px; color: var(--muted); background: var(--surface-2); border-radius: 999px; padding: 0 7px; }
-    .project-title { margin: 0 0 2px; font-size: 22px; font-weight: 680; }
-    @media (max-width: 860px) {
-      .project-layout { grid-template-columns: 1fr; }
-      .project-layout > nav.project-list { display: block; position: static; margin: 0 0 16px; padding: 12px 10px; border-right: none; border-bottom: 1px solid var(--line); overflow: visible; }
-      .project-layout > nav.project-list .group { display: block; }
-      .project-layout > section { padding-left: 0; }
-    }
+    .hero { margin-bottom: 22px; }
+    .hero .eyebrow { margin: 0 0 4px; font-size: 12px; font-weight: 650; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+    .hero h1 { margin: 0 0 4px; font-size: 26px; line-height: 1.2; font-weight: 680; }
+    .hero p { margin: 0; color: var(--muted); }
 
     .layout { display: grid; grid-template-columns: 232px 1fr; min-height: calc(100vh - 60px); }
     nav.side { border-right: 1px solid var(--line); background: var(--surface); padding: 14px 10px; }
@@ -239,7 +229,7 @@
   <!-- Signed in -->
   <div id="view-app" hidden>
     <header class="topbar">
-      <a class="brand" href="#/project" aria-label="AFS Command Center home">
+      <a class="brand" href="#/home" aria-label="AFS Command Center home">
         <span class="brand-mark" aria-hidden="true">A</span>
         <span>Command Center</span>
       </a>
@@ -474,7 +464,7 @@
 
   // Route table: id, label, icon, group, admin-only flag, renderer.
   const ROUTES = [
-    { id: "project", label: "Project", icon: "apps", group: "Portal", render: renderProjects },
+    { id: "home", label: "My applications", icon: "apps", group: "Portal", render: renderHome },
     { id: "employees", label: "Employees", icon: "people", group: "Administration", admin: true, render: renderEmployees },
     { id: "applications", label: "Applications", icon: "box", group: "Administration", admin: true, render: renderApplications },
     { id: "assignments", label: "Assignments", icon: "key", group: "Administration", admin: true, render: renderAssignments },
@@ -510,11 +500,11 @@
   async function navigate() {
     if (!state.me) return;
     const attempt = ++navigation; // a newer navigation supersedes this one, so only the latest render is shown
-    const [requestedId, param] = (location.hash.replace(/^#\/?/, "") || "project").split("/");
+    const [requestedId, param] = (location.hash.replace(/^#\/?/, "") || "home").split("/");
     const allowed = allowedRoutes();
     const route = allowed.find((r) => r.id === requestedId) || allowed[0];
     if (route.id !== requestedId) history.replaceState(null, "", "#/" + route.id);
-    renderNav(route.id === "app" ? "project" : route.id); // an application belongs to the Project section
+    renderNav(route.id);
     const main = $("#main");
     main.replaceChildren(skeleton());
     try {
@@ -555,7 +545,7 @@
     document.title = "AFS Command Center";
   }
 
-  /* ================= Portal: project ================= */
+  /* ================= Portal: home ================= */
 
   function appCard(app) {
     return h("article", { class: "panel card" },
@@ -571,31 +561,22 @@
           : h("span", { class: "muted" }, "Temporarily unavailable. Try again later.")));
   }
 
-  // The second sidebar lists every project the employee has applications in; choosing one shows its applications.
-  async function renderProjects(root, selected) {
-    const projects = await api("GET", "/api/projects");
-    if (projects.length === 0) {
-      root.replaceChildren(pageHead("Project", "Applications assigned to you, grouped by project."),
-        emptyState(icon("apps"), "No applications yet", "No applications are assigned to you yet. Ask an access administrator if you need one."));
-      return;
-    }
-    const total = projects.reduce((n, p) => n + p.applications.length, 0);
-    const current = projects.find((p) => p.slug === selected) || projects[0];
-    // Same structure as the main sidebar (nav.side), so the two look and behave alike.
-    const list = h("nav", { class: "side project-list", "aria-label": "Projects" },
-      h("div", { class: "group" }, "Projects"),
-      projects.map((p) => h("a", { href: "#/project/" + p.slug, "aria-current": p.slug === current.slug ? "page" : null },
-        h("span", { class: "mark", "aria-hidden": "true" }, p.name.charAt(0).toUpperCase()),
-        h("span", null, p.name),
-        h("span", { class: "count" }, p.applications.length))));
-    const count = current.applications.length;
+  // Every application the employee is assigned to. Each card opens the application in its own tab.
+  async function renderHome(root) {
+    const apps = await api("GET", "/api/apps");
+    const first = (state.me.name || state.me.email).split(" ")[0];
+    const unavailable = apps.filter((a) => !a.available).length;
+    const summary = apps.length === 0
+      ? "No applications are assigned to you yet."
+      : `${apps.length} application${apps.length === 1 ? "" : "s"} assigned to you${unavailable ? `, ${unavailable} temporarily unavailable` : ""}.`;
     root.replaceChildren(
-      pageHead("Project", `You have access to ${total} application${total === 1 ? "" : "s"} across ${projects.length} project${projects.length === 1 ? "" : "s"}.`),
-      h("div", { class: "project-layout" }, list,
-        h("section", { "aria-labelledby": "project-title" },
-          h("h2", { id: "project-title", class: "project-title" }, current.name),
-          h("p", { class: "muted", style: "margin:0 0 14px" }, `${count} application${count === 1 ? "" : "s"}`),
-          h("div", { class: "cards" }, current.applications.map(appCard)))));
+      h("section", { class: "hero" },
+        h("p", { class: "eyebrow" }, ROLE_LABEL[state.me.platform_role] || "Employee"),
+        h("h1", null, `Welcome, ${first}`),
+        h("p", null, summary)),
+      apps.length
+        ? h("div", { class: "cards" }, apps.map(appCard))
+        : emptyState(icon("apps"), "Nothing to open yet", "Ask an access administrator to assign the applications you need."));
   }
 
   /* ================= Administration: employees ================= */
@@ -734,46 +715,25 @@
 
   async function renderApplications(root) {
     const isSuper = state.me.platform_role === "super_admin";
-    const [apps, projects] = await Promise.all([api("GET", "/api/admin/applications"), api("GET", "/api/admin/projects")]);
+    const apps = await api("GET", "/api/admin/applications");
     const rows = apps.map((a) => [
       { node: h("div", null, h("strong", null, a.name), h("span", { class: "sub mono" }, a.slug)) },
-      { node: a.project_name ? badge(a.project_name, "accent") : h("span", { class: "muted" }, "None") },
       { node: a.enabled ? badge("Enabled", "ok") : badge("Disabled", "neutral") },
       { node: a.launch_url ? h("a", { href: a.launch_url, target: "_blank", rel: "noopener noreferrer", class: "mono" }, a.launch_url) : badge("No launch URL", "warn") },
       { node: a.integration_type === "none" ? "Not integrated" : "Single sign-on" },
       { className: "actions-cell", node: h("span", null,
         managesApp(a.id) ? button("Roles", () => manageRoles(a), { small: true, ariaLabel: `Roles for ${a.name}` }) : null,
-        isSuper ? button("Edit", () => editApplication(a, projects), { small: true, ariaLabel: `Edit ${a.name}` }) : null,
+        isSuper ? button("Edit", () => editApplication(a), { small: true, ariaLabel: `Edit ${a.name}` }) : null,
         isSuper ? button(a.enabled ? "Disable" : "Enable", () => toggleApplication(a), { small: true, danger: a.enabled, ariaLabel: `${a.enabled ? "Disable" : "Enable"} ${a.name}` }) : null) },
     ]);
     root.replaceChildren(
-      pageHead("Applications", "Applications are enabled only once they have a verified launch URL. Applications are grouped under their project.",
-        isSuper ? h("span", { class: "actions" },
-          h("button", { type: "button", onclick: () => newProject() }, "New project"),
-          h("button", { type: "button", class: "primary", onclick: () => registerApplication(projects) }, "Register application")) : null),
-      h("div", { class: "panel" }, apps.length ? table(["Application", "Project", "Status", "Launch URL", "Integration", ""].map((label) => ({ label })), rows, { label: "Applications" })
+      pageHead("Applications", "Applications are enabled only once they have a verified launch URL.",
+        isSuper ? h("button", { type: "button", class: "primary", onclick: () => registerApplication() }, "Register application") : null),
+      h("div", { class: "panel" }, apps.length ? table(["Application", "Status", "Launch URL", "Integration", ""].map((label) => ({ label })), rows, { label: "Applications" })
         : emptyState(icon("box"), "No applications", "Register an application to start assigning access.")));
   }
 
-  function newProject() {
-    openForm({
-      title: "New project",
-      description: "A project groups applications that belong together, such as a product with its portal and backend.",
-      submitLabel: "Create project",
-      fields: [
-        { label: "Name", name: "name", required: true, max: 120 },
-        { label: "Slug", name: "slug", required: true, pattern: "[a-z0-9][a-z0-9\\-]{1,40}", hint: "Lowercase letters, digits and hyphens. Cannot be changed later." },
-        { label: "Description", name: "description", type: "textarea", max: 1000 },
-      ],
-      onSubmit: async (values) => {
-        await api("POST", "/api/admin/projects", { name: values.name.trim(), slug: values.slug.trim(), description: values.description.trim() });
-        toast("Project created.");
-      },
-      done: () => navigate(),
-    });
-  }
-
-  function registerApplication(projects = []) {
+  function registerApplication() {
     openForm({
       title: "Register application",
       description: "New applications stay disabled until they have a launch URL and are enabled.",
@@ -783,12 +743,10 @@
         { label: "Slug", name: "slug", required: true, pattern: "[a-z0-9][a-z0-9\\-]{1,40}", hint: "Lowercase letters, digits and hyphens. Used in integrations; cannot be changed later." },
         { label: "Description", name: "description", type: "textarea", max: 1000 },
         { label: "Launch URL", name: "launch_url", type: "url", hint: "Optional for now. Required before the application can be enabled." },
-        { label: "Project", name: "project_id", options: [{ value: "", label: "No project" }, ...projects.map((p) => ({ value: p.id, label: p.name }))] },
       ],
       onSubmit: async (values) => {
         await api("POST", "/api/admin/applications", {
           name: values.name.trim(), slug: values.slug.trim(), description: values.description.trim(), launch_url: values.launch_url.trim() || null,
-          project_id: values.project_id || null,
         });
         toast("Application registered. It stays disabled until enabled.");
       },
@@ -796,7 +754,7 @@
     });
   }
 
-  function editApplication(app, projects = []) {
+  function editApplication(app) {
     openForm({
       title: "Edit application",
       description: app.slug,
@@ -805,11 +763,9 @@
         { label: "Name", name: "name", value: app.name, required: true, max: 120 },
         { label: "Description", name: "description", type: "textarea", value: app.description || "", max: 1000 },
         { label: "Launch URL", name: "launch_url", type: "url", value: app.launch_url || "", hint: "Must be an https address in production." },
-        { label: "Project", name: "project_id", value: app.project_id || "", options: [{ value: "", label: "No project" }, ...projects.map((p) => ({ value: p.id, label: p.name }))] },
       ],
       onSubmit: async (values) => {
         const body = { name: values.name.trim(), description: values.description.trim(), launch_url: values.launch_url.trim() || null };
-        if (values.project_id) body.project_id = values.project_id;
         await api("PATCH", `/api/admin/applications/${app.id}`, body);
         toast("Application updated.");
       },
@@ -1153,7 +1109,7 @@
     try {
       const me = await api("GET", "/api/me");
       showSignedIn(me);
-      if (!location.hash) location.hash = "#/project";
+      if (!location.hash) location.hash = "#/home";
       window.addEventListener("hashchange", navigate);
       await navigate();
     } catch (_) {

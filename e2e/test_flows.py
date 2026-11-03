@@ -127,23 +127,13 @@ def test_application_lifecycle(watched):
     name = f"Flow App {uuid.uuid4().hex[:5]}"
     slug = f"flow-{uuid.uuid4().hex[:8]}"
 
-    # New project, then an application in it.
-    page.click("button:has-text('New project')")
-    dialog = _dialog(page)
-    dialog.get_by_label("Name *").fill("Flow Project")
-    dialog.get_by_label("Slug *").fill(f"fp-{uuid.uuid4().hex[:6]}")
-    dialog.get_by_role("button", name="Create project").click()
-    _toast(page, "Project created")
-
     page.click("button:has-text('Register application')")
     dialog = _dialog(page)
     dialog.get_by_label("Name *").fill(name)
     dialog.get_by_label("Slug *").fill(slug)
-    dialog.get_by_label("Project").select_option(label="Flow Project")
     dialog.get_by_role("button", name="Register").click()
     _toast(page, "Application registered")
     row = page.get_by_role("table", name="Applications").locator("tr", has_text=name)
-    expect(row).to_contain_text("Flow Project")
     expect(row).to_contain_text("Disabled")
 
     # Enabling without a launch URL is refused with the reason shown.
@@ -255,16 +245,16 @@ def test_employee_flow_and_sign_out(browser):
     try:
         admin_context.request.post(BASE_URL + "/api/admin/users", data={"email": email})
         context, page = _sign_in(browser, email, password)
-        expect(page.locator("main")).to_contain_text("No applications yet")
-        # The in-portal application view no longer exists; its old address falls back to the project page.
+        expect(page.locator("main")).to_contain_text("Nothing to open yet")
+        # Unknown and old addresses fall back to the home page.
         page.goto(BASE_URL + "/#/app/does-not-exist")
-        expect(page.locator("main h1")).to_have_text("Project")
-        page.goto(BASE_URL + "/#/project/nope")
-        expect(page.locator("main h1")).to_have_text("Project")
+        expect(page.locator("main h1")).to_contain_text("Welcome")
+        page.goto(BASE_URL + "/#/project")
+        expect(page.locator("main h1")).to_contain_text("Welcome")
         # Admin screens are not reachable by typing their address.
         page.goto(BASE_URL + "/#/employees")
-        expect(page.locator("main h1")).to_have_text("Project")
-        expect(page.locator("#nav a")).to_have_text(["Project"])
+        expect(page.locator("main h1")).to_contain_text("Welcome")
+        expect(page.locator("#nav a")).to_have_text(["My applications"])
         context.close()
     finally:
         _http("DELETE", f"{KEYCLOAK_URL}/admin/realms/{REALM}/users/{keycloak_id}", token=token)
@@ -317,7 +307,7 @@ def test_mobile_layout_has_no_sideways_scrolling(browser):
     context, page = _sign_in(browser, ADMIN_EMAIL, ADMIN_PASSWORD)
     page.set_viewport_size({"width": 390, "height": 844})
     problems = []
-    for route in ["project", "employees", "applications", "assignments", "integrations", "audit"]:
+    for route in ["home", "employees", "applications", "assignments", "integrations", "audit"]:
         page.goto(BASE_URL + "/#/" + route)
         page.wait_for_selector("main h1", timeout=10000)
         page.wait_for_timeout(300)

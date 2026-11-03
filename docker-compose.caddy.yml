@@ -1,0 +1,36 @@
+# Public edge for production: Caddy terminates HTTPS for accesshub.afs-rwanda.org and sso.afs-rwanda.org.
+# Use after the production overlay:
+#   docker compose --env-file .env.production -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.caddy.yml up -d --build
+# Requirements: DNS A records for both hostnames point to this server; ports 80 and 443 are open.
+services:
+  keycloak:
+    environment:
+      # Plain HTTP is allowed between Caddy and Keycloak on the private Docker network. Caddy serves HTTPS to browsers.
+      KC_HTTP_ENABLED: "true"
+    # Localhost only: reach the admin console through an SSH tunnel, never from the network.
+    ports:
+      - "127.0.0.1:8081:8080"
+
+  frontend:
+    # Reachable only through Caddy.
+    ports: !reset []
+
+  caddy:
+    image: caddy:2
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      frontend:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:
