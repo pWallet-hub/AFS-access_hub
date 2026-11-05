@@ -1,6 +1,6 @@
 # Integration guides for the AFS applications
 
-Audience: the administrator who registers each application, and the developers who connect it to AFS SSO. Read [integration-audit.md](../integration-audit.md) for what each application's code looks like today, and [security.md](../security.md) for the rules the integrations must keep.
+Audience: the administrator who registers each application, and the developers who connect it to AFS SSO. For how each application is deployed and connected to Command Center, see [deployment.md](deployment.md). Read [integration-audit.md](../integration-audit.md) for what each application's code looks like today, and [security.md](../security.md) for the rules the integrations must keep.
 
 ## Applications
 
