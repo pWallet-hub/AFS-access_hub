@@ -4,6 +4,7 @@ Every endpoint checks the platform role on the server. The frontend hides contro
 cannot use, but that is never relied on for protection.
 """
 
+import logging
 from typing import Literal
 from uuid import UUID
 
@@ -11,6 +12,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 from psycopg import errors
 
+from . import keycloak_admin
 from .usage import application_usage, biocap_live_stats
 from .audit import record
 from .auth import require_platform_role
@@ -19,6 +21,7 @@ from .notifications import notify
 from .schemas import ApplicationCreate, ApplicationUpdate, AssignmentCreate, RoleCreate, UserCreate, UserUpdate
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
+log = logging.getLogger("afs.admin")
 
 ACCESS_ADMIN = require_platform_role("super_admin", "access_admin")
 SUPER_ADMIN = require_platform_role("super_admin")
@@ -137,20 +140,54 @@ def create_user(body: UserCreate, background: BackgroundTasks, actor=Depends(ACC
             details={"email": email},
         )
         created = _get_user(conn, row["id"])
-    background.add_task(
-        notify,
-        email,
-        created["id"],
-        "account.created",
-        "You have been added to AFS Command Center",
-        [
-            "An administrator has added you to AFS Command Center, the single place to reach the applications you are assigned.",
-            "Sign in with your AFS account. Your applications appear once an administrator assigns them.",
-        ],
-        "Open AFS Command Center",
-        "/",
-    )
-    return created
+    # The account is committed first, so a Keycloak or mail problem never undoes it; the admin can send the invite again.
+    return {**created, "invitation": _invite(created, actor, background)}
+
+
+@router.post("/users/{user_id}/invite")
+def invite_user(user_id: UUID, background: BackgroundTasks, actor=Depends(ACCESS_ADMIN)):
+    """Send (again) the set-password email to an employee who has not signed in yet, e.g. when the link expired."""
+    with connect() as conn:
+        user = _get_user(conn, user_id)
+        if user["linked"]:
+            raise HTTPException(status_code=409, detail="This employee has already signed in, so there is nothing to set up.")
+        if user["status"] != "active":
+            raise HTTPException(status_code=409, detail="Reactivate this account before sending an invitation.")
+    return _invite(user, actor, background)
+
+
+def _invite(user, actor, background):
+    """Give `user` an AFS account and email them a link to set their password.
+
+    Returns {"status": "sent" | "has_password" | "failed", "detail"?}. When they already have a password, they are
+    sent the plain welcome notice instead, since they can sign in straight away.
+    """
+    try:
+        outcome = keycloak_admin.invite(user["email"], user["display_name"])
+    except keycloak_admin.KeycloakError as error:
+        log.warning("invitation for user %s failed: %s", user["id"], error)
+        with connect() as conn:
+            record(conn, actor=actor, action="user.invite", outcome="failure", target_type="user",
+                   target_id=user["id"], details={"reason": str(error)})
+        return {"status": "failed", "detail": f"the invitation email was not sent: {error}."}
+    with connect() as conn:
+        record(conn, actor=actor, action="user.invite", outcome="success", target_type="user",
+               target_id=user["id"], details={"result": outcome})
+    if outcome == keycloak_admin.HAS_PASSWORD:
+        background.add_task(
+            notify,
+            user["email"],
+            user["id"],
+            "account.created",
+            "You have been added to AFS Command Center",
+            [
+                "An administrator has added you to AFS Command Center, the single place to reach the applications you are assigned.",
+                "Sign in with your existing AFS account. Your applications appear once an administrator assigns them.",
+            ],
+            "Open AFS Command Center",
+            "/",
+        )
+    return {"status": outcome}
 
 
 @router.patch("/users/{user_id}")
@@ -269,6 +306,12 @@ def delete_user(user_id: UUID, actor=Depends(ACCESS_ADMIN)):
             target_id=user_id,
             details={"email": target["email"]},
         )
+    # Also remove the Keycloak account made by an unanswered invitation, so its set-password link stops working.
+    # Accounts that have a password are real AFS identities and are kept.
+    try:
+        keycloak_admin.remove_unused(target["email"])
+    except keycloak_admin.KeycloakError as error:
+        log.warning("could not remove the unused identity for deleted user %s: %s", user_id, error)
 
 
 # ---------- Applications ----------

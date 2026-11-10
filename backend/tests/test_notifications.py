@@ -100,14 +100,29 @@ def test_rejected_and_unreachable_sends_are_audited_as_failures(monkeypatch):
     assert {r["outcome"] for r in rows} == {"failure"}
 
 
-def test_creating_an_employee_sends_a_welcome_notice(monkeypatch):
+def test_employee_with_an_existing_password_gets_the_welcome_notice(monkeypatch, fake_keycloak):
+    fake = FakeResend()
+    _enable(monkeypatch, fake)
+    fake_keycloak.outcome = "has_password"
+    admin = _admin()
+    email = f"new-{uuid.uuid4().hex[:8]}@example.test"
+    response = admin.post("/api/admin/users", json={"email": email})
+    assert response.status_code == 201
+    assert response.json()["invitation"] == {"status": "has_password"}
+    assert fake.calls[-1]["to"] == [email]
+    assert "added to AFS Command Center" in fake.calls[-1]["subject"]
+
+
+def test_new_employee_gets_only_the_set_password_email(monkeypatch, fake_keycloak):
+    # Keycloak sends the set-password email itself; the plain welcome notice would only lead to a login page.
     fake = FakeResend()
     _enable(monkeypatch, fake)
     admin = _admin()
     email = f"new-{uuid.uuid4().hex[:8]}@example.test"
-    assert admin.post("/api/admin/users", json={"email": email}).status_code == 201
-    assert fake.calls[-1]["to"] == [email]
-    assert "added to AFS Command Center" in fake.calls[-1]["subject"]
+    response = admin.post("/api/admin/users", json={"email": email})
+    assert response.json()["invitation"] == {"status": "sent"}
+    assert fake_keycloak.invited == [email]
+    assert all(call["to"] != [email] for call in fake.calls)
 
 
 def test_a_failed_email_does_not_undo_the_change(monkeypatch):

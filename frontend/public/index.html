@@ -607,6 +607,9 @@
         { node: h("span", { title: fullDate(u.last_login_at) }, ago(u.last_login_at)) },
         { className: "actions-cell", node: h("span", null,
           button("Edit", () => editEmployee(u), { small: true, ariaLabel: `Edit ${u.email}` }),
+          !u.linked && u.status === "active"
+            ? button("Send invite", () => sendInvite(u), { small: true, ariaLabel: `Send invitation to ${u.email}` })
+            : null,
           !u.linked && (isSuper || u.platform_role === "employee")
             ? button("Remove", () => removeEmployee(u), { small: true, danger: true, ariaLabel: `Remove ${u.email}` })
             : null,
@@ -647,15 +650,15 @@
   function addEmployee() {
     openForm({
       title: "Add employee",
-      description: "Creates the account now. The employee can sign in with their AFS account, and is sent a welcome email when mail is configured.",
+      description: "Creates the account and emails the employee a link to set their password. Once it is set, they sign in and land on their dashboard.",
       submitLabel: "Add employee",
       fields: [
         { label: "Email", name: "email", type: "email", required: true, hint: "Must match the employee's AFS sign-in email." },
         { label: "Display name", name: "display_name", hint: "Optional. Shown in the console." },
       ],
       onSubmit: async (values) => {
-        await api("POST", "/api/admin/users", { email: values.email.trim(), display_name: values.display_name.trim() || null });
-        toast("Employee added.");
+        const created = await api("POST", "/api/admin/users", { email: values.email.trim(), display_name: values.display_name.trim() || null });
+        inviteToast(created.invitation, "Employee added");
       },
       done: () => navigate(),
     });
@@ -696,6 +699,20 @@
       },
       done: () => navigate(),
     });
+  }
+
+  // Tells the admin what happened to the invitation email; a failure is shown so they can fix it and press Send invite.
+  function inviteToast(invitation, prefix) {
+    const status = invitation && invitation.status;
+    if (status === "sent") toast(`${prefix}. They have been emailed a link to set their password (valid for 3 days).`);
+    else if (status === "has_password") toast(`${prefix}. They already have an AFS password, so they were sent a sign-in link.`);
+    else toast(`${prefix}, but ${(invitation && invitation.detail) || "the invitation email was not sent."} Use Send invite to try again.`, true);
+  }
+
+  async function sendInvite(user) {
+    try {
+      inviteToast(await api("POST", `/api/admin/users/${user.id}/invite`), `Invitation to ${user.email}`);
+    } catch (err) { toast(err.message, true); }
   }
 
   function removeEmployee(user) {

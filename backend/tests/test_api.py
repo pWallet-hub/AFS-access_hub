@@ -362,3 +362,46 @@ def test_employee_cannot_remove_users(employee, super_admin):
 
 def test_removing_unknown_user_returns_404(super_admin):
     assert client_for(super_admin).delete(f"/api/admin/users/{uuid.uuid4()}").status_code == 404
+
+
+# ---------- Invitations (set-password email through Keycloak) ----------
+
+
+def test_failed_invitation_keeps_the_employee_and_reports_why(super_admin, fake_keycloak):
+    fake_keycloak.error = "the identity provider is unreachable (ConnectError)"
+    client = client_for(super_admin)
+    email = _unique_email()
+    response = client.post("/api/admin/users", json={"email": email})
+    assert response.status_code == 201
+    assert response.json()["invitation"]["status"] == "failed"
+    assert "unreachable" in response.json()["invitation"]["detail"]
+    assert any(u["email"] == email for u in client.get("/api/admin/users").json())
+    entries = client.get("/api/admin/audit", params={"limit": 50}).json()["items"]
+    assert any(e["action"] == "user.invite" and e["outcome"] == "failure" for e in entries)
+
+
+def test_invitation_can_be_sent_again_to_a_pending_employee(super_admin, fake_keycloak):
+    client = client_for(super_admin)
+    email = _unique_email()
+    created = client.post("/api/admin/users", json={"email": email}).json()
+    response = client.post(f"/api/admin/users/{created['id']}/invite")
+    assert response.status_code == 200 and response.json() == {"status": "sent"}
+    assert fake_keycloak.invited == [email, email]
+
+
+def test_no_invitation_for_employee_who_has_signed_in(super_admin, employee, fake_keycloak):
+    assert client_for(super_admin).post(f"/api/admin/users/{employee['id']}/invite").status_code == 409
+    assert fake_keycloak.invited == []
+
+
+def test_employee_cannot_send_invitations(employee, super_admin):
+    pending = client_for(super_admin).post("/api/admin/users", json={"email": _unique_email()}).json()
+    assert client_for(employee).post(f"/api/admin/users/{pending['id']}/invite").status_code == 403
+
+
+def test_removing_pending_employee_removes_their_unused_identity(super_admin, fake_keycloak):
+    client = client_for(super_admin)
+    email = _unique_email()
+    created = client.post("/api/admin/users", json={"email": email}).json()
+    assert client.delete(f"/api/admin/users/{created['id']}").status_code == 204
+    assert fake_keycloak.removed == [email]

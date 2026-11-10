@@ -178,13 +178,14 @@ def ensure_client(token, client):
         "secret": client["secret"],
         "standardFlowEnabled": True,
         "directAccessGrantsEnabled": False,
-        "serviceAccountsEnabled": False,
+        # Only Command Center's own client has a service account: it creates invited employees' accounts.
+        "serviceAccountsEnabled": client.get("service_account", False),
         "attributes": {
             "post.logout.redirect.uris": client["logout_redirect"],
             # Clients that send a PKCE challenge (ImageUnit) require S256; others are left unchanged.
             **({"pkce.code.challenge.method": "S256"} if client.get("pkce") else {}),
         },
-        "redirectUris": [client["redirect"]],
+        "redirectUris": client.get("redirects", [client["redirect"]]),
         "webOrigins": [client["origin"]],
     }
     _, existing = call("GET", f"/admin/realms/{REALM}/clients?clientId={client['id']}", token=token)
@@ -231,14 +232,46 @@ def ensure_clients(token):
             "redirect": f"{PUBLIC_BASE_URL}/auth/callback",
             "origin": PUBLIC_BASE_URL,
             "logout_redirect": f"{PUBLIC_BASE_URL}/",
+            # The portal root is where an invited employee returns after setting their password.
+            "redirects": [f"{PUBLIC_BASE_URL}/auth/callback", f"{PUBLIC_BASE_URL}/"],
+            "service_account": True,
         },
     )
+    grant_user_management(token)
     for slug, name, prefix in APPLICATIONS:
         settings = application_client_settings(slug, name, prefix)
         if settings is None:
             log(f"skipped client for {name}: {prefix}_OIDC_CLIENT_SECRET is not set")
             continue
         ensure_client(token, settings)
+
+
+# Roles Command Center's service account needs to invite employees: create users, read their credentials, send the
+# set-password email and delete unanswered invitations. Nothing beyond user management.
+USER_MANAGEMENT_ROLES = ("manage-users", "view-users", "query-users")
+
+
+def grant_user_management(token):
+    _, clients = call("GET", f"/admin/realms/{REALM}/clients?clientId={CLIENT_ID}", token=token)
+    status, account = call("GET", f"/admin/realms/{REALM}/clients/{clients[0]['id']}/service-account-user", token=token)
+    if status != 200:
+        sys.exit(f"Could not read the service account of '{CLIENT_ID}' (HTTP {status}): {account}")
+    _, management = call("GET", f"/admin/realms/{REALM}/clients?clientId=realm-management", token=token)
+    roles = []
+    for name in USER_MANAGEMENT_ROLES:
+        status, role = call("GET", f"/admin/realms/{REALM}/clients/{management[0]['id']}/roles/{name}", token=token)
+        if status != 200:
+            sys.exit(f"Could not read realm-management role '{name}' (HTTP {status}): {role}")
+        roles.append(role)
+    status, body = call(
+        "POST",
+        f"/admin/realms/{REALM}/users/{account['id']}/role-mappings/clients/{management[0]['id']}",
+        token=token,
+        json_body=roles,
+    )
+    if status != 204:
+        sys.exit(f"Failed to grant user management to '{CLIENT_ID}' (HTTP {status}): {body}")
+    log(f"service account of '{CLIENT_ID}' can manage users (for invitations)")
 
 
 def ensure_realm_role(token):
