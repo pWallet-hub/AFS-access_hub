@@ -104,6 +104,8 @@ def admin_token():
 # Realm security settings, applied on every run so they cannot drift. Brute-force protection locks an account
 # after repeated failed sign-ins (Keycloak's own counter, separate from Command Center's).
 REALM_SETTINGS = {
+    # Shown on the sign-in pages and in Keycloak's emails ("update your AFS account").
+    "displayName": "AFS",
     "bruteForceProtected": True,
     "failureFactor": 5,
     "maxFailureWaitSeconds": 900,
