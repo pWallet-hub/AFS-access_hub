@@ -40,6 +40,9 @@ services:
   keycloak:
     build: ./keycloak
     command: ["start", "--optimized"]
+    networks:
+      default: {}
+      afs-internal: { aliases: [afs-keycloak] }
     environment:
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://db:5432/keycloak
@@ -103,6 +106,10 @@ services:
 
   backend:
     build: ./backend
+    networks:
+      default: {}
+      # Integrated applications (ImageUnit, ...) reach the access check here. nginx blocks /api/internal/ publicly.
+      afs-internal: { aliases: [afs-command-center-backend] }
     environment:
       ENVIRONMENT: production
       SESSION_HTTPS_ONLY: "true"
@@ -148,6 +155,12 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
+
+networks:
+  # Private network shared with integrated applications' backends, which join it as external. Created by this stack,
+  # so deploy Command Center first. Only Keycloak and the backend are on it, under the stable aliases above.
+  afs-internal:
+    name: afs-internal
 
 volumes:
   pgdata_fresh:
