@@ -607,6 +607,9 @@
         { node: h("span", { title: fullDate(u.last_login_at) }, ago(u.last_login_at)) },
         { className: "actions-cell", node: h("span", null,
           button("Edit", () => editEmployee(u), { small: true, ariaLabel: `Edit ${u.email}` }),
+          !u.linked && (isSuper || u.platform_role === "employee")
+            ? button("Remove", () => removeEmployee(u), { small: true, danger: true, ariaLabel: `Remove ${u.email}` })
+            : null,
           u.status === "active"
             ? button("Disable", () => toggleStatus(u), { small: true, danger: true, ariaLabel: `Disable ${u.email}` })
             : button("Reactivate", () => toggleStatus(u), { small: true, ariaLabel: `Reactivate ${u.email}` })) },
@@ -690,6 +693,19 @@
           await api("PUT", `/api/admin/users/${user.id}/managed-applications`, { application_ids: ids });
         }
         toast("Employee updated.");
+      },
+      done: () => navigate(),
+    });
+  }
+
+  function removeEmployee(user) {
+    confirmDialog({
+      title: `Remove ${user.email}?`,
+      text: "They have not signed in yet, so the account is deleted along with any access granted to it. You can add the email again afterwards. The audit log keeps a record.",
+      action: "Remove employee",
+      onConfirm: async () => {
+        await api("DELETE", `/api/admin/users/${user.id}`);
+        toast("Employee removed.");
       },
       done: () => navigate(),
     });

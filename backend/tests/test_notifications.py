@@ -166,3 +166,13 @@ def test_audit_can_be_filtered_and_paged():
     assert len(page["items"]) <= 5
     second = admin.get("/api/admin/audit", params={"action": "user.create", "limit": 1, "offset": 1}).json()
     assert len(second["items"]) <= 1
+
+
+def test_sender_is_normalised_to_a_format_resend_accepts():
+    # A bare `<email>` is rejected by Resend with HTTP 422, which silently stopped every notice in production.
+    assert notifications.format_sender("<noreply@example.test>") == "noreply@example.test"
+    assert notifications.format_sender("<noreply@example.test>", "AFS  Command  Center") == "AFS Command Center <noreply@example.test>"
+    assert notifications.format_sender("noreply@example.test", "AFS") == "AFS <noreply@example.test>"
+    assert notifications.format_sender("noreply@example.test") == "noreply@example.test"
+    assert notifications.format_sender('"Biocap" <noreply@example.test>', "AFS") == "Biocap <noreply@example.test>"
+    assert notifications.format_sender("  ", "AFS") == ""

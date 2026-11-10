@@ -8,6 +8,7 @@ is off. Each attempt is recorded in the audit log as notification.sent or notifi
 import html
 import logging
 import os
+import re
 
 import httpx
 
@@ -16,8 +17,26 @@ from .db import connect
 
 log = logging.getLogger("afs.notifications")
 
+_SENDER = re.compile(r"^(?P<name>[^<>]*)<\s*(?P<address>[^<>\s]+)\s*>$")
+
+
+def format_sender(value, display_name=""):
+    """Return a `from` value Resend accepts: `email` or `Name <email>`.
+
+    Accepts `email`, `<email>` or `Name <email>`. A bare address takes `display_name`. A bare `<email>` is
+    rejected by Resend with HTTP 422, which silently stopped every notice, so it is normalised here.
+    """
+    value = (value or "").strip()
+    match = _SENDER.match(value)
+    address, name = (match["address"], match["name"]) if match else (value, "")
+    name = " ".join((name.strip().strip('"') or display_name or "").split())
+    if not address:
+        return ""
+    return f"{name} <{address}>" if name else address
+
+
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
-RESEND_FROM = os.environ.get("RESEND_FROM", "")
+RESEND_FROM = format_sender(os.environ.get("RESEND_FROM", ""), os.environ.get("RESEND_FROM_NAME", ""))
 PUBLIC_BASE_URL = os.environ.get("PUBLIC_BASE_URL", "http://localhost:8080").rstrip("/")
 RESEND_URL = "https://api.resend.com/emails"
 

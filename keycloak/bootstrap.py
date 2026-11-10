@@ -8,6 +8,7 @@ password changed later in the Keycloak admin console is not overwritten.
 
 import json
 import os
+import re
 import sys
 import time
 import urllib.error
@@ -112,8 +113,14 @@ REALM_SETTINGS = {
 
 
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
-RESEND_FROM = os.environ.get("RESEND_FROM", "")
-RESEND_FROM_NAME = os.environ.get("RESEND_FROM_NAME", "AFS Command Center")
+# Keycloak wants a bare sender address, with the name sent separately. RESEND_FROM may be written as
+# `email`, `<email>` or `Name <email>`; take the address from any of them.
+_RESEND_FROM_RAW = os.environ.get("RESEND_FROM", "").strip()
+_SENDER = re.match(r"^(?P<name>[^<>]*)<\s*(?P<address>[^<>\s]+)\s*>$", _RESEND_FROM_RAW)
+RESEND_FROM = _SENDER["address"] if _SENDER else _RESEND_FROM_RAW
+RESEND_FROM_NAME = " ".join(
+    (os.environ.get("RESEND_FROM_NAME", "") or (_SENDER["name"].strip().strip('"') if _SENDER else "") or "AFS Command Center").split()
+)
 
 
 def email_settings():

@@ -230,6 +230,47 @@ def update_user(user_id: UUID, body: UserUpdate, background: BackgroundTasks, ac
     return updated
 
 
+@router.delete("/users/{user_id}", status_code=204)
+def delete_user(user_id: UUID, actor=Depends(ACCESS_ADMIN)):
+    """Remove an employee who has never signed in, e.g. one added with a mistyped email.
+
+    Accounts that have signed in are kept for their history and must be disabled instead. Any assignments
+    given to the pending account are removed with it; the audit log keeps the record of both.
+    """
+    with connect() as conn:
+        # FOR UPDATE: a first sign-in links the row with an UPDATE, so it cannot slip in between check and delete.
+        target = conn.execute("SELECT * FROM users WHERE id = %s FOR UPDATE", (user_id,)).fetchone()
+        if target is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        if target["platform_role"] != "employee" and actor["platform_role"] != "super_admin":
+            _deny(conn, actor, "user.delete", "user", user_id)
+        if target["keycloak_sub"] is not None:
+            record(
+                conn,
+                actor=actor,
+                action="user.delete",
+                outcome="failure",
+                target_type="user",
+                target_id=user_id,
+                details={"reason": "account has signed in", "email": target["email"]},
+            )
+            raise HTTPException(
+                status_code=409,
+                detail="This employee has already signed in, so the account is kept for its history. Disable it instead.",
+            )
+        conn.execute("DELETE FROM assignments WHERE user_id = %s", (user_id,))
+        conn.execute("DELETE FROM users WHERE id = %s", (user_id,))
+        record(
+            conn,
+            actor=actor,
+            action="user.delete",
+            outcome="success",
+            target_type="user",
+            target_id=user_id,
+            details={"email": target["email"]},
+        )
+
+
 # ---------- Applications ----------
 
 

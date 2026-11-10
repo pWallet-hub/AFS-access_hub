@@ -116,6 +116,7 @@ services:
       PUBLIC_BASE_URL: ${PUBLIC_BASE_URL}
       RESEND_API_KEY: ${RESEND_API_KEY:-}
       RESEND_FROM: ${RESEND_FROM:-}
+      RESEND_FROM_NAME: ${RESEND_FROM_NAME:-AFS Command Center}
       AFS_SERVICE_TOKEN_IMAGEUNIT: ${AFS_SERVICE_TOKEN_IMAGEUNIT}
       AFS_SERVICE_TOKEN_BIOCAP: ${AFS_SERVICE_TOKEN_BIOCAP}
       # Read-only counts for the Command Center usage dashboard. Empty = the Biocap figures stay 'not configured'.

@@ -323,3 +323,42 @@ def test_health_reports_dependency_status():
     assert body["database"] in ("up", "down")
     assert body["identity_provider"] in ("up", "down")
     assert response.status_code == (200 if body["status"] == "ok" else 503)
+
+
+# ---------- Removing employees who have not signed in ----------
+
+
+def test_pending_employee_can_be_removed_and_added_again(super_admin):
+    client = client_for(super_admin)
+    email = _unique_email()
+    created = client.post("/api/admin/users", json={"email": email}).json()
+    assert client.delete(f"/api/admin/users/{created['id']}").status_code == 204
+    assert all(u["email"] != email for u in client.get("/api/admin/users").json())
+    assert client.post("/api/admin/users", json={"email": email}).status_code == 201
+    entries = client.get("/api/admin/audit", params={"limit": 50}).json()["items"]
+    assert any(e["action"] == "user.delete" and e["target_id"] == str(created["id"]) and e["outcome"] == "success" for e in entries)
+
+
+def test_employee_who_has_signed_in_cannot_be_removed(super_admin, employee):
+    response = client_for(super_admin).delete(f"/api/admin/users/{employee['id']}")
+    assert response.status_code == 409
+    with connect() as conn:
+        assert conn.execute("SELECT 1 FROM users WHERE id = %s", (employee["id"],)).fetchone()
+
+
+def test_access_admin_can_remove_pending_employee_but_not_pending_admin(super_admin, access_admin):
+    admin = client_for(access_admin)
+    pending = admin.post("/api/admin/users", json={"email": _unique_email()}).json()
+    assert admin.delete(f"/api/admin/users/{pending['id']}").status_code == 204
+    promoted = client_for(super_admin).post("/api/admin/users", json={"email": _unique_email()}).json()
+    client_for(super_admin).patch(f"/api/admin/users/{promoted['id']}", json={"platform_role": "super_admin"})
+    assert admin.delete(f"/api/admin/users/{promoted['id']}").status_code == 403
+
+
+def test_employee_cannot_remove_users(employee, super_admin):
+    pending = client_for(super_admin).post("/api/admin/users", json={"email": _unique_email()}).json()
+    assert client_for(employee).delete(f"/api/admin/users/{pending['id']}").status_code == 403
+
+
+def test_removing_unknown_user_returns_404(super_admin):
+    assert client_for(super_admin).delete(f"/api/admin/users/{uuid.uuid4()}").status_code == 404
