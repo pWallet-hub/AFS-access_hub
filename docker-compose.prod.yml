@@ -68,11 +68,9 @@ services:
     restart: unless-stopped
 
   keycloak-init:
-    image: python:3.12-slim
-    command: ["python", "/app/bootstrap.py"]
-    working_dir: /app
-    volumes:
-      - ./keycloak/bootstrap.py:/app/bootstrap.py:ro
+    build:
+      context: ./keycloak
+      dockerfile: Dockerfile.init
     environment:
       KEYCLOAK_INTERNAL_URL: http://keycloak:8080
       KEYCLOAK_REALM: ${KEYCLOAK_REALM}

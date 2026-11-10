@@ -1,0 +1,6 @@
+# One-shot realm/client bootstrap. The script is baked in (not bind-mounted) because Coolify
+# resolves bind-mount paths on the host, where the repo checkout does not exist.
+FROM python:3.12-slim
+WORKDIR /app
+COPY bootstrap.py /app/bootstrap.py
+CMD ["python", "/app/bootstrap.py"]
