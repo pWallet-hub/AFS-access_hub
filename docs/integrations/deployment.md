@@ -48,7 +48,7 @@ Addresses marked `example.org` are placeholders. Replace them with the real addr
 
 - **Coolify:** deploy its web app and API as two services in its own project. Give the API the callback domain and the web app its own domain.
 - **Command Center:** open **Applications → ImageUnit**, set the launch URL to the web app's public address, and enable it. An application cannot be enabled without a launch URL.
-- **Keycloak client:** created by `keycloak-init` when `IMAGEUNIT_OIDC_CLIENT_SECRET` is set. Its redirect URI is `IMAGEUNIT_REDIRECT_URI`, which must be the API's callback and must match exactly what ImageUnit sends.
+- **Keycloak client:** created by `keycloak-init` when `IMAGEUNIT_OIDC_CLIENT_SECRET` is set. Its redirect URI is `IMAGEUNIT_REDIRECT_URI`, which must be the callback on ImageUnit's **web** address (e.g. `https://gallery.afs-rwanda.org/api/auth/sso/callback`), not the API hostname, and must match `AFS_OIDC_REDIRECT_URI` exactly. The ImageUnit web app forwards `/api/*` to the API, and sign-in cookies (the SSO state cookie, then the session) belong to the web address. A callback on the API's own hostname cannot read the state cookie and fails with `expired`.
 - **Environment, Command Center:** `IMAGEUNIT_OIDC_CLIENT_ID`, `IMAGEUNIT_OIDC_CLIENT_SECRET`, `IMAGEUNIT_REDIRECT_URI`, `IMAGEUNIT_ORIGIN`, `AFS_SERVICE_TOKEN_IMAGEUNIT`.
 - **Environment, ImageUnit API:** `AFS_OIDC_ISSUER` (the public realm URL), `AFS_COMMAND_CENTER_URL` (internal, for example `http://backend:8000`), `AFS_SERVICE_TOKEN` (the same value as `AFS_SERVICE_TOKEN_IMAGEUNIT`), `PUBLIC_WEB_URL`.
 - **Network:** the ImageUnit API must reach Command Center's backend on the internal network. See section 4.

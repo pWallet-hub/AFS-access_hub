@@ -38,12 +38,12 @@ Set these in the AFS `.env` (see `.env.example`):
 ```bash
 IMAGEUNIT_OIDC_CLIENT_ID=imageunit
 IMAGEUNIT_OIDC_CLIENT_SECRET=<random, at least 24 characters>
-IMAGEUNIT_REDIRECT_URI=https://api.imageunit.example.org/api/auth/sso/callback
+IMAGEUNIT_REDIRECT_URI=https://imageunit.example.org/api/auth/sso/callback
 IMAGEUNIT_ORIGIN=https://imageunit.example.org
 AFS_SERVICE_TOKEN_IMAGEUNIT=<random, at least 32 characters, shared only with ImageUnit>
 ```
 
-- `IMAGEUNIT_REDIRECT_URI` must be the **ImageUnit API's** callback address. It must match exactly what ImageUnit sends.
+- `IMAGEUNIT_REDIRECT_URI` must be the callback on the **ImageUnit web address** (the same host as the login page), not the API's own hostname. It must match `AFS_OIDC_REDIRECT_URI` exactly. The ImageUnit web app forwards `/api/*` to the API, and sign-in cookies (the SSO state cookie, then the session) belong to the web address. A callback on the API's own hostname cannot read the state cookie and fails with `expired`.
 - Run `docker compose up -d` (or re-run `keycloak-init`) so the `imageunit` client is created or updated.
 - Each application has its own token (`AFS_SERVICE_TOKEN_<APP>`). A token works only for its own application.
 - ImageUnit's API must be able to reach the Command Center backend at `AFS_COMMAND_CENTER_URL` on the internal network. nginx blocks `/api/internal/` from browsers, so the call must not go through the public site.
@@ -75,7 +75,7 @@ Environment variables for the ImageUnit API:
 | `AFS_OIDC_INTERNAL_ISSUER` | `http://keycloak:8080/realms/afs` | Optional. Where the API reaches Keycloak. Defaults to `AFS_OIDC_ISSUER`. |
 | `AFS_OIDC_CLIENT_ID` | `imageunit` | |
 | `AFS_OIDC_CLIENT_SECRET` | same as `IMAGEUNIT_OIDC_CLIENT_SECRET` | Server-side only. |
-| `AFS_OIDC_REDIRECT_URI` | `https://api.imageunit.example.org/api/auth/sso/callback` | Optional. Defaults to `API_PUBLIC_URL` + `/api/auth/sso/callback`. |
+| `AFS_OIDC_REDIRECT_URI` | `https://imageunit.example.org/api/auth/sso/callback` | Set it to the **web** address's callback, the same value as `IMAGEUNIT_REDIRECT_URI`. The default (`API_PUBLIC_URL` + `/api/auth/sso/callback`) is wrong when the API has its own hostname. |
 | `AFS_COMMAND_CENTER_URL` | `http://backend:8000` | Internal address of the Command Center backend. |
 | `AFS_SERVICE_TOKEN` | same as `AFS_SERVICE_TOKEN_IMAGEUNIT` in the AFS `.env` | Server-side only. Sent as `X-Service-Token`; valid only for `imageunit`. |
 | `AFS_APP_SLUG` | `imageunit` | Optional. Matches the application slug in Command Center. |
