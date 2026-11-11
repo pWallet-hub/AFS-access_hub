@@ -99,6 +99,11 @@ services:
       PROCUREMENT_OIDC_CLIENT_SECRET: ${PROCUREMENT_OIDC_CLIENT_SECRET}
       PROCUREMENT_REDIRECT_URI: ${PROCUREMENT_REDIRECT_URI}
       PROCUREMENT_ORIGIN: ${PROCUREMENT_ORIGIN}
+      # Marketing Mailer. Optional: its Keycloak client is created only once MARKETING_OIDC_CLIENT_SECRET is set.
+      MARKETING_OIDC_CLIENT_ID: ${MARKETING_OIDC_CLIENT_ID:-marketing}
+      MARKETING_OIDC_CLIENT_SECRET: ${MARKETING_OIDC_CLIENT_SECRET:-}
+      MARKETING_REDIRECT_URI: ${MARKETING_REDIRECT_URI:-}
+      MARKETING_ORIGIN: ${MARKETING_ORIGIN:-}
     depends_on:
       keycloak:
         condition: service_healthy
@@ -129,6 +134,8 @@ services:
       # Read-only counts for the Command Center usage dashboard. Empty = the Biocap figures stay 'not configured'.
       BIOCAP_DB_URI: ${BIOCAP_DB_URI:-}
       AFS_SERVICE_TOKEN_PROCUREMENT: ${AFS_SERVICE_TOKEN_PROCUREMENT}
+      # Optional: without it every Marketing access check is refused.
+      AFS_SERVICE_TOKEN_MARKETING: ${AFS_SERVICE_TOKEN_MARKETING:-}
     depends_on:
       db:
         condition: service_healthy

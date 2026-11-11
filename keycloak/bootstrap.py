@@ -29,6 +29,7 @@ APPLICATIONS = [
     ("imageunit", "ImageUnit", "IMAGEUNIT"),
     ("biocap", "Biocap", "BIOCAP"),
     ("procurement", "Procurement", "PROCUREMENT"),
+    ("marketing", "Marketing Mailer", "MARKETING"),
 ]
 PUBLIC_BASE_URL = os.environ["PUBLIC_BASE_URL"].rstrip("/")
 BOOTSTRAP_EMAIL = os.environ["BOOTSTRAP_ADMIN_EMAIL"]
