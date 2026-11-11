@@ -148,7 +148,8 @@ def test_assigned_but_disabled_application_shows_as_unavailable(browser, employe
     assert disabled.status == 200
 
     context, page = _sign_in(browser, employee["email"], employee["password"])
-    expect(page.locator("text=E2E application")).to_be_visible()
+    # The name is also in the side menu, so look on the page itself.
+    expect(page.locator("main").get_by_text("E2E application")).to_be_visible()
     expect(page.get_by_text("Unavailable", exact=True)).to_be_visible()
     expect(page.locator("text=Open application")).to_have_count(0)
     context.close()

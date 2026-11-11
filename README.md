@@ -105,6 +105,11 @@ Without `RESEND_API_KEY`, mail is off and notices are logged and skipped.
 
 The first person to sign in with the realm role `afs-super-admin` (the bootstrap account) becomes the super administrator. After that:
 
+- **Home (overview)**: the entry point. Administrators see statistics for every application AFS manages: applications, active employees, people with access, sessions and sign-ins over 30 days (with daily charts), integration health, people by platform role and account status, roles held in each application, and recent activity. Every chart can be shown as a table. Employees see the applications assigned to them.
+- **Side menu**: lists each application. Its arrow opens shortcuts (overview, launch, people with access, roles, health and events, activity). A newly registered application appears in the menu, on the home page and in every statistic automatically, and keeps its own color. **Quick actions** in the top bar adds employees, grants access and registers applications.
+- **Application page** (`#/app/<slug>`): one application's figures, sessions chart, access by role, the people with access (change role, revoke), its roles, health and events, and audit activity.
+- **What each role sees**: super administrators see everything, including session counts and live figures. Access administrators see access figures only for the applications they manage, and no session counts (as on **Usage**). The figures come from `GET /api/admin/overview`.
+
 - **Employees**: add an employee by email before they sign in. Their account links to the central identity on first sign-in with a verified email. Disable or reactivate accounts here. Only super administrators change platform roles.
 - **Applications & roles**: register an application (disabled by default), set its verified `https` launch URL, enable it, and define its application-specific roles.
 - **Assignments**: grant or update an employee's access to an enabled application, optionally with one of its roles. Revoke access here.

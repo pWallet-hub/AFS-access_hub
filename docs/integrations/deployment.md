@@ -42,7 +42,7 @@ Addresses marked `example.org` are placeholders. Replace them with the real addr
 | ImageUnit (`imageunit`) | `imageunit.example.org` | `api.imageunit.example.org` | `imageunit` | `AFS_SERVICE_TOKEN_IMAGEUNIT` | Yes | Yes | Pilot verified locally; production rollout open |
 | Biocap (`biocap`) | `biocap-rwanda.afs-rwanda.org` | `api.biocap.example.org` | `biocap` | `AFS_SERVICE_TOKEN_BIOCAP` | Yes | Yes | Ready to build, after its security fixes |
 | Procurement (`procurement`) | `procurement.example.org` | `api.procurement.example.org` | `procurement` | `AFS_SERVICE_TOKEN_PROCUREMENT` | Yes | Yes | Ready to build, after its backend gaps |
-| Marketing Mailer (`marketing`) | `marketing.example.org` | `marketing-api.example.org` | `marketing` | `AFS_SERVICE_TOKEN_MARKETING` | **No, must add** | **No, must add** | Backend skeleton built; not registered |
+| Marketing Mailer (`marketing`) | `marketing.afs-rwanda.org` | same address (`/api` proxied) | `marketing` | `AFS_SERVICE_TOKEN_MARKETING` | Yes | Yes | Registered; verified end to end on the local stack |
 
 ### 3.2 ImageUnit
 
@@ -73,15 +73,28 @@ Addresses marked `example.org` are placeholders. Replace them with the real addr
 
 ### 3.5 Marketing Mailer
 
-Built in `/mnt/d/cc/Marketing-mailer`, and not yet registered anywhere.
+Repository `pWallet-hub/Marketing-app`. One Coolify project (Docker Compose build pack, compose file
+`/docker-compose.prod.yml`) with its own PostgreSQL, the API, the mail worker and the frontend.
 
-- **Coolify:** a separate project for the marketing backend and frontend. It has its own PostgreSQL database. It is not part of the AFS compose stack, and it is not in `keycloak-init`.
-- **Command Center:** add an application with slug `marketing`, launch URL set to the marketing frontend. Seed its roles, `admin` and `member`, in a migration in this repository, as the other applications do.
-- **Keycloak client:** `marketing`. It needs `MARKETING_OIDC_CLIENT_SECRET`, `MARKETING_REDIRECT_URI` (`https://marketing-api.example.org/api/auth/callback`) and `MARKETING_ORIGIN`. These are read by `keycloak-init`, so they must be added to `keycloak-init`'s environment in `docker-compose.prod.yml`, and `keycloak/bootstrap.py` needs the entry `("marketing", "Marketing Mailer", "MARKETING")` in `APPLICATIONS`.
-- **Environment, Command Center:** `MARKETING_OIDC_CLIENT_ID`, `MARKETING_OIDC_CLIENT_SECRET`, `MARKETING_REDIRECT_URI`, `MARKETING_ORIGIN`, `AFS_SERVICE_TOKEN_MARKETING`. Also add `AFS_SERVICE_TOKEN_MARKETING` to the Command Center backend's environment in `docker-compose.prod.yml`. Without it, the hub rejects every marketing access check.
-- **Environment, marketing backend:** `DATABASE_URL`, `SESSION_SECRET` (at least 32 characters), `KEYCLOAK_PUBLIC_URL`, `KEYCLOAK_INTERNAL_URL`, `KEYCLOAK_REALM`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET`, `PUBLIC_BASE_URL`, `FRONTEND_ORIGIN`, `COMMAND_CENTER_URL`, `AFS_SERVICE_TOKEN_MARKETING`. The template is `backend/.env.example`.
-- **Email:** Resend. Marketing mail uses a separate sending subdomain from the hub's transactional mail, so that bulk sends do not affect password resets. The subdomain is an open item in `DESIGN.md`.
-- **Network:** section 4 applies. This is the decision that is still open for this app.
+- **One public address.** Give the `frontend` service the domain (e.g. `https://marketing.afs-rwanda.org`, port 80).
+  nginx proxies `/api` to the backend, so the SSO callback is `https://marketing.afs-rwanda.org/api/auth/callback` and
+  the session cookie stays on that address. Do not give the backend its own domain.
+- **Command Center:** migration `009_marketing.sql` registers the application (slug `marketing`, disabled) with the
+  roles `admin` (manage contacts, send campaigns, invite media) and `member` (view and draft). Set the launch URL and
+  enable it under Applications.
+- **Keycloak client:** `marketing`, created by `keycloak-init` (`APPLICATIONS` in `keycloak/bootstrap.py`) once
+  `MARKETING_OIDC_CLIENT_SECRET` is set. All `MARKETING_*` values are optional in the compose files, so Command Center
+  deploys without them.
+- **Environment, Command Center:** `MARKETING_OIDC_CLIENT_SECRET`, `MARKETING_REDIRECT_URI`
+  (`https://marketing.afs-rwanda.org/api/auth/callback`), `MARKETING_ORIGIN` (`https://marketing.afs-rwanda.org`),
+  `AFS_SERVICE_TOKEN_MARKETING`. Redeploy Command Center after setting them.
+- **Environment, marketing:** `POSTGRES_PASSWORD`, `SESSION_SECRET` (32+ characters), `PUBLIC_BASE_URL`,
+  `OIDC_CLIENT_SECRET` (same as `MARKETING_OIDC_CLIENT_SECRET`), `AFS_SERVICE_TOKEN_MARKETING` (same as in Command
+  Center), and the Resend settings to send mail. Keycloak and Command Center addresses default to `afs-keycloak` and
+  `afs-command-center-backend` on `afs-internal`. Template: `backend/.env.example`.
+- **Access** is checked against Command Center on every request, so revoking an assignment ends access at once.
+- **Email:** Resend, on a sending subdomain separate from the hub's transactional mail (open item in `DESIGN.md`).
+- **Network:** the backend joins `afs-internal` (section 4). Deploy Command Center first.
 
 ## 4. The internal network: the open decision
 
@@ -128,8 +141,5 @@ Follow this order for each application. Do not enable an application in Command 
 
 These are the differences between this document and the current production configuration:
 
-1. `docker-compose.prod.yml` has no `MARKETING_*` entries in `keycloak-init`, and no `AFS_SERVICE_TOKEN_MARKETING` in the Command Center backend. Add them before the marketing application is registered.
-2. `keycloak/bootstrap.py` `APPLICATIONS` has no `marketing` entry.
-3. There is no migration that seeds the `marketing` application and its roles.
-4. The `.env.production` file has no `MARKETING_*` names.
-5. The network option (section 4) is not chosen. Each application's backend needs it to reach Command Center.
+1. None known for Marketing. The network option is the shared `afs-internal` network, created by Command Center's
+   `docker-compose.prod.yml`; each application's backend joins it as an external network.

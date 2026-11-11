@@ -8,7 +8,7 @@ from fastapi import Depends, FastAPI
 from fastapi.responses import JSONResponse
 from starlette.middleware.sessions import SessionMiddleware
 
-from . import admin, auth, internal
+from . import admin, auth, dashboard, internal
 from .db import DATABASE_URL, connect, run_migrations
 from .auth import INTERNAL_REALM_URL, current_user
 
@@ -38,6 +38,7 @@ app.add_middleware(
 )
 app.include_router(auth.router)
 app.include_router(admin.router)
+app.include_router(dashboard.router)
 app.include_router(internal.router)
 
 

@@ -8,32 +8,45 @@
   <style>
     :root {
       color-scheme: light dark;
-      --bg: #f4f6fa; --surface: #ffffff; --surface-2: #f0f3f8; --fg: #16181d; --muted: #5f6673; --line: #dfe3ea;
-      --accent: #1f5fbf; --accent-hover: #184d9e; --accent-fg: #ffffff; --accent-soft: #e6eefb;
-      --ok: #17743a; --ok-soft: #e3f4ea; --bad: #b42318; --bad-soft: #fde8e6; --warn: #8a5a00; --warn-soft: #fdf3dc;
-      --focus: #2f80ed; --shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 1px 3px rgba(16, 24, 40, .08);
-      --radius: 10px;
+      --bg: #f9fbfa; --surface: #ffffff; --surface-2: #f5f7f6; --surface-3: #e8edeb;
+      --fg: #001e2b; --muted: #5c6c75; --line: #e8edeb; --line-strong: #c1c7c6;
+      --accent: #00684a; --accent-hover: #00593f; --accent-fg: #ffffff; --accent-soft: #e3fcf7;
+      --ok: #00684a; --ok-soft: #e3fcf7; --bad: #c42a2a; --bad-soft: #ffeae5; --warn: #944f01; --warn-soft: #fef7db;
+      --top: #001e2b; --top-2: #112733; --top-fg: #f9fbfa; --top-muted: #a7b5bb; --top-line: #1c3a48; --spark: #00ed64;
+      --focus: #016bf8; --shadow: 0 1px 2px rgba(0, 30, 43, .05), 0 1px 3px rgba(0, 30, 43, .07);
+      --radius: 12px;
+      /* Chart roles: validated categorical slots (light), recessive grid and axis ink. */
+      --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --s6: #008300; --s7: #6250d6; --s8: #e34948;
+      --s-other: #b8c4c2; --s-neutral: #5c6c75; --grid: #e8edeb; --axis: #889397;
     }
     @media (prefers-color-scheme: dark) {
       :root:not([data-theme="light"]) {
-        --bg: #0f1115; --surface: #171a20; --surface-2: #1e222a; --fg: #eef0f4; --muted: #9aa3b2; --line: #2a2f39;
-        --accent: #5b9bff; --accent-hover: #7aaeff; --accent-fg: #071a33; --accent-soft: #1b2b44;
-        --ok: #5fd08a; --ok-soft: #14301f; --bad: #ff8b82; --bad-soft: #3a1917; --warn: #f2c46b; --warn-soft: #3a2f14;
-        --focus: #7aaeff; --shadow: 0 1px 2px rgba(0, 0, 0, .4);
+        --bg: #00151f; --surface: #0b2531; --surface-2: #10303e; --surface-3: #1a3a48;
+        --fg: #e8edeb; --muted: #a3b2b8; --line: #1d3b49; --line-strong: #3d4f58;
+        --accent: #00ed64; --accent-hover: #71f6ba; --accent-fg: #001e2b; --accent-soft: #023430;
+        --ok: #71f6ba; --ok-soft: #023430; --bad: #ff9f8f; --bad-soft: #3a1310; --warn: #ffc010; --warn-soft: #3a2a05;
+        --top: #000f17; --top-2: #0b2531; --top-line: #1d3b49;
+        --focus: #7cb7ff; --shadow: 0 1px 2px rgba(0, 0, 0, .45);
+        --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
+        --s-other: #5c6c75; --s-neutral: #a3b2b8; --grid: #1d3b49; --axis: #7b8c93;
       }
     }
     :root[data-theme="dark"] {
-      --bg: #0f1115; --surface: #171a20; --surface-2: #1e222a; --fg: #eef0f4; --muted: #9aa3b2; --line: #2a2f39;
-      --accent: #5b9bff; --accent-hover: #7aaeff; --accent-fg: #071a33; --accent-soft: #1b2b44;
-      --ok: #5fd08a; --ok-soft: #14301f; --bad: #ff8b82; --bad-soft: #3a1917; --warn: #f2c46b; --warn-soft: #3a2f14;
-      --focus: #7aaeff; --shadow: 0 1px 2px rgba(0, 0, 0, .4);
+      --bg: #00151f; --surface: #0b2531; --surface-2: #10303e; --surface-3: #1a3a48;
+      --fg: #e8edeb; --muted: #a3b2b8; --line: #1d3b49; --line-strong: #3d4f58;
+      --accent: #00ed64; --accent-hover: #71f6ba; --accent-fg: #001e2b; --accent-soft: #023430;
+      --ok: #71f6ba; --ok-soft: #023430; --bad: #ff9f8f; --bad-soft: #3a1310; --warn: #ffc010; --warn-soft: #3a2a05;
+      --top: #000f17; --top-2: #0b2531; --top-line: #1d3b49;
+      --focus: #7cb7ff; --shadow: 0 1px 2px rgba(0, 0, 0, .45);
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
+      --s-other: #5c6c75; --s-neutral: #a3b2b8; --grid: #1d3b49; --axis: #7b8c93;
     }
 
     * { box-sizing: border-box; }
     html, body { height: 100%; }
     body {
-      margin: 0; font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      color: var(--fg); background: var(--bg);
+      margin: 0; font: 14.5px/1.5 Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color: var(--fg); background: var(--bg); font-variant-numeric: tabular-nums;
     }
     :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
     a { color: var(--accent); }
@@ -41,53 +54,111 @@
     .skip { position: absolute; left: 12px; top: -60px; background: var(--accent); color: var(--accent-fg); padding: 8px 12px; border-radius: 6px; z-index: 100; }
     .skip:focus { top: 12px; }
     [hidden] { display: none !important; }
+    .muted { color: var(--muted); }
 
-    /* ---------- Shell ---------- */
+    /* ---------- Top bar ---------- */
     .topbar {
-      position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 16px;
-      height: 60px; padding: 0 20px; background: var(--surface); border-bottom: 1px solid var(--line);
+      position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 14px;
+      height: 56px; padding: 0 16px; background: var(--top); color: var(--top-fg); border-bottom: 1px solid var(--top-line);
     }
-    .brand { display: flex; align-items: center; gap: 10px; font-weight: 650; letter-spacing: .1px; color: var(--fg); text-decoration: none; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 650; color: var(--top-fg); text-decoration: none; white-space: nowrap; }
     .brand-mark {
       width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center;
-      background: linear-gradient(135deg, #1f5fbf, #4c8df6); color: #fff; font-size: 14px; font-weight: 700;
+      background: var(--spark); color: #001e2b; font-size: 15px; font-weight: 800;
     }
+    .crumb { display: flex; align-items: center; gap: 8px; color: var(--top-muted); font-size: 13px; min-width: 0; }
+    .crumb b { color: var(--top-fg); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .crumb .sep { opacity: .5; }
     .topbar .spacer { flex: 1; }
-    .account { display: flex; align-items: center; gap: 12px; min-width: 0; }
-    .account-meta { text-align: right; min-width: 0; }
-    .account-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
-    .account-role { font-size: 12px; color: var(--muted); }
+    .topbar .btn, .topbar summary.btn { background: var(--top-2); border-color: var(--top-line); color: var(--top-fg); }
+    .topbar .btn:hover, .topbar summary.btn:hover { background: var(--top-line); }
+    .account { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .account-meta { text-align: right; min-width: 0; line-height: 1.25; }
+    .account-name { font-weight: 600; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+    .account-role { font-size: 12px; color: var(--top-muted); }
     .avatar {
-      width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; flex: none;
-      background: var(--accent-soft); color: var(--accent); font-weight: 650; font-size: 13px;
+      width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; flex: none;
+      background: var(--top-2); color: var(--spark); font-weight: 700; font-size: 12.5px; border: 1px solid var(--top-line);
     }
+    .topbar .nav-toggle { display: none; }
 
-    .hero { margin-bottom: 22px; }
-    .hero .eyebrow { margin: 0 0 4px; font-size: 12px; font-weight: 650; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
-    .hero h1 { margin: 0 0 4px; font-size: 26px; line-height: 1.2; font-weight: 680; }
-    .hero p { margin: 0; color: var(--muted); }
-
-    .layout { display: grid; grid-template-columns: 232px 1fr; min-height: calc(100vh - 60px); }
-    nav.side { border-right: 1px solid var(--line); background: var(--surface); padding: 14px 10px; }
-    nav.side .group { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 14px 10px 6px; }
-    nav.side a {
-      display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px;
-      color: var(--fg); text-decoration: none; font-weight: 500;
+    /* ---------- Menus (quick actions) ---------- */
+    details.menu { position: relative; }
+    details.menu > summary { list-style: none; }
+    details.menu > summary::-webkit-details-marker { display: none; }
+    .menu-list {
+      position: absolute; right: 0; top: calc(100% + 6px); min-width: 230px; z-index: 40; padding: 6px;
+      background: var(--surface); color: var(--fg); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 12px 32px rgba(0, 30, 43, .22);
     }
-    nav.side a:hover { background: var(--surface-2); }
-    nav.side a[aria-current="page"] { background: var(--accent-soft); color: var(--accent); }
-    nav.side svg { width: 18px; height: 18px; flex: none; opacity: .85; }
-    main { padding: 26px clamp(16px, 3vw, 36px) 60px; min-width: 0; }
+    .menu-list .menu-label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); padding: 8px 10px 4px; }
+    .menu-list button, .menu-list a {
+      display: flex; width: 100%; justify-content: flex-start; gap: 10px; border: 0; background: none; min-height: 34px;
+      padding: 0 10px; border-radius: 6px; font-weight: 500; color: var(--fg); text-decoration: none; font-size: 14px;
+    }
+    .menu-list button:hover, .menu-list a:hover { background: var(--surface-2); }
+    .menu-list svg { width: 16px; height: 16px; flex: none; color: var(--muted); align-self: center; }
+    .menu-list hr { border: 0; border-top: 1px solid var(--line); margin: 6px 0; }
+
+    /* ---------- Layout and side navigation ---------- */
+    .layout { display: grid; grid-template-columns: 252px minmax(0, 1fr); min-height: calc(100vh - 56px); }
+    nav.side {
+      position: sticky; top: 56px; height: calc(100vh - 56px); overflow-y: auto;
+      border-right: 1px solid var(--line); background: var(--surface); padding: 12px 10px 24px;
+    }
+    nav.side .group {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      font-size: 11px; font-weight: 650; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 18px 10px 6px;
+    }
+    nav.side .group .count { font-weight: 600; letter-spacing: 0; background: var(--surface-2); border-radius: 999px; padding: 0 7px; }
+    nav.side .nav-note { font-size: 13px; color: var(--muted); padding: 2px 10px 6px; margin: 0; }
+    nav.side a, .nav-app-row {
+      position: relative; display: flex; align-items: center; gap: 10px; min-height: 34px; padding: 0 10px; border-radius: 6px;
+      color: var(--fg); text-decoration: none; font-weight: 500; font-size: 14px;
+    }
+    nav.side a:hover, .nav-app-row:hover { background: var(--surface-2); }
+    nav.side a[aria-current="page"], .nav-app-row.current { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+    nav.side a[aria-current="page"]::before, .nav-app-row.current::before {
+      content: ""; position: absolute; left: -10px; top: 6px; bottom: 6px; width: 3px; border-radius: 0 3px 3px 0; background: var(--accent);
+    }
+    nav.side svg { width: 17px; height: 17px; flex: none; opacity: .85; }
+    .nav-app-row { padding: 0 2px 0 10px; }
+    .nav-app-row > a { flex: 1; min-width: 0; padding: 0; min-height: 34px; background: none !important; color: inherit; font-weight: inherit; }
+    .nav-app-row > a::before { display: none; }
+    .nav-app-row > a span.name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .nav-app.disabled .name { color: var(--muted); }
+    .swatch { width: 10px; height: 10px; border-radius: 3px; flex: none; display: inline-block; }
+    .health-dot { width: 7px; height: 7px; border-radius: 50%; flex: none; margin-left: auto; }
+    .health-dot.ok { background: var(--ok); }
+    .health-dot.error { background: var(--bad); }
+    .health-dot.not_connected, .health-dot.off { background: var(--line-strong); }
+    .chev {
+      min-height: 28px; width: 28px; padding: 0; border: 0; background: none; color: var(--muted); border-radius: 6px; flex: none;
+    }
+    .chev:hover { background: var(--surface-3); }
+    .chev svg { width: 14px; height: 14px; transition: transform .15s; }
+    .chev[aria-expanded="true"] svg { transform: rotate(90deg); }
+    .nav-sub { margin: 2px 0 6px 15px; padding-left: 10px; border-left: 1px solid var(--line); }
+    nav.side .nav-sub a { min-height: 30px; font-size: 13px; color: var(--muted); font-weight: 500; }
+    nav.side .nav-sub a:hover { color: var(--fg); }
+    nav.side .nav-sub a[aria-current="page"] { color: var(--accent); background: none; font-weight: 600; }
+    nav.side .nav-sub a[aria-current="page"]::before { left: -11px; top: 7px; bottom: 7px; }
+    nav.side .nav-sub svg { width: 14px; height: 14px; }
+    .ext { margin-left: auto; opacity: .7; }
+
+    main { padding: 24px clamp(16px, 3vw, 36px) 64px; min-width: 0; max-width: 1480px; width: 100%; }
     main:focus { outline: none; } /* focused by script on each page change, not by the user */
     .page-head { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: flex-end; justify-content: space-between; margin-bottom: 20px; }
     .page-head h1 { font-size: 24px; line-height: 1.2; margin: 0 0 4px; font-weight: 680; }
-    .page-head p { margin: 0; color: var(--muted); max-width: 70ch; }
+    .page-head p { margin: 0; color: var(--muted); max-width: 72ch; }
     .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .section-title { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 28px 0 12px; }
+    .section-title h2 { margin: 0; font-size: 17px; font-weight: 650; }
+    .section-title p { margin: 2px 0 0; color: var(--muted); font-size: 13.5px; }
 
     /* ---------- Controls ---------- */
     button, .btn {
       font: inherit; font-weight: 550; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-      min-height: 36px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--line);
+      min-height: 36px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--line-strong);
       background: var(--surface); color: var(--fg); cursor: pointer; text-decoration: none; white-space: nowrap;
       transition: background .15s, border-color .15s;
     }
@@ -97,9 +168,11 @@
     button.danger { color: var(--bad); }
     button.danger:hover { background: var(--bad-soft); border-color: var(--bad-soft); }
     button.small, .btn.small { min-height: 30px; padding: 0 10px; font-size: 13px; }
+    button.link { border: 0; background: none; color: var(--accent); padding: 0; min-height: 0; font-weight: 600; font-size: 13px; }
     button:disabled { opacity: .5; cursor: not-allowed; }
+    .btn svg, button svg { width: 15px; height: 15px; flex: none; }
     input, select, textarea {
-      font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line);
+      font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line-strong);
       border-radius: 8px; padding: 8px 10px; min-height: 36px; min-width: 0; width: 100%;
     }
     textarea { min-height: 76px; resize: vertical; }
@@ -114,11 +187,20 @@
     .toolbar select { width: auto; min-width: 150px; }
     .toolbar > input { width: auto; flex: 1 1 220px; max-width: 360px; }
     .switch { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
+    .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
 
     /* ---------- Surfaces ---------- */
-    .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+    .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); min-width: 0; }
     .panel + .panel { margin-top: 16px; }
-    .cards > .panel, .kpis > .panel { margin-top: 0; }
+    .cards > .panel, .kpis > .panel, .grid > .panel, .app-grid > .panel { margin-top: 0; }
+    .panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 16px 18px 0; flex-wrap: wrap; }
+    .panel-head h2, .panel-head h3 { margin: 0; font-size: 15px; font-weight: 650; }
+    .panel-head p { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+    .panel-body { padding: 14px 18px 18px; }
+    .panel-body.flush { padding: 10px 0 0; }
+    .grid { display: grid; gap: 16px; margin-top: 16px; }
+    .grid.two-one { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+    .grid.halves { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .table-wrap { overflow-x: auto; border-radius: var(--radius); }
     table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; }
     th, td { padding: 11px 14px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: middle; }
@@ -126,12 +208,15 @@
     tbody tr:last-child td { border-bottom: none; }
     tbody tr:hover td { background: color-mix(in srgb, var(--surface-2) 60%, transparent); }
     td .sub { display: block; font-size: 12px; color: var(--muted); }
+    td.num, th.num { text-align: right; }
     td.actions-cell { text-align: right; white-space: nowrap; }
     td.actions-cell > * + * { margin-left: 6px; }
+    td a.row-link { color: var(--fg); font-weight: 600; text-decoration: none; }
+    td a.row-link:hover { color: var(--accent); text-decoration: underline; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; }
     .badge {
       display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600;
-      padding: 3px 9px; border-radius: 999px; background: var(--surface-2); color: var(--muted); white-space: nowrap;
+      padding: 2px 9px; border-radius: 999px; background: var(--surface-2); color: var(--muted); white-space: nowrap;
     }
     .badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; opacity: .8; }
     .badge.ok { background: var(--ok-soft); color: var(--ok); }
@@ -142,54 +227,147 @@
 
     .cards { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
     .card { padding: 18px; display: flex; flex-direction: column; gap: 12px; transition: box-shadow .15s, border-color .15s, transform .15s; }
-    .card:hover { box-shadow: 0 6px 18px rgba(16, 24, 40, .10); border-color: color-mix(in srgb, var(--accent) 35%, var(--line)); transform: translateY(-1px); }
+    .card:hover { box-shadow: 0 6px 18px rgba(0, 30, 43, .10); border-color: color-mix(in srgb, var(--accent) 35%, var(--line)); transform: translateY(-1px); }
     .card .foot .btn { flex: none; }
     .card h3 { margin: 0; font-size: 16px; font-weight: 650; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .card h3 a { color: var(--fg); text-decoration: none; }
+    .card h3 a:hover { color: var(--accent); text-decoration: underline; }
     .card p { margin: 0; color: var(--muted); font-size: 14px; }
     .card .meta { display: grid; gap: 6px; font-size: 13px; color: var(--muted); }
     .card .meta b { color: var(--fg); font-weight: 600; }
     .card .foot { margin-top: auto; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
     .app-icon {
       width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; flex: none;
-      background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 16px;
+      background: var(--accent-soft); color: var(--fg); font-weight: 700; font-size: 16px;
     }
-    .app-head { display: flex; gap: 12px; align-items: center; }
+    .app-icon.lg { width: 52px; height: 52px; font-size: 21px; border-radius: 12px; }
+    .app-head { display: flex; gap: 12px; align-items: center; min-width: 0; }
+    .app-head .sub { font-size: 12px; color: var(--muted); }
+    .clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-    .kpis { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); margin-bottom: 18px; }
-    .kpi { padding: 16px 18px; }
-    .kpi .label { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
-    .kpi .value { font-size: 26px; font-weight: 680; margin-top: 4px; }
+    /* Application collection */
+    .app-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); }
+    .app-tile { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .app-tile .badges { display: flex; gap: 6px; flex-wrap: wrap; }
+    .app-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 10px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .app-stats dt { font-size: 11.5px; color: var(--muted); }
+    .app-stats dd { margin: 0; font-size: 18px; font-weight: 650; }
+    .app-tile .foot { display: flex; gap: 8px; align-items: center; justify-content: space-between; margin-top: auto; flex-wrap: wrap; }
+    .add-tile { border-style: dashed; box-shadow: none; display: grid; place-items: center; text-align: center; color: var(--muted); padding: 24px; min-height: 180px; }
+
+    /* Stat tiles */
+    .kpis { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); margin-bottom: 4px; }
+    .kpi { padding: 14px 16px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .kpi .label { font-size: 13px; color: var(--muted); font-weight: 500; }
+    .kpi .value { font-size: 28px; line-height: 1.15; font-weight: 650; margin-top: 2px; }
+    .kpi .value small { font-size: 15px; color: var(--muted); font-weight: 500; }
+    .kpi .sub { font-size: 12.5px; color: var(--muted); }
+    .kpi .row { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
+    .delta { font-size: 12px; font-weight: 650; padding: 1px 7px; border-radius: 999px; white-space: nowrap; }
+    .delta.up { background: var(--ok-soft); color: var(--ok); }
+    .delta.down { background: var(--bad-soft); color: var(--bad); }
+    .delta.flat { background: var(--surface-2); color: var(--muted); }
+
+    .hero { display: flex; flex-wrap: wrap; gap: 14px 24px; align-items: flex-end; justify-content: space-between; margin-bottom: 20px; }
+    .hero .eyebrow { margin: 0 0 4px; font-size: 12px; font-weight: 650; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+    .hero h1 { margin: 0 0 4px; font-size: 26px; line-height: 1.2; font-weight: 680; }
+    .hero p { margin: 0; color: var(--muted); }
 
     .empty { text-align: center; padding: 44px 20px; color: var(--muted); }
     .empty .icon { width: 44px; height: 44px; margin: 0 auto 12px; border-radius: 12px; display: grid; place-items: center; background: var(--surface-2); color: var(--muted); }
+    .empty .icon svg { width: 22px; height: 22px; }
     .empty h3 { margin: 0 0 6px; color: var(--fg); font-size: 16px; }
     .empty p { margin: 0 auto 14px; max-width: 46ch; }
+    .empty.small { padding: 22px 12px; }
     .notice { padding: 12px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface-2); font-size: 14px; color: var(--muted); }
     .notice.bad { border-color: color-mix(in srgb, var(--bad) 40%, transparent); background: var(--bad-soft); color: var(--bad); }
+    .notice + .kpis, .notice + .grid { margin-top: 16px; }
 
     .skeleton { display: grid; gap: 10px; padding: 18px; }
     .skeleton span { height: 14px; border-radius: 6px; background: linear-gradient(90deg, var(--surface-2), var(--line), var(--surface-2)); background-size: 200% 100%; animation: shimmer 1.2s infinite linear; }
     @keyframes shimmer { to { background-position: -200% 0; } }
-    @media (prefers-reduced-motion: reduce) { .skeleton span { animation: none; } }
+    @media (prefers-reduced-motion: reduce) { .skeleton span { animation: none; } * { transition: none !important; } }
 
     .pager { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; color: var(--muted); font-size: 13px; }
     pre.details { margin: 0; white-space: pre-wrap; word-break: break-word; font-size: 12px; background: var(--surface-2); padding: 10px; border-radius: 8px; max-width: 520px; }
 
+    /* ---------- Charts ---------- */
+    figure.viz { margin: 0; }
+    .chart { position: relative; width: 100%; }
+    .chart svg { display: block; overflow: visible; }
+    .chart .grid-line { stroke: var(--grid); stroke-width: 1; }
+    .chart .base-line { stroke: var(--line-strong); stroke-width: 1; }
+    .chart .tick { fill: var(--axis); font-size: 11px; }
+    .chart .bar { pointer-events: none; }
+    .chart .hit { fill: transparent; cursor: crosshair; }
+    .chart .hit:hover { fill: var(--surface-2); }
+    .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0 0 10px; padding: 0; list-style: none; font-size: 12.5px; color: var(--muted); }
+    .legend li { display: inline-flex; align-items: center; gap: 6px; }
+    .legend b { color: var(--fg); font-weight: 600; }
+    .viz-foot { display: flex; justify-content: flex-end; margin-top: 6px; }
+    .viz-table { margin-top: 8px; max-height: 280px; overflow: auto; border: 1px solid var(--line); border-radius: 8px; }
+    .viz-table th, .viz-table td { padding: 6px 10px; font-size: 12.5px; }
+    .chart-tip {
+      position: fixed; z-index: 60; pointer-events: none; min-width: 150px; max-width: 260px; padding: 8px 10px;
+      background: var(--surface); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 10px 28px rgba(0, 30, 43, .2); font-size: 12.5px;
+    }
+    .chart-tip .tip-title { font-weight: 650; margin-bottom: 4px; }
+    .chart-tip .tip-row { display: flex; align-items: center; gap: 8px; }
+    .chart-tip .tip-row b { margin-left: auto; padding-left: 12px; }
+    .chart-tip .tip-row.total { border-top: 1px solid var(--line); margin-top: 4px; padding-top: 4px; }
+    .spark { display: block; flex: none; }
+    .kpi .spark { flex: 0 1 84px; min-width: 40px; width: 84px; }
+    .kpi .value { flex: none; }
+
+    /* Horizontal bars */
+    .hbars { display: grid; gap: 10px; }
+    .hbar { display: grid; grid-template-columns: minmax(90px, 160px) minmax(0, 1fr) auto; align-items: center; gap: 10px; font-size: 13.5px; }
+    .hbar .hbar-label { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .hbar .hbar-label a, .hbar .hbar-label span.t { color: var(--fg); text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hbar .hbar-label a:hover { color: var(--accent); text-decoration: underline; }
+    .hbar .track { height: 14px; border-radius: 0 4px 4px 0; background: transparent; }
+    .hbar .fill { height: 100%; border-radius: 0 4px 4px 0; background: var(--s-neutral); min-width: 2px; }
+    .hbar .val { font-weight: 600; min-width: 2ch; text-align: right; }
+
+    /* Segmented (part-to-whole) bar */
+    .seg { display: flex; gap: 2px; height: 12px; border-radius: 6px; overflow: hidden; background: var(--surface-2); }
+    .seg span { display: block; height: 100%; min-width: 3px; }
+    .seg-legend { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px; }
+    .seg-legend li { display: flex; align-items: center; gap: 8px; font-size: 13.5px; }
+    .seg-legend b { margin-left: auto; font-weight: 600; }
+    .seg-legend .pct { color: var(--muted); font-size: 12px; min-width: 4ch; text-align: right; }
+    .seg-block + .seg-block { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
+    .seg-block h3 { margin: 0 0 10px; font-size: 13px; font-weight: 600; color: var(--muted); }
+
+    /* Activity feed */
+    .feed { list-style: none; margin: 0; padding: 0; }
+    .feed li { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 10px; align-items: baseline; padding: 9px 18px; border-top: 1px solid var(--line); font-size: 13.5px; }
+    .feed li:first-child { border-top: 0; }
+    .feed .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); transform: translateY(-1px); }
+    .feed .dot.failure { background: var(--bad); }
+    .feed .when { color: var(--muted); font-size: 12px; white-space: nowrap; }
+    .feed .what b { font-weight: 600; }
+    .feed .what .sub { color: var(--muted); }
+
+    .facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 16px; margin: 0; font-size: 13.5px; }
+    .facts dt { color: var(--muted); }
+    .facts dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+
     /* ---------- Dialogs and toasts ---------- */
     dialog { border: none; padding: 0; border-radius: 14px; background: var(--surface); color: var(--fg); width: min(520px, calc(100vw - 32px)); box-shadow: 0 20px 60px rgba(0,0,0,.35); }
-    dialog::backdrop { background: rgba(10, 12, 16, .5); }
+    dialog::backdrop { background: rgba(0, 21, 31, .55); }
     dialog.wide { width: min(780px, calc(100vw - 32px)); }
     .dialog-head { padding: 18px 20px 0; }
     .dialog-head h2 { margin: 0; font-size: 18px; }
     .dialog-body { padding: 16px 20px; display: grid; gap: 14px; max-height: min(64vh, 620px); overflow: auto; }
     .dialog-foot { display: flex; gap: 8px; justify-content: flex-end; padding: 14px 20px 18px; border-top: 1px solid var(--line); flex-wrap: wrap; }
     .dialog-foot .grow { flex: 1; }
-    .toasts { position: fixed; right: 16px; bottom: 16px; display: grid; gap: 10px; z-index: 50; width: min(380px, calc(100vw - 32px)); }
+    .toasts { position: fixed; right: 16px; bottom: 16px; display: grid; gap: 10px; z-index: 70; width: min(380px, calc(100vw - 32px)); }
     .toast { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--ok); border-radius: 10px; padding: 12px 14px; box-shadow: 0 10px 30px rgba(0,0,0,.2); font-size: 14px; }
     .toast.error { border-left-color: var(--bad); }
 
     /* ---------- Sign-in ---------- */
-    .signin { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+    .signin { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: radial-gradient(1200px 500px at 50% -10%, color-mix(in srgb, var(--accent) 14%, transparent), transparent), var(--bg); }
     .signin-card { width: min(420px, 100%); padding: 32px; text-align: center; }
     .signin-card .brand-mark { margin: 0 auto 14px; width: 46px; height: 46px; font-size: 20px; border-radius: 12px; }
     .signin-card h1 { margin: 0 0 6px; font-size: 22px; }
@@ -197,19 +375,28 @@
     .signin-card .btn { width: 100%; min-height: 44px; font-size: 15px; }
 
     /* ---------- Responsive ---------- */
-    @media (max-width: 860px) {
-      .layout { grid-template-columns: 1fr; align-items: start; align-content: start; }
-      nav.side { display: flex; gap: 4px; overflow-x: auto; padding: 8px; border-right: none; border-bottom: 1px solid var(--line); position: sticky; top: 60px; z-index: 15; background: var(--surface); }
-      nav.side .group { display: none; }
-      nav.side { align-items: center; align-self: start; min-height: 0; }
-      nav.side a { white-space: nowrap; padding: 8px 12px; flex: none; }
+    @media (max-width: 1180px) {
+      .grid.two-one, .grid.halves { grid-template-columns: minmax(0, 1fr); }
+    }
+    @media (max-width: 960px) {
+      .layout { grid-template-columns: minmax(0, 1fr); }
+      .topbar .nav-toggle { display: inline-flex; }
+      nav.side {
+        position: fixed; top: 56px; left: 0; bottom: 0; height: auto; width: min(300px, 86vw); z-index: 25;
+        transform: translateX(-102%); transition: transform .2s; box-shadow: 0 0 40px rgba(0, 0, 0, .25);
+      }
+      body.nav-open nav.side { transform: none; }
+      .crumb { display: none; }
       .account-meta { display: none; }
-      .topbar { padding: 0 14px; }
+      .topbar { padding: 0 12px; gap: 10px; }
     }
     @media (max-width: 560px) {
-      .page-head h1 { font-size: 21px; }
+      .page-head h1, .hero h1 { font-size: 21px; }
       .toolbar .search, .toolbar select { max-width: none; width: 100%; }
       th, td { padding: 9px 10px; }
+      .brand .brand-text { display: none; }
+      .quick-label { display: none; }
+      .hbar { grid-template-columns: minmax(70px, 110px) minmax(0, 1fr) auto; }
     }
   </style>
 </head>
@@ -230,11 +417,21 @@
   <!-- Signed in -->
   <div id="view-app" hidden>
     <header class="topbar">
+      <button type="button" class="btn small nav-toggle" id="nav-toggle" aria-controls="nav" aria-expanded="false" aria-label="Open navigation">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
       <a class="brand" href="#/home" aria-label="AFS Command Center home">
         <span class="brand-mark" aria-hidden="true">A</span>
-        <span>Command Center</span>
+        <span class="brand-text">Command Center</span>
       </a>
+      <div class="crumb" aria-label="Location">
+        <span class="sep" aria-hidden="true">/</span>
+        <span>AFS</span>
+        <span class="sep" aria-hidden="true">/</span>
+        <b id="crumb-current">Overview</b>
+      </div>
       <span class="spacer"></span>
+      <div id="quick-actions"></div>
       <div class="account">
         <div class="account-meta">
           <div class="account-name" id="account-name"></div>
@@ -252,13 +449,14 @@
   </div>
 
   <div id="toasts" class="toasts" role="status" aria-live="polite"></div>
+  <div id="chart-tip" class="chart-tip" role="tooltip" hidden></div>
 
 <script>
   /* ================= helpers ================= */
   const ADMIN_ROLES = ["super_admin", "access_admin"];
   const ROLE_LABEL = { super_admin: "Super administrator", access_admin: "Access administrator", employee: "Employee" };
   const $ = (sel, root = document) => root.querySelector(sel);
-  const state = { me: null };
+  const state = { me: null, navApps: [] };
 
   // Builds DOM from text and nodes only. Server values are never parsed as HTML.
   function h(tag, attrs, ...children) {
@@ -277,6 +475,11 @@
       node.append(child instanceof Node ? child : document.createTextNode(String(child)));
     }
     return node;
+  }
+
+  // replaceChildren with nested arrays and optional (null/false) parts.
+  function fill(root, ...children) {
+    root.replaceChildren(...children.flat(Infinity).filter((c) => c !== null && c !== undefined && c !== false));
   }
 
   function toast(message, isError = false) {
@@ -449,12 +652,21 @@
   // ================= layout =================
 
   const ICONS = {
+    home: '<path d="M3 11l9-7 9 7M5 9.5V20h5v-6h4v6h5V9.5"/>',
     apps: '<path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/>',
     people: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.4 3.2-5.5 6.5-5.5s5.9 2.1 6.5 5.5M16 4.5a3.5 3.5 0 010 7M18 14.5c2 .8 3.2 2.7 3.5 5.5"/>',
     box: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/>',
     key: '<path d="M14 10a4 4 0 11-1.2-2.8L21 7v3h-2v2h-2v-2h-2.5"/>',
     pulse: '<path d="M3 12h4l2-6 4 12 2-6h6"/>',
+    chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
     log: '<path d="M7 4h10v16H7zM10 8h4M10 12h4M10 16h2"/>',
+    chevron: '<path d="M9 6l6 6-6 6"/>',
+    external: '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5"/>',
+    shield: '<path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/>',
+    bolt: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    refresh: '<path d="M20 11a8 8 0 10-2.3 5.7M20 4v7h-7"/>',
+    overview: '<rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/>',
   };
   // Icon markup comes only from the constant ICONS table above, never from data.
   function icon(name) {
@@ -463,31 +675,131 @@
     return template.content.firstChild;
   }
 
-  // Route table: id, label, icon, group, admin-only flag, renderer.
+  // Route table: id, label, icon, group, admin-only flag, renderer. Hidden routes are reached from links, not the menu.
   const ROUTES = [
-    { id: "home", label: "Home", icon: "apps", group: "Portal", render: renderHome },
-    { id: "employees", label: "Employees", icon: "people", group: "Administration", admin: true, render: renderEmployees },
-    { id: "applications", label: "Applications", icon: "box", group: "Administration", admin: true, render: renderApplications },
-    { id: "assignments", label: "Assignments", icon: "key", group: "Administration", admin: true, render: renderAssignments },
-    { id: "integrations", label: "Integrations", icon: "pulse", group: "Administration", admin: true, render: renderIntegrations },
-    { id: "usage", label: "Usage", icon: "pulse", group: "Administration", admin: true, superOnly: true, render: renderUsage },
-    { id: "audit", label: "Audit log", icon: "log", group: "Administration", admin: true, render: renderAudit },
+    { id: "home", label: "Home", icon: "home", group: "", render: renderHome },
+    { id: "app", label: "Application", hidden: true, render: renderApp },
+    { id: "employees", label: "Employees", icon: "people", group: "Access management", admin: true, render: renderEmployees },
+    { id: "applications", label: "Applications", icon: "box", group: "Access management", admin: true, render: renderApplications },
+    { id: "assignments", label: "Assignments", icon: "key", group: "Access management", admin: true, render: renderAssignments },
+    { id: "integrations", label: "Integrations", icon: "pulse", group: "Monitoring", admin: true, render: renderIntegrations },
+    { id: "usage", label: "Usage", icon: "chart", group: "Monitoring", admin: true, superOnly: true, render: renderUsage },
+    { id: "audit", label: "Audit log", icon: "log", group: "Monitoring", admin: true, render: renderAudit },
   ];
 
+  const isAdmin = () => ADMIN_ROLES.includes(state.me.platform_role);
+  const isSuper = () => state.me.platform_role === "super_admin";
+
   function allowedRoutes() {
-    const isAdmin = ADMIN_ROLES.includes(state.me.platform_role);
-    const isSuper = state.me.platform_role === "super_admin";
-    return ROUTES.filter((r) => (!r.admin || isAdmin) && (!r.superOnly || isSuper));
+    return ROUTES.filter((r) => (!r.admin || isAdmin()) && (!r.superOnly || isSuper()));
   }
 
-  function renderNav(activeId) {
-    const groups = {};
-    for (const route of allowedRoutes()) if (!route.hidden) (groups[route.group] ||= []).push(route);
+  // ---------- Applications in the side navigation ----------
+  // Every application comes from the API, so a newly registered one appears here (and in every statistic) on its own.
+  // Each keeps one color for its whole life: its position in registration order picks a fixed palette slot.
+
+  const appColor = (index) => `var(--s${(index % 8) + 1})`;
+  const NAV_OPEN_KEY = "afs.nav.open";
+  const navOpen = new Set((() => { try { return JSON.parse(localStorage.getItem(NAV_OPEN_KEY) || "[]"); } catch (_) { return []; } })());
+  const saveNavOpen = () => { try { localStorage.setItem(NAV_OPEN_KEY, JSON.stringify([...navOpen])); } catch (_) { /* storage unavailable */ } };
+
+  async function loadNavApps() {
+    if (isAdmin()) {
+      const [apps, health] = await Promise.all([api("GET", "/api/admin/applications"), api("GET", "/api/admin/integrations")]);
+      const status = Object.fromEntries(health.map((a) => [a.id, a.status]));
+      const ordered = [...apps].sort((a, b) => (a.created_at < b.created_at ? -1 : a.created_at > b.created_at ? 1 : a.slug.localeCompare(b.slug)));
+      ordered.forEach((a, i) => { a.color_index = i; a.health = status[a.id] || "not_connected"; });
+      state.navApps = ordered.filter((a) => managesApp(a.id)).sort((a, b) => a.name.localeCompare(b.name));
+    } else {
+      const apps = await api("GET", "/api/apps");
+      state.navApps = apps.map((a, i) => ({ ...a, color_index: i, enabled: a.available }));
+    }
+  }
+
+  function shortcutsFor(app) {
+    const base = "#/app/" + encodeURIComponent(app.slug);
+    const launch = app.enabled && app.launch_url
+      ? [{ label: "Launch app", href: app.launch_url, icon: "external", external: true }] : [];
+    if (!isAdmin()) return [{ label: "Details", href: base, icon: "overview", sub: "" }, ...launch];
+    return [
+      { label: "Overview", href: base, icon: "overview", sub: "" },
+      ...launch,
+      { label: "People with access", href: base + "/people", icon: "people", sub: "people" },
+      { label: "Roles", href: base + "/roles", icon: "shield", sub: "roles" },
+      { label: "Health & events", href: base + "/health", icon: "pulse", sub: "health" },
+      { label: "Activity", href: base + "/activity", icon: "log", sub: "activity" },
+    ];
+  }
+
+  function navAppItem(app, current) {
+    const isCurrent = current.route === "app" && current.param === app.slug;
+    const open = isCurrent || navOpen.has(app.slug);
+    const subId = "nav-sub-" + app.slug;
+    const sub = h("div", { class: "nav-sub", id: subId, hidden: !open },
+      shortcutsFor(app).map((s) => h("a", {
+        href: s.href, target: s.external ? "_blank" : null, rel: s.external ? "noopener noreferrer" : null,
+        "aria-current": isCurrent && !s.external && (current.sub || "") === s.sub ? "page" : null,
+      }, icon(s.icon), h("span", null, s.label), s.external ? h("span", { class: "sr-only" }, " (opens in a new tab)") : null)));
+    const chev = h("button", { type: "button", class: "chev", "aria-expanded": String(open), "aria-controls": subId, "aria-label": `Shortcuts for ${app.name}`,
+      onclick: () => {
+        const nowOpen = sub.hidden;
+        sub.hidden = !nowOpen;
+        chev.setAttribute("aria-expanded", String(nowOpen));
+        if (nowOpen) navOpen.add(app.slug); else navOpen.delete(app.slug);
+        saveNavOpen();
+      } }, icon("chevron"));
+    const healthTitle = !app.enabled ? "Disabled" : (HEALTH[app.health] || { label: "" }).label;
+    return h("div", { class: "nav-app" + (app.enabled ? "" : " disabled") },
+      h("div", { class: "nav-app-row" + (isCurrent && !current.sub ? " current" : "") },
+        h("a", { href: "#/app/" + encodeURIComponent(app.slug), title: app.name },
+          h("span", { class: "swatch", style: `background:${appColor(app.color_index)}` }),
+          h("span", { class: "name" }, app.name),
+          isAdmin() ? h("span", { class: "health-dot " + (app.enabled ? app.health : "off"), title: healthTitle },
+            h("span", { class: "sr-only" }, healthTitle ? `(${healthTitle.toLowerCase()})` : "")) : null),
+        chev),
+      sub);
+  }
+
+  function renderNav(current) {
     const nav = $("#nav");
-    nav.replaceChildren(...Object.entries(groups).flatMap(([group, items]) => [
-      h("div", { class: "group" }, group),
-      ...items.map((r) => h("a", { href: "#/" + r.id, "aria-current": r.id === activeId ? "page" : null }, icon(r.icon), h("span", null, r.label))),
-    ]));
+    const routes = allowedRoutes().filter((r) => !r.hidden);
+    const link = (r) => h("a", { href: "#/" + r.id, "aria-current": r.id === current.route ? "page" : null }, icon(r.icon), h("span", null, r.label));
+    const groups = {};
+    for (const route of routes) if (route.group) (groups[route.group] ||= []).push(route);
+    const apps = state.navApps || [];
+    fill(nav,
+      routes.filter((r) => !r.group).map(link),
+      h("div", { class: "group" }, h("span", null, isAdmin() ? "Applications" : "Your applications"), h("span", { class: "count" }, String(apps.length))),
+      apps.length
+        ? apps.map((a) => navAppItem(a, current))
+        : h("p", { class: "nav-note" }, isAdmin() ? "No applications in your scope yet." : "None assigned yet."),
+      Object.entries(groups).map(([group, items]) => [h("div", { class: "group" }, group), items.map(link)]));
+  }
+
+  // ---------- Quick actions menu ----------
+  function renderQuickActions() {
+    const holder = $("#quick-actions");
+    if (!isAdmin()) { holder.replaceChildren(); return; }
+    const menu = h("details", { class: "menu" });
+    const close = () => menu.removeAttribute("open");
+    const item = (label, iconName, onClick) => h("button", { type: "button", onclick: () => { close(); onClick(); } }, icon(iconName), h("span", null, label));
+    const go = (label, iconName, href) => h("a", { href, onclick: close }, icon(iconName), h("span", null, label));
+    menu.append(
+      h("summary", { class: "btn small", "aria-label": "Quick actions" }, icon("bolt"), h("span", { class: "quick-label" }, "Quick actions")),
+      h("div", { class: "menu-list" },
+        h("div", { class: "menu-label" }, "Manage access"),
+        item("Add employee", "people", addEmployee),
+        item("Grant access", "key", () => Promise.all([api("GET", "/api/admin/users"), api("GET", "/api/admin/applications")])
+          .then(([users, apps]) => grantAccess(users, apps)).catch((err) => toast(err.message, true))),
+        isSuper() ? item("Register application", "plus", registerApplication) : null,
+        h("hr"),
+        h("div", { class: "menu-label" }, "Go to"),
+        go("Integration health", "pulse", "#/integrations"),
+        isSuper() ? go("Usage", "chart", "#/usage") : null,
+        go("Audit log", "log", "#/audit")));
+    document.addEventListener("click", (e) => { if (!menu.contains(e.target)) close(); });
+    menu.addEventListener("keydown", (e) => { if (e.key === "Escape") { close(); menu.querySelector("summary").focus(); } });
+    holder.replaceChildren(menu);
   }
 
   function pageHead(title, description, actions) {
@@ -496,27 +808,61 @@
       actions ? h("div", { class: "actions" }, actions) : null);
   }
 
+  function sectionTitle(title, description, actions) {
+    return h("div", { class: "section-title" },
+      h("div", null, h("h2", null, title), description ? h("p", null, description) : null),
+      actions ? h("div", { class: "actions" }, actions) : null);
+  }
+
+  function panel(title, description, body, { actions, id, flush } = {}) {
+    return h("section", { class: "panel", id: id || null, "aria-label": title },
+      h("div", { class: "panel-head" }, h("div", null, h("h2", null, title), description ? h("p", null, description) : null),
+        actions ? h("div", { class: "actions" }, actions) : null),
+      h("div", { class: "panel-body" + (flush ? " flush" : "") }, body));
+  }
+
   let navigation = 0;
+
+  function parseRoute() {
+    const [route, param, sub] = (location.hash.replace(/^#\/?/, "") || "home").split("/").map((p) => decodeURIComponent(p || ""));
+    return { route, param: param || "", sub: sub || "" };
+  }
 
   async function navigate() {
     if (!state.me) return;
     const attempt = ++navigation; // a newer navigation supersedes this one, so only the latest render is shown
-    const [requestedId, param] = (location.hash.replace(/^#\/?/, "") || "home").split("/");
+    const current = parseRoute();
     const allowed = allowedRoutes();
-    const route = allowed.find((r) => r.id === requestedId) || allowed[0];
-    if (route.id !== requestedId) history.replaceState(null, "", "#/" + route.id);
-    renderNav(route.id);
+    const route = allowed.find((r) => r.id === current.route) || allowed[0];
+    if (route.id !== current.route) {
+      history.replaceState(null, "", "#/" + route.id);
+      Object.assign(current, { route: route.id, param: "", sub: "" });
+    }
+    document.body.classList.remove("nav-open");
+    $("#nav-toggle").setAttribute("aria-expanded", "false");
+    disconnectCharts();
+    renderNav(current);
+    // Refresh the application list in the background so the menu follows registrations and status changes.
+    const setCrumb = () => {
+      const app = route.id === "app" ? (state.navApps || []).find((a) => a.slug === current.param) : null;
+      $("#crumb-current").textContent = route.id === "home" ? "Overview" : app ? app.name : route.label;
+    };
+    setCrumb();
+    loadNavApps().then(() => { if (attempt === navigation) { renderNav(current); setCrumb(); } }).catch(() => {});
     const main = $("#main");
     main.replaceChildren(skeleton());
     try {
       const content = document.createElement("div");
-      await route.render(content, param);
+      await route.render(content, current.param, current.sub);
       if (attempt !== navigation) return;
       main.replaceChildren(...content.childNodes);
     } catch (err) {
       if (attempt !== navigation) return;
       main.replaceChildren(pageHead(route.label), errorNotice(err, navigate));
     }
+    const target = current.sub && document.getElementById("section-" + current.sub);
+    if (target) target.scrollIntoView({ block: "start" });
+    else window.scrollTo(0, 0);
     main.focus({ preventScroll: true });
   }
 
@@ -544,9 +890,399 @@
     $("#account-role").textContent = ROLE_LABEL[me.platform_role] || me.platform_role;
     $("#account-avatar").textContent = initials(me.name, me.email);
     document.title = "AFS Command Center";
+    renderQuickActions();
+    const toggle = $("#nav-toggle");
+    toggle.onclick = () => {
+      const open = document.body.classList.toggle("nav-open");
+      toggle.setAttribute("aria-expanded", String(open));
+    };
   }
 
-  /* ================= Portal: home ================= */
+  /* ================= Charts ================= */
+  // Plain SVG and HTML, built from numbers and text only. Every chart has a hover tooltip and a table view.
+
+  const SVG_NS = "http://www.w3.org/2000/svg";
+  function svg(tag, attrs, ...children) {
+    const node = document.createElementNS(SVG_NS, tag);
+    for (const [key, value] of Object.entries(attrs || {})) if (value !== null && value !== undefined) node.setAttribute(key, value);
+    for (const child of children.flat()) if (child !== null && child !== undefined && child !== false) node.append(child instanceof Node ? child : document.createTextNode(String(child)));
+    return node;
+  }
+
+  const numberFormat = new Intl.NumberFormat();
+  const compactFormat = new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 1 });
+  const num = (n) => (Math.abs(n) >= 10000 ? compactFormat.format(n) : numberFormat.format(n));
+  const sum = (values) => values.reduce((n, v) => n + Number(v || 0), 0);
+  const dayDate = (iso) => { const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d); };
+  const shortDay = (iso) => dayDate(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  const longDay = (iso) => dayDate(iso).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+  const pct = (part, whole) => (whole ? Math.round((part / whole) * 100) + "%" : "0%");
+
+  // Four clean, whole-number intervals that cover the largest value.
+  function niceStep(max) {
+    const raw = max / 4;
+    if (raw <= 1) return 1;
+    const power = 10 ** Math.floor(Math.log10(raw));
+    for (const m of [1, 2, 2.5, 5, 10]) {
+      const step = m * power;
+      if (step >= raw && Number.isInteger(step)) return step;
+    }
+    return 10 * power;
+  }
+
+  const tip = () => $("#chart-tip");
+  function showTip(event, title, rows) {
+    const node = tip();
+    node.replaceChildren(h("div", { class: "tip-title" }, title), rows.map((r) =>
+      h("div", { class: "tip-row" + (r.total ? " total" : "") },
+        r.color ? h("span", { class: "swatch", style: `background:${r.color}` }) : null,
+        h("span", null, r.label), h("b", null, num(r.value)))));
+    node.hidden = false;
+    const { innerWidth: vw, innerHeight: vh } = window;
+    const rect = node.getBoundingClientRect();
+    let x = event.clientX + 14, y = event.clientY + 14;
+    if (x + rect.width > vw - 8) x = event.clientX - rect.width - 14;
+    if (y + rect.height > vh - 8) y = event.clientY - rect.height - 14;
+    node.style.left = Math.max(8, x) + "px";
+    node.style.top = Math.max(8, y) + "px";
+  }
+  const hideTip = () => { tip().hidden = true; };
+
+  // Charts draw at their real width, and redraw when it changes. Observers are released on every navigation.
+  const chartObservers = [];
+  function disconnectCharts() {
+    while (chartObservers.length) chartObservers.pop().disconnect();
+    hideTip();
+  }
+  function chartBox(draw, height) {
+    const box = h("div", { class: "chart", style: `height:${height}px` });
+    let lastWidth = 0;
+    const observer = new ResizeObserver((entries) => {
+      const width = Math.floor(entries[0].contentRect.width);
+      if (width && width !== lastWidth) { lastWidth = width; box.replaceChildren(draw(width, height)); }
+    });
+    observer.observe(box);
+    chartObservers.push(observer);
+    return box;
+  }
+
+  // Rounded at the data end (top), square at the baseline.
+  function columnPath(x, y, w, hgt, r) {
+    r = Math.max(0, Math.min(r, w / 2, hgt));
+    return `M${x},${y + hgt}V${y + r}Q${x},${y} ${x + r},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + hgt}Z`;
+  }
+
+  function vizTable(columns, rows, label) {
+    return h("div", { class: "viz-table" }, table(columns.map((c, i) => ({ label: c, className: i ? "num" : null })),
+      rows.map((r) => r.map((cell, i) => (i ? { className: "num", node: num(cell) } : cell))), { label }));
+  }
+
+  function withTableToggle(figure, tableNode) {
+    tableNode.hidden = true;
+    const toggle = h("button", { type: "button", class: "link", "aria-expanded": "false", onclick: () => {
+      tableNode.hidden = !tableNode.hidden;
+      toggle.setAttribute("aria-expanded", String(!tableNode.hidden));
+      toggle.textContent = tableNode.hidden ? "Show as table" : "Hide table";
+    } }, "Show as table");
+    figure.append(h("div", { class: "viz-foot" }, toggle), tableNode);
+    return figure;
+  }
+
+  // Daily columns, stacked when there is more than one series. series: [{ name, color, values }]
+  function columnChart({ days, series, height = 230, label }) {
+    const totals = days.map((_, i) => sum(series.map((s) => s.values[i])));
+    const step = niceStep(Math.max(0, ...totals));
+    const max = step * 4;
+    const figure = h("figure", { class: "viz" });
+    if (series.length > 1) {
+      figure.append(h("ul", { class: "legend", "aria-label": "Legend" }, series.map((s) =>
+        h("li", null, h("span", { class: "swatch", style: `background:${s.color}` }), s.name, h("b", null, num(sum(s.values)))))));
+    }
+    figure.append(chartBox((width, hgt) => {
+      const padL = 40, padR = 6, padT = 8, padB = 24;
+      const plotW = width - padL - padR, plotH = hgt - padT - padB;
+      const slot = plotW / days.length;
+      const barW = Math.max(2, Math.min(24, slot * 0.68, slot - 2));
+      const y = (v) => padT + plotH - (v / max) * plotH;
+      const root = svg("svg", { width, height: hgt, role: "img", "aria-label": label });
+      for (let t = 0; t <= 4; t++) {
+        const yy = Math.round(y(step * t)) + 0.5;
+        root.append(svg("line", { x1: padL, x2: width - padR, y1: yy, y2: yy, class: t ? "grid-line" : "base-line" }),
+          svg("text", { x: padL - 8, y: yy + 4, "text-anchor": "end", class: "tick" }, num(step * t)));
+      }
+      const labelEvery = plotW < 420 ? 14 : 7;
+      days.forEach((day, i) => {
+        if ((days.length - 1 - i) % labelEvery === 0) {
+          root.append(svg("text", { x: padL + slot * i + slot / 2, y: hgt - 6, "text-anchor": "middle", class: "tick" }, shortDay(day)));
+        }
+        const hit = svg("rect", { x: padL + slot * i, y: padT, width: slot, height: plotH, class: "hit" });
+        const rows = series.length === 1
+          ? [{ label: series[0].name, value: series[0].values[i], color: series[0].color }]
+          : [...series.filter((s) => s.values[i] > 0).map((s) => ({ label: s.name, value: s.values[i], color: s.color })),
+             { label: "Total", value: totals[i], total: true }];
+        hit.addEventListener("pointermove", (e) => showTip(e, longDay(day), rows));
+        hit.addEventListener("pointerleave", hideTip);
+        root.append(hit);
+      });
+      days.forEach((_, i) => {
+        const x = padL + slot * i + (slot - barW) / 2;
+        const parts = series.filter((s) => s.values[i] > 0);
+        let base = y(0);
+        parts.forEach((s, k) => {
+          const top = y(0) - ((sum(parts.slice(0, k + 1).map((p) => p.values[i]))) / max) * plotH;
+          const bottom = base - (k ? 2 : 0); // 2px surface gap between stacked segments
+          if (bottom - top > 0.5) {
+            root.append(svg("path", { class: "bar", fill: s.color, d: columnPath(x, top, barW, bottom - top, k === parts.length - 1 ? 4 : 0) }));
+          }
+          base = top;
+        });
+      });
+      return root;
+    }, height));
+    const columns = ["Day", ...series.map((s) => s.name), ...(series.length > 1 ? ["Total"] : [])];
+    const rows = days.map((d, i) => [shortDay(d), ...series.map((s) => s.values[i]), ...(series.length > 1 ? [totals[i]] : [])]).reverse();
+    return withTableToggle(figure, vizTable(columns, rows, label + " (table)"));
+  }
+
+  function sparkline(values, color = "var(--s1)", width = 96, height = 30) {
+    const max = Math.max(1, ...values);
+    const stepX = (width - 8) / Math.max(1, values.length - 1);
+    const pts = values.map((v, i) => [4 + i * stepX, height - 4 - (v / max) * (height - 8)]);
+    const line = pts.map(([x, y], i) => (i ? "L" : "M") + x.toFixed(1) + "," + y.toFixed(1)).join("");
+    const [ex, ey] = pts[pts.length - 1];
+    return svg("svg", { class: "spark", width, height, viewBox: `0 0 ${width} ${height}`, preserveAspectRatio: "none", "aria-hidden": "true" },
+      svg("path", { d: `${line}L${ex},${height - 4}L4,${height - 4}Z`, fill: color, "fill-opacity": "0.1", stroke: "none" }),
+      svg("path", { d: line, fill: "none", stroke: color, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }),
+      svg("circle", { cx: ex, cy: ey, r: 3.5, fill: color, stroke: "var(--surface)", "stroke-width": 2 }));
+  }
+
+  // One measure across categories, largest first. items: [{ label, value, href, color }]
+  function hbars(items, { label, unit = "" } = {}) {
+    const max = Math.max(1, ...items.map((i) => i.value));
+    const sorted = [...items].sort((a, b) => b.value - a.value || a.label.localeCompare(b.label));
+    const figure = h("figure", { class: "viz" },
+      h("div", { class: "hbars", role: "list", "aria-label": label }, sorted.map((item) =>
+        h("div", { class: "hbar", role: "listitem" },
+          h("div", { class: "hbar-label" },
+            item.color ? h("span", { class: "swatch", style: `background:${item.color}` }) : null,
+            item.href ? h("a", { href: item.href, title: item.label }, item.label) : h("span", { class: "t", title: item.label }, item.label)),
+          h("div", { class: "track", onpointermove: (e) => showTip(e, item.label, [{ label: unit || label, value: item.value }]), onpointerleave: hideTip },
+            item.value ? h("div", { class: "fill", style: `width:${(item.value / max) * 100}%` }) : null),
+          h("span", { class: "val" }, num(item.value))))));
+    return withTableToggle(figure, vizTable(["Item", unit || label], sorted.map((i) => [i.label, i.value]), label + " (table)"));
+  }
+
+  // Parts of one whole. parts: [{ label, value, color }]
+  function segmented(parts, { label }) {
+    const total = sum(parts.map((p) => p.value));
+    return h("div", null,
+      h("div", { class: "seg", role: "img", "aria-label": `${label}: ` + parts.map((p) => `${p.label} ${p.value}`).join(", ") },
+        parts.filter((p) => p.value > 0).map((p) => h("span", {
+          style: `flex:${p.value} 1 0;background:${p.color}`,
+          onpointermove: (e) => showTip(e, label, [{ label: p.label, value: p.value, color: p.color }]), onpointerleave: hideTip,
+        }))),
+      h("ul", { class: "seg-legend" }, parts.map((p) => h("li", null,
+        h("span", { class: "swatch", style: `background:${p.color}` }), h("span", null, p.label),
+        h("b", null, num(p.value)), h("span", { class: "pct" }, pct(p.value, total))))));
+  }
+
+  function kpi(label, value, { sub, delta, spark, unit } = {}) {
+    return h("div", { class: "panel kpi" },
+      h("div", { class: "label" }, label),
+      h("div", { class: "row" },
+        h("div", { class: "value" }, value, unit ? h("small", null, " " + unit) : null),
+        spark || null),
+      delta || sub ? h("div", { class: "sub" }, delta || null, delta && sub ? " " : null, sub || null) : null);
+  }
+
+  function deltaChip(current, previous, period) {
+    if (!previous && !current) return h("span", { class: "delta flat" }, "No change");
+    if (!previous) return h("span", { class: "delta up", title: `None in the previous ${period}` }, "New");
+    const change = Math.round(((current - previous) / previous) * 100);
+    const tone = change > 0 ? "up" : change < 0 ? "down" : "flat";
+    return h("span", { class: "delta " + tone, title: `Compared with the previous ${period}` }, (change > 0 ? "+" : "") + change + "%");
+  }
+
+  /* ================= Home: statistics overview ================= */
+
+  const ACTION_LABEL = {
+    "assignment.grant": "granted access", "assignment.revoke": "revoked access",
+    "user.create": "added an employee", "user.update": "updated an employee", "user.delete": "removed an employee", "user.invite": "sent an invitation",
+    "application.create": "registered an application", "application.update": "updated an application",
+    "role_mapping.create": "added a role", "role_mapping.delete": "deleted a role", "app_scope.update": "changed an administrator's scope",
+    "identity.link": "linked their AFS identity", "user.provision": "was provisioned on first sign-in",
+    "platform_role.bootstrap": "became super administrator", "access.denied": "was denied access",
+    "notification.sent": "sent a notification", "notification.failed": "could not send a notification",
+  };
+
+  function activityFeed(items, appsBySlug) {
+    if (!items.length) return emptyState(icon("log"), "No activity yet", "Changes to access appear here as they happen.");
+    return h("ul", { class: "feed" }, items.map((e) => {
+      const app = e.application_slug && appsBySlug[e.application_slug];
+      return h("li", null,
+        h("span", { class: "dot " + e.outcome, title: e.outcome === "success" ? "Succeeded" : "Refused or failed" }),
+        h("span", { class: "what" },
+          h("b", null, e.actor_name || "System"), " ", ACTION_LABEL[e.action] || h("span", { class: "mono" }, e.action),
+          e.outcome === "failure" ? h("span", { class: "sub" }, " (refused)") : null,
+          app ? h("span", { class: "sub" }, " · ", h("a", { href: "#/app/" + encodeURIComponent(app.slug) }, app.name)) : null),
+        h("span", { class: "when", title: fullDate(e.occurred_at) }, ago(e.occurred_at)));
+    }));
+  }
+
+  function healthBadge(app) {
+    if (!app.enabled) return badge("Disabled", "neutral");
+    const health = HEALTH[app.health] || HEALTH.not_connected;
+    return badge(health.label, health.tone);
+  }
+
+  function appTile(app, canSeeUsage) {
+    const color = appColor(app.color_index);
+    const href = "#/app/" + encodeURIComponent(app.slug);
+    const stat = (label, value) => h("div", null, h("dt", null, label), h("dd", null, value));
+    return h("article", { class: "panel app-tile" },
+      h("div", { class: "app-head" },
+        h("div", { class: "app-icon", style: `background:color-mix(in srgb, ${color} 22%, var(--surface))`, "aria-hidden": "true" }, app.name.charAt(0).toUpperCase()),
+        h("div", { style: "min-width:0" }, h("h3", { style: "margin:0;font-size:15.5px" }, h("a", { href, class: "row-link", style: "color:var(--fg);text-decoration:none" }, app.name)),
+          h("span", { class: "sub mono" }, app.slug))),
+      h("div", { class: "badges" }, app.enabled ? badge("Enabled", "accent") : badge("Disabled", "neutral"), app.enabled ? healthBadge(app) : null,
+        app.integration_type === "oidc" ? badge("Single sign-on", "neutral") : null),
+      app.managed
+        ? h("dl", { class: "app-stats" },
+            stat("People", num(app.people)),
+            stat("Roles", num(app.roles.length)),
+            canSeeUsage ? stat("Sessions, 30d", num(app.sessions_30d)) : stat("Changes, 30d", num(app.granted_30d + app.revoked_30d)))
+        : h("p", { class: "muted", style: "margin:0;font-size:13px" }, "Outside your scope: access figures are shown to its managers."),
+      app.description ? h("p", { class: "muted clamp", style: "margin:0;font-size:13.5px" }, app.description) : null,
+      h("div", { class: "foot" },
+        canSeeUsage && app.sessions_30d ? sparkline(app.sessions_daily, color) : h("span"),
+        h("span", { class: "actions" },
+          linkButton("Overview", href, { small: true }),
+          app.enabled && app.launch_url ? h("a", { class: "btn small", href: app.launch_url, target: "_blank", rel: "noopener noreferrer", "aria-label": `Launch ${app.name} (opens in a new tab)` }, "Launch", icon("external")) : null)));
+  }
+
+  async function renderHome(root) {
+    if (!isAdmin()) return renderEmployeeHome(root);
+    const [data, mine] = await Promise.all([api("GET", "/api/admin/overview"), api("GET", "/api/apps")]);
+    const t = data.totals;
+    const apps = data.applications;
+    const scoped = apps.filter((a) => a.managed);
+    const appsBySlug = Object.fromEntries(apps.map((a) => [a.slug, a]));
+    const first = (state.me.name || state.me.email).split(" ")[0];
+    const signIns = sum(data.sign_ins.success);
+    const refused = sum(data.sign_ins.failure);
+    const appHref = (a) => "#/app/" + encodeURIComponent(a.slug);
+
+    const sessionsDaily = data.days.map((_, i) => sum(apps.map((a) => (a.sessions_daily ? a.sessions_daily[i] : 0))));
+
+    const kpis = h("div", { class: "kpis" },
+      kpi("Applications", num(t.applications), { sub: `${t.applications_enabled} enabled · ${t.applications - t.applications_enabled} disabled` }),
+      kpi("Active employees", num(t.employees_active), { sub: `${t.employees_pending} waiting for first sign-in · ${t.employees_disabled} disabled` }),
+      kpi("People with access", num(t.users_with_access), { sub: `${num(t.assignments)} assignments · +${t.granted_30d} / −${t.revoked_30d} in 30 days` }),
+      data.can_see_usage
+        ? kpi("Sessions, 30 days", num(t.sessions_30d), { delta: deltaChip(t.sessions_30d, t.sessions_prev_30d, "30 days"), sub: `${num(t.sessions_7d)} this week`, spark: sparkline(sessionsDaily, "var(--s-neutral)") })
+        : null,
+      kpi("Sign-ins, 30 days", num(signIns), { sub: `${refused} refused · ${t.signed_in_7d} people this week`, spark: sparkline(data.sign_ins.success, "var(--s-neutral)") }),
+      kpi("Healthy integrations", `${t.applications_connected}`, { unit: `of ${t.applications}`,
+        sub: t.applications_failing ? badge(`${t.applications_failing} failing`, "bad") : "None failing" }));
+
+    // Sessions stacked by application. More than eight series fold the smallest into "Other".
+    let sessionSeries = apps.filter((a) => a.sessions_30d > 0).sort((a, b) => b.sessions_30d - a.sessions_30d)
+      .map((a) => ({ name: a.name, color: appColor(a.color_index), values: a.sessions_daily }));
+    if (sessionSeries.length > 8) {
+      const rest = sessionSeries.slice(7);
+      sessionSeries = [...sessionSeries.slice(0, 7), { name: "Other", color: "var(--s-other)", values: data.days.map((_, i) => sum(rest.map((s) => s.values[i]))) }];
+    }
+    const signInChart = columnChart({ days: data.days, series: [{ name: "Sign-ins", color: "var(--s-neutral)", values: data.sign_ins.success }], label: "Sign-ins per day" });
+    const chartsRow = data.can_see_usage
+      ? h("div", { class: "grid two-one" },
+          panel("Sessions per day by application", "Each time Command Center grants an application access. Last 30 days.",
+            sessionSeries.length ? columnChart({ days: data.days, series: sessionSeries, label: "Sessions per day by application" })
+              : emptyState(icon("chart"), "No sessions yet", "Sessions appear once integrated applications check access through Command Center.")),
+          panel("Sign-ins per day", `Successful AFS sign-ins. ${refused} refused in 30 days.`, signInChart))
+      : h("div", { class: "grid two-one" },
+          panel("Sign-ins per day", `Successful AFS sign-ins. ${refused} refused in 30 days.`, signInChart),
+          panel("People with access", "Your applications", scoped.length
+            ? hbars(scoped.map((a) => ({ label: a.name, value: a.people, href: appHref(a) })), { label: "People with access", unit: "People" })
+            : emptyState(icon("people"), "No applications in your scope", "A super administrator chooses which applications you manage.")));
+
+    const collection = h("div", { class: "app-grid" },
+      apps.map((a) => appTile(a, data.can_see_usage)),
+      isSuper() ? h("button", { type: "button", class: "panel add-tile", onclick: registerApplication },
+        h("span", null, h("span", { class: "empty", style: "padding:0;display:block" }, h("span", { class: "icon" }, icon("plus"))),
+          h("strong", { style: "display:block;color:var(--fg)" }, "Register an application"),
+          h("span", { style: "font-size:13px" }, "It appears in the menu and in every statistic."))) : null);
+
+    const roles = data.platform_roles;
+    const peoplePanel = panel("People and roles", "Everyone with an AFS account", h("div", null,
+      h("div", { class: "seg-block" }, h("h3", null, "Platform role"),
+        segmented([
+          { label: ROLE_LABEL.super_admin, value: roles.super_admin, color: "var(--s1)" },
+          { label: ROLE_LABEL.access_admin, value: roles.access_admin, color: "var(--s2)" },
+          { label: ROLE_LABEL.employee, value: roles.employee, color: "var(--s3)" },
+        ], { label: "Platform role" })),
+      h("div", { class: "seg-block" }, h("h3", null, "Account status"),
+        segmented([
+          { label: "Active, signed in before", value: t.employees_active - t.employees_pending, color: "var(--s1)" },
+          { label: "Waiting for first sign-in", value: t.employees_pending, color: "var(--s2)" },
+          { label: "Disabled", value: t.employees_disabled, color: "var(--s3)" },
+        ], { label: "Account status" }))));
+
+    const accessBars = panel("People with access by application", data.scope === "all" ? "Active assignments per application" : "Applications you manage",
+      scoped.length ? hbars(scoped.map((a) => ({ label: a.name, value: a.people, href: appHref(a), color: appColor(a.color_index) })), { label: "People with access", unit: "People" })
+        : emptyState(icon("people"), "No applications in your scope", "A super administrator chooses which applications you manage."));
+
+    const roleRows = scoped.flatMap((a) => [
+      ...a.roles.map((r) => [
+        { node: h("a", { href: appHref(a), class: "row-link" }, h("span", { class: "swatch", style: `background:${appColor(a.color_index)};margin-right:8px` }), a.name) },
+        { node: h("code", { class: "mono" }, r.name) },
+        { node: h("span", { class: "mono" }, r.external_role) },
+        { className: "num", node: num(r.people) },
+      ]),
+      ...(a.standard_access > 0 || !a.roles.length ? [[
+        { node: h("a", { href: appHref(a), class: "row-link" }, h("span", { class: "swatch", style: `background:${appColor(a.color_index)};margin-right:8px` }), a.name) },
+        { node: h("span", { class: "muted" }, a.roles.length ? "Standard access" : "No roles defined") },
+        { node: h("span", { class: "muted" }, "—") },
+        { className: "num", node: num(a.standard_access) },
+      ]] : []),
+    ]);
+    const rolesPanel = panel("Roles by application", "Who holds which role inside each application", roleRows.length
+      ? table([{ label: "Application" }, { label: "Role" }, { label: "Value in the application" }, { label: "People", className: "num" }], roleRows, { label: "Roles by application" })
+      : emptyState(icon("shield"), "No roles yet", "Define an application's roles from its page."), { flush: true });
+
+    const live = data.live && data.live.biocap;
+    const liveSection = live && live.status === "ok" ? [
+      sectionTitle("Live from Biocap", `Read from Biocap's own database ${ago(live.generated_at)}. Counts only.`, linkButton("Usage", "#/usage", { small: true })),
+      h("div", { class: "kpis" },
+        kpi("Biocap users", num(live.users_total), { sub: `${num(live.users_active)} active · ${num(live.users_logged_in_30d)} signed in, 30 days` }),
+        kpi("Stories", num(live.stories_total), { sub: `${num(live.stories_published)} published` }),
+        kpi("Pending review", num(live.stories_pending_review))),
+    ] : [];
+
+    fill(root, 
+      h("section", { class: "hero" },
+        h("div", null,
+          h("p", { class: "eyebrow" }, ROLE_LABEL[state.me.platform_role] || "Administrator"),
+          h("h1", null, `Welcome, ${first}`),
+          h("p", null, `Every application AFS manages, who can reach it, and how it is used. ${apps.length} application${apps.length === 1 ? "" : "s"} registered.`)),
+        h("div", { class: "actions" },
+          h("span", { class: "chip", title: fullDate(data.generated_at) }, "Last 30 days · updated ", ago(data.generated_at)),
+          button(h("span", null, "Refresh"), navigate, { small: true }))),
+      data.scope === "managed"
+        ? h("p", { class: "notice", style: "margin:0 0 16px" }, `Access figures cover the ${scoped.length} application${scoped.length === 1 ? "" : "s"} you manage. Session counts are shown to super administrators.`)
+        : null,
+      kpis,
+      chartsRow,
+      sectionTitle("Applications managed by AFS", "New registrations appear here, in the menu and in every statistic automatically.",
+        isSuper() ? linkButton("Manage applications", "#/applications", { small: true }) : null),
+      collection,
+      h("div", { class: "grid halves" }, data.can_see_usage ? accessBars : rolesPanel, peoplePanel),
+      h("div", { class: "grid" + (data.can_see_usage ? " two-one" : "") }, data.can_see_usage ? rolesPanel : null,
+        panel("Recent activity", "Latest changes to access", activityFeed(data.recent_activity, appsBySlug), { flush: true, actions: linkButton("Audit log", "#/audit", { small: true }) })),
+      liveSection,
+      mine.length ? [sectionTitle("Your applications", "Applications assigned to you. Each opens in a new tab."), h("div", { class: "cards" }, mine.map(appCard))] : null);
+  }
+
+  /* ================= Portal: employee home ================= */
 
   function appCard(app) {
     return h("article", { class: "panel card" },
@@ -563,21 +1299,184 @@
   }
 
   // Every application the employee is assigned to. Each card opens the application in its own tab.
-  async function renderHome(root) {
+  async function renderEmployeeHome(root) {
     const apps = await api("GET", "/api/apps");
     const first = (state.me.name || state.me.email).split(" ")[0];
     const unavailable = apps.filter((a) => !a.available).length;
     const summary = apps.length === 0
       ? "No applications are assigned to you yet."
       : `${apps.length} application${apps.length === 1 ? "" : "s"} assigned to you${unavailable ? `, ${unavailable} temporarily unavailable` : ""}.`;
-    root.replaceChildren(
+    fill(root, 
       h("section", { class: "hero" },
-        h("p", { class: "eyebrow" }, ROLE_LABEL[state.me.platform_role] || "Employee"),
-        h("h1", null, `Welcome, ${first}`),
-        h("p", null, summary)),
+        h("div", null,
+          h("p", { class: "eyebrow" }, ROLE_LABEL[state.me.platform_role] || "Employee"),
+          h("h1", null, `Welcome, ${first}`),
+          h("p", null, summary))),
       apps.length
-        ? h("div", { class: "cards" }, apps.map(appCard))
+        ? [h("div", { class: "kpis", style: "margin-bottom:20px" },
+            kpi("Assigned to you", num(apps.length)),
+            kpi("Available now", num(apps.length - unavailable)),
+            kpi("With a specific role", num(apps.filter((a) => a.role_name).length), { sub: "Others give standard access" })),
+           h("div", { class: "cards" }, apps.map(appCard))]
         : emptyState(icon("apps"), "Nothing to open yet", "Ask an access administrator to assign the applications you need."));
+  }
+
+  /* ================= Application page ================= */
+
+  async function renderApp(root, slug, section) {
+    if (!isAdmin()) return renderEmployeeApp(root, slug);
+    const data = await api("GET", "/api/admin/overview");
+    const app = data.applications.find((a) => a.slug === slug);
+    if (!app) {
+      fill(root, pageHead("Application"), h("div", { class: "panel" },
+        emptyState(icon("box"), "Application not found", "It may have been renamed. Pick one from the menu.", linkButton("Back to overview", "#/home", { small: true }))));
+      return;
+    }
+    const color = appColor(app.color_index);
+    const head = h("div", { class: "page-head" },
+      h("div", { class: "app-head" },
+        h("div", { class: "app-icon lg", style: `background:color-mix(in srgb, ${color} 22%, var(--surface))`, "aria-hidden": "true" }, app.name.charAt(0).toUpperCase()),
+        h("div", null,
+          h("h1", null, app.name),
+          h("div", { class: "actions", style: "gap:6px" }, h("span", { class: "mono muted" }, app.slug),
+            app.enabled ? badge("Enabled", "accent") : badge("Disabled", "neutral"), app.enabled ? healthBadge(app) : null))),
+      h("div", { class: "actions" },
+        app.enabled && app.launch_url ? h("a", { class: "btn primary", href: app.launch_url, target: "_blank", rel: "noopener noreferrer" }, "Launch app", icon("external")) : null,
+        app.managed ? button("Manage roles", () => manageRoles(app)) : null,
+        isSuper() ? button("Edit", () => editApplication(app)) : null,
+        isSuper() ? button(app.enabled ? "Disable" : "Enable", () => toggleApplication(app), { danger: app.enabled }) : null));
+
+    const description = app.description ? h("p", { class: "muted", style: "margin:-8px 0 20px;max-width:80ch" }, app.description) : null;
+
+    if (!app.managed) {
+      fill(root, head, description,
+        h("p", { class: "notice" }, "You do not manage access to this application. A super administrator can add it to your scope."),
+        h("div", { class: "grid halves" }, healthPanel(app, [])));
+      return;
+    }
+
+    const [assignments, events, audit] = await Promise.all([
+      api("GET", `/api/admin/assignments?application_id=${encodeURIComponent(app.id)}`),
+      api("GET", `/api/admin/integrations/${app.id}/events?limit=8`),
+      api("GET", `/api/admin/audit?limit=8&application=${encodeURIComponent(app.slug)}`),
+    ]);
+
+    const kpis = h("div", { class: "kpis" },
+      kpi("People with access", num(app.people), { sub: `${num(app.roles.length)} role${app.roles.length === 1 ? "" : "s"} defined` }),
+      data.can_see_usage ? kpi("Sessions, 30 days", num(app.sessions_30d), { delta: deltaChip(app.sessions_30d, app.sessions_prev_30d, "30 days"), sub: `${num(app.sessions_7d)} this week`, spark: sparkline(app.sessions_daily, color) }) : null,
+      kpi("Access changes, 30 days", num(app.granted_30d + app.revoked_30d), { sub: `${app.granted_30d} granted · ${app.revoked_30d} revoked` }),
+      kpi("Reported failures, 7 days", num(app.failures_7d), { sub: app.last_access_ok_at ? `Last good check ${ago(app.last_access_ok_at)}` : "No access check yet" }));
+
+    const roleParts = [
+      ...app.roles.map((r, i) => ({ label: r.name, value: r.people, color: `var(--s${(i % 8) + 1})` })),
+      { label: "Standard access", value: app.standard_access, color: "var(--s-other)" },
+    ];
+    const rolesSplit = panel("Access by role", `${num(app.people)} people`, app.people
+      ? segmented(roleParts, { label: "Access by role" })
+      : emptyState(icon("people"), "Nobody has access yet", "Grant access to an employee to get started."));
+
+    const chartsRow = data.can_see_usage
+      ? h("div", { class: "grid two-one" },
+          panel("Sessions per day", "Last 30 days", columnChart({ days: data.days, series: [{ name: "Sessions", color, values: app.sessions_daily }], label: `Sessions per day, ${app.name}` })),
+          rolesSplit)
+      : h("div", { class: "grid halves" }, rolesSplit, healthPanel(app, events));
+
+    // People with access, searchable, with the same actions as the Assignments page.
+    const filter = { q: "" };
+    const peopleBody = h("div");
+    const paintPeople = () => {
+      const q = filter.q.trim().toLowerCase();
+      const shown = assignments.filter((a) => !q || a.email.toLowerCase().includes(q));
+      peopleBody.replaceChildren(shown.length
+        ? table(["Employee", "Role", "Granted", ""].map((label) => ({ label })), shown.map((a) => [
+            a.email,
+            { node: a.role_name ? badge(a.role_name, "accent") : badge("Standard access", "neutral") },
+            { node: h("span", { title: fullDate(a.granted_at) }, ago(a.granted_at)) },
+            { className: "actions-cell", node: h("span", { class: "actions" },
+                button("Change role", () => changeRole(a), { small: true, ariaLabel: `Change ${a.email}'s role in ${a.application_name}` }),
+                button("Revoke", () => revoke(a), { small: true, danger: true, ariaLabel: `Revoke ${a.application_name} from ${a.email}` })) },
+          ]), { label: `People with access to ${app.name}` })
+        : emptyState(icon("people"), assignments.length ? "No matches" : "Nobody has access yet", assignments.length ? "Change the search." : "Grant access to an employee to get started."));
+    };
+    paintPeople();
+    const peoplePanel = panel("People with access", "Revoking takes effect at the next request.", h("div", null,
+      assignments.length > 6 ? h("div", { class: "toolbar", style: "padding:0 18px" }, toolbarSearch("Search by employee email", "", (v) => { filter.q = v; paintPeople(); }, "Search people with access")) : null,
+      peopleBody), {
+      id: "section-people", flush: true,
+      actions: [linkButton("All assignments", "#/assignments/" + encodeURIComponent(app.id), { small: true }),
+        app.enabled ? button("Grant access", () => Promise.all([api("GET", "/api/admin/users"), api("GET", "/api/admin/applications")])
+          .then(([users, apps]) => grantAccess(users, apps.filter((a) => a.id === app.id))).catch((err) => toast(err.message, true)), { small: true, primary: true }) : null],
+    });
+
+    const rolesPanel = panel("Roles", "Each central role maps to the value the application itself checks.", app.roles.length
+      ? table([{ label: "Central role" }, { label: "Value in the application" }, { label: "People", className: "num" }], app.roles.map((r) => [
+          { node: h("code", { class: "mono" }, r.name) }, { node: h("code", { class: "mono" }, r.external_role) }, { className: "num", node: num(r.people) },
+        ]), { label: `Roles of ${app.name}` })
+      : emptyState(icon("shield"), "No roles yet", "Add the roles this application enforces, so assignments can use them."),
+      { id: "section-roles", flush: true, actions: button("Manage roles", () => manageRoles(app), { small: true }) });
+
+    const activityPanel = panel("Activity", "Latest audited changes for this application", audit.items.length
+      ? h("ul", { class: "feed" }, audit.items.map((e) => h("li", null,
+          h("span", { class: "dot " + e.outcome }),
+          h("span", { class: "what" }, ACTION_LABEL[e.action] ? h("b", null, ACTION_LABEL[e.action].replace(/^./, (c) => c.toUpperCase())) : h("span", { class: "mono" }, e.action),
+            e.outcome === "failure" ? h("span", { class: "sub" }, " (refused)") : null),
+          h("span", { class: "when", title: fullDate(e.occurred_at) }, ago(e.occurred_at)))))
+      : emptyState(icon("log"), "No activity yet", "Changes to this application's access appear here."),
+      { id: "section-activity", flush: true, actions: linkButton("Open in audit log", "#/audit/" + encodeURIComponent(app.slug), { small: true }) });
+
+    const live = data.live && data.live[app.slug];
+    const liveBlock = live && live.status === "ok"
+      ? [sectionTitle("Live figures", `Read from ${app.name}'s own database ${ago(live.generated_at)}. Counts only.`),
+         h("div", { class: "kpis" }, Object.entries(live).filter(([k, v]) => typeof v === "number").map(([k, v]) =>
+           kpi(k.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase()).replace(/ 30d$/, ", 30 days"), num(v))))]
+      : null;
+
+    fill(root, head, description, kpis, chartsRow, liveBlock,
+      h("div", { class: "grid" }, peoplePanel),
+      h("div", { class: "grid halves" }, rolesPanel, data.can_see_usage ? healthPanel(app, events) : activityPanel),
+      data.can_see_usage ? h("div", { class: "grid" }, activityPanel) : null);
+  }
+
+  function healthPanel(app, events) {
+    const health = HEALTH[app.health] || HEALTH.not_connected;
+    return panel("Health & events", "Access checks and failures the application reports", h("div", null,
+      h("dl", { class: "facts", style: "padding:0 18px 12px" },
+        h("dt", null, "Status"), h("dd", null, badge(health.label, health.tone)),
+        h("dt", null, "Last good check"), h("dd", null, h("span", { title: fullDate(app.last_access_ok_at) }, ago(app.last_access_ok_at))),
+        h("dt", null, "Last error"), h("dd", null, app.last_error || "None"),
+        h("dt", null, "Sign-in"), h("dd", null, app.integration_type === "none" ? "Not integrated yet" : "Single sign-on")),
+      events.length
+        ? table(["When", "Kind", "Outcome"].map((label) => ({ label })), events.map((e) => [
+            { node: h("span", { title: fullDate(e.occurred_at) + (e.detail ? " · " + e.detail : "") }, ago(e.occurred_at)) },
+            { node: h("span", { class: "mono" }, e.kind) },
+            { node: e.outcome === "success" ? badge("Success", "ok") : badge("Failure", "bad") },
+          ]), { label: `Events for ${app.name}` })
+        : null), {
+      id: "section-health", flush: true,
+      actions: app.id ? button("All events", () => showEvents(app), { small: true }) : null,
+    });
+  }
+
+  async function renderEmployeeApp(root, slug) {
+    const apps = await api("GET", "/api/apps");
+    const app = apps.find((a) => a.slug === slug);
+    if (!app) {
+      fill(root, pageHead("Application"), h("div", { class: "panel" },
+        emptyState(icon("box"), "Not assigned to you", "Ask an access administrator if you need this application.", linkButton("Back to home", "#/home", { small: true }))));
+      return;
+    }
+    const color = appColor(apps.indexOf(app));
+    fill(root, 
+      h("div", { class: "page-head" },
+        h("div", { class: "app-head" },
+          h("div", { class: "app-icon lg", style: `background:color-mix(in srgb, ${color} 22%, var(--surface))`, "aria-hidden": "true" }, app.name.charAt(0).toUpperCase()),
+          h("div", null, h("h1", null, app.name), app.available ? badge("Available", "ok") : badge("Temporarily unavailable", "bad"))),
+        app.available ? h("div", { class: "actions" }, linkButton("Open", app.launch_url, { primary: true, external: true })) : null),
+      h("div", { class: "panel" }, h("div", { class: "panel-body" },
+        h("dl", { class: "facts" },
+          h("dt", null, "About"), h("dd", null, app.description || "No description."),
+          h("dt", null, "Your access"), h("dd", null, app.role_name ? ["Role ", h("b", null, app.role_name)] : "Standard access"),
+          h("dt", null, "How to open"), h("dd", null, app.available ? "Opens in a new tab and signs you in with your AFS account." : "Unavailable right now. Try again later.")))));
   }
 
   /* ================= Administration: employees ================= */
@@ -751,7 +1650,7 @@
     const isSuper = state.me.platform_role === "super_admin";
     const apps = await api("GET", "/api/admin/applications");
     const rows = apps.map((a) => [
-      { node: h("div", null, h("strong", null, a.name), h("span", { class: "sub mono" }, a.slug)) },
+      { node: h("div", null, h("a", { href: "#/app/" + encodeURIComponent(a.slug), class: "row-link" }, a.name), h("span", { class: "sub mono" }, a.slug)) },
       { node: a.enabled ? badge("Enabled", "ok") : badge("Disabled", "neutral") },
       { node: a.launch_url ? h("a", { href: a.launch_url, target: "_blank", rel: "noopener noreferrer", class: "mono" }, a.launch_url) : badge("No launch URL", "warn") },
       { node: a.integration_type === "none" ? "Not integrated" : "Single sign-on" },
@@ -875,13 +1774,13 @@
 
   /* ================= Administration: assignments ================= */
 
-  async function renderAssignments(root) {
+  async function renderAssignments(root, presetApp) {
     const [assignments, apps, users] = await Promise.all([
       api("GET", "/api/admin/assignments"),
       api("GET", "/api/admin/applications"),
       api("GET", "/api/admin/users"),
     ]);
-    const filter = { q: "", app: "" };
+    const filter = { q: "", app: apps.some((a) => a.id === presetApp && managesApp(a.id)) ? presetApp : "" };
     const body = h("div", { class: "panel" });
     const paint = () => {
       const q = filter.q.trim().toLowerCase();
@@ -894,7 +1793,7 @@
       }
       body.replaceChildren(table(["Employee", "Application", "Role", "Granted", ""].map((label) => ({ label })), shown.map((a) => [
         { node: h("span", null, a.email) },
-        { node: h("strong", null, a.application_name) },
+        { node: h("a", { href: "#/app/" + encodeURIComponent(a.application_slug), class: "row-link" }, a.application_name) },
         { node: a.role_name ? badge(a.role_name, "accent") : badge("Standard access", "neutral") },
         { node: h("span", { title: fullDate(a.granted_at) }, ago(a.granted_at)) },
         { className: "actions-cell", node: h("span", { class: "actions" },
@@ -905,6 +1804,7 @@
     const managedApps = apps.filter((a) => managesApp(a.id));
     const appFilter = h("select", { "aria-label": "Filter by application", onchange: (e) => { filter.app = e.target.value; paint(); } },
       h("option", { value: "" }, "All applications"), managedApps.map((a) => h("option", { value: a.id }, a.name)));
+    appFilter.value = filter.app;
     root.replaceChildren(
       pageHead("Assignments", "Who can open which application, and with which role. Revoking takes effect at the next request.",
         h("button", { type: "button", class: "primary", onclick: () => grantAccess(users, apps) }, "Grant access")),
@@ -1075,10 +1975,10 @@
 
   /* ================= Administration: audit log ================= */
 
-  async function renderAudit(root) {
+  async function renderAudit(root, presetSlug) {
     const apps = await api("GET", "/api/admin/applications");
     const PAGE = 50;
-    const query = { action: "", outcome: "", application: "", offset: 0 };
+    const query = { action: "", outcome: "", application: apps.some((a) => a.slug === presetSlug) ? presetSlug : "", offset: 0 };
     const body = h("div", { class: "panel" });
     const pager = h("div", { class: "pager" });
 
@@ -1127,6 +2027,7 @@
       h("option", { value: "" }, "Any outcome"), h("option", { value: "success" }, "Success"), h("option", { value: "failure" }, "Failure"));
     const appSelect = h("select", { "aria-label": "Filter by application", onchange: (e) => { query.application = e.target.value; query.offset = 0; load(); } },
       h("option", { value: "" }, "All applications"), apps.map((a) => h("option", { value: a.slug }, a.name)));
+    appSelect.value = query.application;
 
     root.replaceChildren(
       pageHead("Audit log", "Every privileged change, sign-in and refused action, with who did it and when. Entries cannot be edited or deleted."),
