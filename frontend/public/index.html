@@ -374,6 +374,98 @@
     .signin-card p { color: var(--muted); margin: 0 0 22px; }
     .signin-card .btn { width: 100%; min-height: 44px; font-size: 15px; }
 
+    /* ---------- Professional extras ---------- */
+    .segctl { display: inline-flex; padding: 3px; gap: 2px; border: 1px solid var(--line-strong); border-radius: 9px; background: var(--surface); }
+    .segctl button { min-height: 28px; padding: 0 10px; border: 0; border-radius: 6px; font-size: 13px; font-weight: 550; background: none; color: var(--muted); }
+    .segctl button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); }
+    a.kpi.link { color: var(--fg); text-decoration: none; transition: border-color .15s, box-shadow .15s; }
+    a.kpi.link:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); box-shadow: 0 6px 18px rgba(0, 30, 43, .08); }
+    .kpi .label svg { width: 13px; height: 13px; vertical-align: -2px; margin-left: 2px; opacity: 0; transition: opacity .15s; }
+    a.kpi.link:hover .label svg, a.kpi.link:focus-visible .label svg { opacity: .8; }
+    .icon-btn { width: 32px; padding: 0; }
+    .search-open { color: var(--top-muted) !important; min-width: 0; }
+    .search-open kbd, .palette kbd { font: 11px ui-monospace, monospace; border: 1px solid var(--top-line); border-radius: 4px; padding: 1px 5px; color: var(--top-muted); }
+    .tile-title { margin: 0; font-size: 15.5px; }
+    .tile-title a { color: var(--fg); text-decoration: none; }
+    .tile-title a:hover { color: var(--accent); text-decoration: underline; }
+    .row-link.app-link { display: inline-flex; align-items: center; gap: 8px; }
+    a.role-link { color: var(--accent); font-weight: 600; text-decoration: none; }
+    a.role-link:hover { text-decoration: underline; }
+    a.badge-link { text-decoration: none; }
+    a.badge-link:hover { text-decoration: underline; }
+    .role-note { color: var(--muted); font-size: 12.5px; }
+    .lede { margin: -6px 0 20px; color: var(--muted); max-width: 80ch; }
+    .mono-title { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: -.01em; }
+    .page-head .eyebrow { margin: 0 0 4px; font-size: 12px; font-weight: 650; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    a.chip { text-decoration: none; color: var(--fg); }
+    a.chip:hover { border-color: var(--accent); }
+    .avatar.lg { width: 52px; height: 52px; font-size: 18px; background: var(--accent-soft); color: var(--accent); border: 0; }
+    .hbar.highlight .fill { background: var(--accent); }
+    .hbar.highlight .hbar-label span.t { font-weight: 650; }
+    .seg-legend a { color: var(--fg); text-decoration: none; }
+    .seg-legend a:hover { color: var(--accent); text-decoration: underline; }
+
+    /* Needs attention */
+    .attention { list-style: none; margin: 0; padding: 0; }
+    .attention li { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 18px; border-top: 1px solid var(--line); font-size: 13.5px; }
+    .attention li:first-child { border-top: 0; }
+    .attention-icon svg { width: 18px; height: 18px; display: block; }
+    .attention li.bad .attention-icon { color: var(--bad); }
+    .attention li.warn .attention-icon { color: var(--warn); }
+    .attention li.info .attention-icon { color: var(--muted); }
+
+    /* Role cards and permissions */
+    .role-cards { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+    .role-cards > .panel { margin-top: 0; }
+    a.role-card { display: flex; flex-direction: column; gap: 8px; padding: 16px; color: var(--fg); text-decoration: none; }
+    a.role-card:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+    .role-card-head { display: flex; align-items: center; gap: 8px; }
+    .role-card-head svg { width: 17px; height: 17px; color: var(--accent); }
+    .role-card-head svg:last-child { margin-left: auto; color: var(--muted); }
+    .role-card p { margin: 0; color: var(--muted); font-size: 13px; }
+    .role-card-foot { font-size: 13px; color: var(--muted); margin-top: auto; }
+    .role-card-foot b { color: var(--fg); font-size: 18px; }
+    table.matrix th[scope="row"] { font-size: 13.5px; text-transform: none; letter-spacing: 0; color: var(--fg); background: none; font-weight: 500; position: static; }
+    table.matrix td { text-align: center; }
+    table.matrix th a { color: inherit; text-decoration: none; }
+    table.matrix .hl { background: color-mix(in srgb, var(--accent-soft) 70%, transparent); }
+    table.matrix thead th.hl { color: var(--accent); }
+    .perm { display: inline-flex; align-items: center; justify-content: center; font-size: 12.5px; }
+    .perm.yes { color: var(--ok); }
+    .perm.yes svg { width: 17px; height: 17px; }
+    .perm.no { color: var(--line-strong); }
+    .perm.part { color: var(--fg); font-weight: 500; }
+
+    /* Sortable headers */
+    th button.sort { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; font: inherit; color: inherit; text-transform: inherit; letter-spacing: inherit; }
+    th button.sort:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 3px; }
+    th .sort-mark::after { content: "↕"; opacity: .35; font-size: 11px; }
+    th[aria-sort="ascending"] .sort-mark::after { content: "↑"; opacity: 1; }
+    th[aria-sort="descending"] .sort-mark::after { content: "↓"; opacity: 1; }
+    th.num button.sort { flex-direction: row-reverse; }
+
+    /* Search */
+    dialog.palette { width: min(640px, calc(100vw - 32px)); margin-top: 12vh; padding: 0; overflow: hidden; }
+    .palette-input { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+    .palette-input svg { width: 18px; height: 18px; color: var(--muted); flex: none; }
+    .palette-input input { border: 0; box-shadow: none !important; padding: 6px 0; font-size: 16px; background: none; }
+    .palette kbd { border-color: var(--line); color: var(--muted); }
+    #palette-list { list-style: none; margin: 0; padding: 6px; max-height: min(52vh, 440px); overflow: auto; }
+    #palette-list li { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+    #palette-list li[aria-selected="true"] { background: var(--accent-soft); }
+    #palette-list li svg { width: 16px; height: 16px; color: var(--muted); flex: none; }
+    .palette-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .palette-label .sub { color: var(--muted); font-size: 12.5px; margin-left: 8px; }
+    .palette-kind { margin-left: auto; font-size: 11.5px; color: var(--muted); flex: none; }
+    .palette-status { margin: 0; padding: 8px 16px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); }
+
+    @media print {
+      .topbar, nav.side, .viz-foot, .actions button, .toolbar, .chart-tip { display: none !important; }
+      .layout { display: block; }
+      .panel { box-shadow: none; break-inside: avoid; }
+    }
+
     /* ---------- Responsive ---------- */
     @media (max-width: 1180px) {
       .grid.two-one, .grid.halves { grid-template-columns: minmax(0, 1fr); }
@@ -387,6 +479,7 @@
       }
       body.nav-open nav.side { transform: none; }
       .crumb { display: none; }
+      .search-kbd { display: none; }
       .account-meta { display: none; }
       .topbar { padding: 0 12px; gap: 10px; }
     }
@@ -396,6 +489,7 @@
       th, td { padding: 9px 10px; }
       .brand .brand-text { display: none; }
       .quick-label { display: none; }
+      .search-label, .search-kbd { display: none; }
       .hbar { grid-template-columns: minmax(70px, 110px) minmax(0, 1fr) auto; }
     }
   </style>
@@ -431,7 +525,12 @@
         <b id="crumb-current">Overview</b>
       </div>
       <span class="spacer"></span>
+      <button type="button" class="btn small search-open" id="search-open" aria-keyshortcuts="Control+K">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="search-label">Search</span><kbd class="search-kbd">Ctrl K</kbd>
+      </button>
       <div id="quick-actions"></div>
+      <button type="button" class="btn small icon-btn" id="theme-toggle" aria-label="Change theme"></button>
       <div class="account">
         <div class="account-meta">
           <div class="account-name" id="account-name"></div>
@@ -632,15 +731,62 @@
 
   // Table with optional row click handlers. `columns`: [{ label, className }]. `rows`: arrays of nodes.
   // A cell is either a plain value, a DOM node, or { node, className } for cells that need a class (such as actions).
-  function table(columns, rows, { label } = {}) {
+  // With `sortable`, each labelled column header sorts the rows. A wrapper cell may carry `sort`: the value to order by
+  // (an ISO date, a number), when the displayed text ("3 days ago") does not sort correctly.
+  function table(columns, rows, { label, sortable = false } = {}) {
     const cell = (c) => {
       const isWrapper = c !== null && typeof c === "object" && !(c instanceof Node) && "node" in c;
-      return h("td", { class: isWrapper ? c.className || null : null }, isWrapper ? c.node : c);
+      const td = h("td", { class: isWrapper ? c.className || null : null }, isWrapper ? c.node : c);
+      if (isWrapper && c.sort !== undefined && c.sort !== null) td.dataset.sort = String(c.sort);
+      return td;
     };
-    return h("div", { class: "table-wrap" },
-      h("table", { "aria-label": label || null },
-        h("thead", null, h("tr", null, columns.map((c) => h("th", { scope: "col", class: c.className || null }, c.label)))),
-        h("tbody", null, rows.map((cells) => h("tr", null, cells.map(cell))))));
+    const body = h("tbody", null, rows.map((cells) => h("tr", null, cells.map(cell))));
+    const heads = columns.map((c, index) => {
+      const th = h("th", { scope: "col", class: c.className || null });
+      if (sortable && c.label && c.sort !== false) {
+        th.setAttribute("aria-sort", "none");
+        th.append(h("button", { type: "button", class: "sort", onclick: () => sortBy(index, th) }, c.label, h("span", { class: "sort-mark", "aria-hidden": "true" })));
+      } else {
+        th.append(c.label || "");
+      }
+      return th;
+    });
+    function sortBy(index, th) {
+      const direction = th.getAttribute("aria-sort") === "ascending" ? "descending" : "ascending";
+      heads.forEach((x) => { if (x.hasAttribute("aria-sort")) x.setAttribute("aria-sort", "none"); });
+      th.setAttribute("aria-sort", direction);
+      const key = (tr) => { const td = tr.children[index]; return td ? (td.dataset.sort ?? td.textContent.trim()) : ""; };
+      const current = [...body.children];
+      const asNumber = (k) => (k === "" ? -Infinity : Number(k.replace(/,/g, "")));
+      const numeric = current.every((tr) => { const k = key(tr); return k === "" || !Number.isNaN(Number(k.replace(/,/g, ""))); });
+      current.sort((a, b) => {
+        const result = numeric ? asNumber(key(a)) - asNumber(key(b)) : key(a).localeCompare(key(b), undefined, { numeric: true, sensitivity: "base" });
+        return direction === "ascending" ? result : -result;
+      });
+      body.append(...current);
+    }
+    return h("div", { class: "table-wrap" }, h("table", { "aria-label": label || null }, h("thead", null, h("tr", null, heads)), body));
+  }
+
+  // ---------- CSV export ----------
+  function csvCell(value) {
+    let text = value === null || value === undefined ? "" : String(value);
+    if (typeof value === "string" && /^[=+\-@\t\r]/.test(text)) text = "'" + text; // keep spreadsheets from running it as a formula
+    return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  }
+  function downloadCsv(name, headers, rows) {
+    const text = [headers, ...rows].map((r) => r.map(csvCell).join(",")).join("\r\n");
+    const url = URL.createObjectURL(new Blob(["\ufeff" + text], { type: "text/csv;charset=utf-8" }));
+    const link = h("a", { href: url, download: `${name}-${new Date().toISOString().slice(0, 10)}.csv` });
+    document.body.append(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+  // `build` runs at click time, so the file holds what the filters show then.
+  function csvButton(name, build, label = "Export CSV") {
+    return h("button", { type: "button", class: "small", onclick: () => { const { headers, rows } = build(); downloadCsv(name, headers, rows); toast(`Exported ${rows.length} row${rows.length === 1 ? "" : "s"}.`); } },
+      icon("download"), label);
   }
 
   function toolbarSearch(placeholder, value, onInput, label) {
@@ -655,6 +801,7 @@
     home: '<path d="M3 11l9-7 9 7M5 9.5V20h5v-6h4v6h5V9.5"/>',
     apps: '<path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/>',
     people: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.4 3.2-5.5 6.5-5.5s5.9 2.1 6.5 5.5M16 4.5a3.5 3.5 0 010 7M18 14.5c2 .8 3.2 2.7 3.5 5.5"/>',
+    person: '<circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4 4-6.5 8-6.5s7.2 2.5 8 6.5"/>',
     box: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/>',
     key: '<path d="M14 10a4 4 0 11-1.2-2.8L21 7v3h-2v2h-2v-2h-2.5"/>',
     pulse: '<path d="M3 12h4l2-6 4 12 2-6h6"/>',
@@ -666,6 +813,14 @@
     bolt: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
     plus: '<path d="M12 5v14M5 12h14"/>',
     refresh: '<path d="M20 11a8 8 0 10-2.3 5.7M20 4v7h-7"/>',
+    search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',
+    download: '<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+    moon: '<path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z"/>',
+    monitor: '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',
+    alert: '<path d="M12 3l10 18H2zM12 10v5M12 18h.01"/>',
+    check: '<path d="M5 12l5 5 9-10"/>',
+    info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/>',
     overview: '<rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/>',
   };
   // Icon markup comes only from the constant ICONS table above, never from data.
@@ -680,12 +835,18 @@
     { id: "home", label: "Home", icon: "home", group: "", render: renderHome },
     { id: "app", label: "Application", hidden: true, render: renderApp },
     { id: "employees", label: "Employees", icon: "people", group: "Access management", admin: true, render: renderEmployees },
+    { id: "employee", label: "Employee", hidden: true, admin: true, render: renderEmployee },
     { id: "applications", label: "Applications", icon: "box", group: "Access management", admin: true, render: renderApplications },
     { id: "assignments", label: "Assignments", icon: "key", group: "Access management", admin: true, render: renderAssignments },
+    { id: "roles", label: "Roles", icon: "shield", group: "Access management", admin: true, render: renderRoles },
+    { id: "role", label: "Role", hidden: true, admin: true, render: renderRole },
+    { id: "platform-role", label: "Platform role", hidden: true, admin: true, render: renderPlatformRole },
     { id: "integrations", label: "Integrations", icon: "pulse", group: "Monitoring", admin: true, render: renderIntegrations },
     { id: "usage", label: "Usage", icon: "chart", group: "Monitoring", admin: true, superOnly: true, render: renderUsage },
     { id: "audit", label: "Audit log", icon: "log", group: "Monitoring", admin: true, render: renderAudit },
   ];
+  // Which menu entry stays highlighted on a detail page.
+  const PARENT_ROUTE = { employee: "employees", role: "roles", "platform-role": "roles" };
 
   const isAdmin = () => ADMIN_ROLES.includes(state.me.platform_role);
   const isSuper = () => state.me.platform_role === "super_admin";
@@ -694,14 +855,53 @@
     return ROUTES.filter((r) => (!r.admin || isAdmin()) && (!r.superOnly || isSuper()));
   }
 
+  // ---------- Small preferences kept in this browser ----------
+  function readPref(key, fallback) { try { return localStorage.getItem(key) ?? fallback; } catch (_) { return fallback; } }
+  function writePref(key, value) { try { localStorage.setItem(key, value); } catch (_) { /* storage unavailable */ } }
+
+  const PERIODS = [7, 30, 90];
+  state.period = PERIODS.includes(Number(readPref("afs.period", 30))) ? Number(readPref("afs.period", 30)) : 30;
+  const periodText = () => `${state.period} days`;
+
+  function periodPicker() {
+    return h("div", { class: "segctl", role: "group", "aria-label": "Period" }, PERIODS.map((d) =>
+      h("button", { type: "button", "aria-pressed": String(state.period === d), onclick: () => {
+        if (state.period === d) return;
+        state.period = d;
+        writePref("afs.period", String(d));
+        navigate();
+      } }, `${d} days`)));
+  }
+
+  const THEMES = { system: { label: "System", icon: "monitor" }, light: { label: "Light", icon: "sun" }, dark: { label: "Dark", icon: "moon" } };
+  function applyTheme(name) {
+    if (name === "light" || name === "dark") document.documentElement.setAttribute("data-theme", name);
+    else document.documentElement.removeAttribute("data-theme");
+    const toggle = $("#theme-toggle");
+    if (toggle) {
+      const theme = THEMES[name] || THEMES.system;
+      toggle.replaceChildren(icon(theme.icon));
+      toggle.setAttribute("aria-label", `Theme: ${theme.label}. Change theme`);
+      toggle.title = `Theme: ${theme.label}`;
+    }
+  }
+  function cycleTheme() {
+    const order = Object.keys(THEMES);
+    const next = order[(order.indexOf(readPref("afs.theme", "system")) + 1) % order.length];
+    writePref("afs.theme", next);
+    applyTheme(next);
+    toast(`Theme: ${THEMES[next].label}.`);
+  }
+
   // ---------- Applications in the side navigation ----------
   // Every application comes from the API, so a newly registered one appears here (and in every statistic) on its own.
   // Each keeps one color for its whole life: its position in registration order picks a fixed palette slot.
 
   const appColor = (index) => `var(--s${(index % 8) + 1})`;
+  const appTint = (index) => `background:color-mix(in srgb, ${appColor(index)} 22%, var(--surface))`;
   const NAV_OPEN_KEY = "afs.nav.open";
-  const navOpen = new Set((() => { try { return JSON.parse(localStorage.getItem(NAV_OPEN_KEY) || "[]"); } catch (_) { return []; } })());
-  const saveNavOpen = () => { try { localStorage.setItem(NAV_OPEN_KEY, JSON.stringify([...navOpen])); } catch (_) { /* storage unavailable */ } };
+  const navOpen = new Set((() => { try { return JSON.parse(readPref(NAV_OPEN_KEY, "[]")); } catch (_) { return []; } })());
+  const saveNavOpen = () => writePref(NAV_OPEN_KEY, JSON.stringify([...navOpen]));
 
   async function loadNavApps() {
     if (isAdmin()) {
@@ -709,12 +909,15 @@
       const status = Object.fromEntries(health.map((a) => [a.id, a.status]));
       const ordered = [...apps].sort((a, b) => (a.created_at < b.created_at ? -1 : a.created_at > b.created_at ? 1 : a.slug.localeCompare(b.slug)));
       ordered.forEach((a, i) => { a.color_index = i; a.health = status[a.id] || "not_connected"; });
+      state.allApps = ordered;
       state.navApps = ordered.filter((a) => managesApp(a.id)).sort((a, b) => a.name.localeCompare(b.name));
     } else {
       const apps = await api("GET", "/api/apps");
       state.navApps = apps.map((a, i) => ({ ...a, color_index: i, enabled: a.available }));
+      state.allApps = state.navApps;
     }
   }
+  const colorOfSlug = (slug) => { const app = (state.allApps || []).find((a) => a.slug === slug); return app ? app.color_index : 0; };
 
   function shortcutsFor(app) {
     const base = "#/app/" + encodeURIComponent(app.slug);
@@ -763,7 +966,8 @@
   function renderNav(current) {
     const nav = $("#nav");
     const routes = allowedRoutes().filter((r) => !r.hidden);
-    const link = (r) => h("a", { href: "#/" + r.id, "aria-current": r.id === current.route ? "page" : null }, icon(r.icon), h("span", null, r.label));
+    const active = PARENT_ROUTE[current.route] || current.route;
+    const link = (r) => h("a", { href: "#/" + r.id, "aria-current": r.id === active ? "page" : null }, icon(r.icon), h("span", null, r.label));
     const groups = {};
     for (const route of routes) if (route.group) (groups[route.group] ||= []).push(route);
     const apps = state.navApps || [];
@@ -789,11 +993,11 @@
       h("div", { class: "menu-list" },
         h("div", { class: "menu-label" }, "Manage access"),
         item("Add employee", "people", addEmployee),
-        item("Grant access", "key", () => Promise.all([api("GET", "/api/admin/users"), api("GET", "/api/admin/applications")])
-          .then(([users, apps]) => grantAccess(users, apps)).catch((err) => toast(err.message, true))),
+        item("Grant access", "key", () => openGrant()),
         isSuper() ? item("Register application", "plus", registerApplication) : null,
         h("hr"),
         h("div", { class: "menu-label" }, "Go to"),
+        go("Roles", "shield", "#/roles"),
         go("Integration health", "pulse", "#/integrations"),
         isSuper() ? go("Usage", "chart", "#/usage") : null,
         go("Audit log", "log", "#/audit")));
@@ -801,6 +1005,75 @@
     menu.addEventListener("keydown", (e) => { if (e.key === "Escape") { close(); menu.querySelector("summary").focus(); } });
     holder.replaceChildren(menu);
   }
+
+  function openGrant(preset) {
+    return Promise.all([api("GET", "/api/admin/users"), api("GET", "/api/admin/applications")])
+      .then(([users, apps]) => grantAccess(users, apps, preset)).catch((err) => toast(err.message, true));
+  }
+
+  // ---------- Search (Ctrl+K or /) ----------
+  // Pages and applications are always searchable; administrators also find employees and roles.
+  let paletteOpen = false;
+  async function openPalette() {
+    if (paletteOpen || !state.me) return;
+    paletteOpen = true;
+    const items = [
+      ...allowedRoutes().filter((r) => !r.hidden).map((r) => ({ kind: "Page", label: r.label, href: "#/" + r.id, icon: r.icon })),
+      ...(state.navApps || []).map((a) => ({ kind: "Application", label: a.name, sub: a.slug, href: "#/app/" + encodeURIComponent(a.slug), icon: "box" })),
+    ];
+    const input = h("input", { type: "search", placeholder: isAdmin() ? "Search pages, applications, employees and roles…" : "Search pages and applications…",
+      "aria-label": "Search", role: "combobox", "aria-expanded": "true", "aria-controls": "palette-list", "aria-autocomplete": "list", autocomplete: "off" });
+    const list = h("ul", { id: "palette-list", role: "listbox", "aria-label": "Results" });
+    const status = h("p", { class: "palette-status", role: "status" });
+    const dialog = h("dialog", { class: "palette", "aria-label": "Search" },
+      h("div", { class: "palette-input" }, icon("search"), input, h("kbd", null, "Esc")), list, status);
+    let shown = [];
+    let active = 0;
+    const go = (item) => { dialog.close(); location.hash = item.href; };
+    const paint = () => {
+      const terms = input.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+      shown = items.filter((i) => terms.every((t) => `${i.label} ${i.sub || ""} ${i.kind}`.toLowerCase().includes(t))).slice(0, 40);
+      active = Math.min(active, Math.max(0, shown.length - 1));
+      list.replaceChildren(...shown.map((item, index) => h("li", {
+        role: "option", id: "palette-opt-" + index, "aria-selected": String(index === active),
+        onclick: () => go(item), onmousemove: () => { if (active !== index) { active = index; paint(); } },
+      }, icon(item.icon), h("span", { class: "palette-label" }, item.label, item.sub ? h("span", { class: "sub" }, item.sub) : null), h("span", { class: "palette-kind" }, item.kind))));
+      input.setAttribute("aria-activedescendant", shown.length ? "palette-opt-" + active : "");
+      status.textContent = shown.length ? `${shown.length} result${shown.length === 1 ? "" : "s"}` : "No results";
+      const current = list.children[active];
+      if (current) current.scrollIntoView({ block: "nearest" });
+    };
+    input.addEventListener("input", () => { active = 0; paint(); });
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowDown") { e.preventDefault(); active = Math.min(shown.length - 1, active + 1); paint(); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); active = Math.max(0, active - 1); paint(); }
+      else if (e.key === "Enter" && shown[active]) { e.preventDefault(); go(shown[active]); }
+    });
+    dialog.addEventListener("click", (e) => { if (e.target === dialog) dialog.close(); });
+    dialog.addEventListener("close", () => { dialog.remove(); paletteOpen = false; });
+    document.body.append(dialog);
+    dialog.showModal();
+    input.focus();
+    paint();
+    if (isAdmin()) {
+      status.textContent = "Loading employees and roles…";
+      try {
+        const [users, catalog] = await Promise.all([api("GET", "/api/admin/users"), api("GET", "/api/admin/roles")]);
+        items.push(
+          ...users.map((u) => ({ kind: "Employee", label: u.display_name || u.email, sub: u.display_name ? u.email : "", href: "#/employee/" + u.id, icon: "person" })),
+          ...catalog.platform_roles.map((r) => ({ kind: "Platform role", label: ROLE_LABEL[r.name], href: "#/platform-role/" + r.name, icon: "shield" })),
+          ...catalog.roles.map((r) => ({ kind: "Role", label: r.name, sub: r.application_name, href: "#/role/" + r.id, icon: "shield" })));
+        if (paletteOpen) paint();
+      } catch (_) {
+        status.textContent = "Employees and roles could not be loaded.";
+      }
+    }
+  }
+  document.addEventListener("keydown", (e) => {
+    const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement && document.activeElement.tagName);
+    if ((e.key === "k" || e.key === "K") && (e.ctrlKey || e.metaKey)) { e.preventDefault(); openPalette(); }
+    else if (e.key === "/" && !typing && !document.querySelector("dialog[open]")) { e.preventDefault(); openPalette(); }
+  });
 
   function pageHead(title, description, actions) {
     return h("div", { class: "page-head" },
@@ -820,6 +1093,14 @@
         actions ? h("div", { class: "actions" }, actions) : null),
       h("div", { class: "panel-body" + (flush ? " flush" : "") }, body));
   }
+
+  // Links used across pages, so every person, role and application name leads to its own page.
+  const appHref = (slug) => "#/app/" + encodeURIComponent(slug);
+  const personLink = (id, label) => (id ? h("a", { href: "#/employee/" + id, class: "row-link" }, label) : label);
+  const roleLink = (id, label) => (id ? h("a", { href: "#/role/" + id, class: "role-link mono" }, label) : label);
+  const appLink = (slug, name) => h("a", { href: appHref(slug), class: "row-link app-link" },
+    h("span", { class: "swatch", style: `background:${appColor(colorOfSlug(slug))}` }), name);
+  const whenCell = (value, empty = "Never") => ({ node: h("span", { title: fullDate(value) }, value ? ago(value) : empty), sort: value || "" });
 
   let navigation = 0;
 
@@ -842,12 +1123,13 @@
     $("#nav-toggle").setAttribute("aria-expanded", "false");
     disconnectCharts();
     renderNav(current);
-    // Refresh the application list in the background so the menu follows registrations and status changes.
+    state.crumb = null;
     const setCrumb = () => {
       const app = route.id === "app" ? (state.navApps || []).find((a) => a.slug === current.param) : null;
-      $("#crumb-current").textContent = route.id === "home" ? "Overview" : app ? app.name : route.label;
+      $("#crumb-current").textContent = state.crumb || (route.id === "home" ? "Overview" : app ? app.name : route.label);
     };
     setCrumb();
+    // Refresh the application list in the background so the menu follows registrations and status changes.
     loadNavApps().then(() => { if (attempt === navigation) { renderNav(current); setCrumb(); } }).catch(() => {});
     const main = $("#main");
     main.replaceChildren(skeleton());
@@ -856,6 +1138,8 @@
       await route.render(content, current.param, current.sub);
       if (attempt !== navigation) return;
       main.replaceChildren(...content.childNodes);
+      setCrumb();
+      document.title = `${$("#crumb-current").textContent} · AFS Command Center`;
     } catch (err) {
       if (attempt !== navigation) return;
       main.replaceChildren(pageHead(route.label), errorNotice(err, navigate));
@@ -896,6 +1180,9 @@
       const open = document.body.classList.toggle("nav-open");
       toggle.setAttribute("aria-expanded", String(open));
     };
+    $("#search-open").onclick = openPalette;
+    $("#theme-toggle").onclick = cycleTheme;
+    applyTheme(readPref("afs.theme", "system"));
   }
 
   /* ================= Charts ================= */
@@ -913,10 +1200,14 @@
   const compactFormat = new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 1 });
   const num = (n) => (Math.abs(n) >= 10000 ? compactFormat.format(n) : numberFormat.format(n));
   const sum = (values) => values.reduce((n, v) => n + Number(v || 0), 0);
-  const dayDate = (iso) => { const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d); };
+  const dayDate = (iso) => { const [y, m, d] = iso.slice(0, 10).split("-").map(Number); return new Date(y, m - 1, d); };
   const shortDay = (iso) => dayDate(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" });
   const longDay = (iso) => dayDate(iso).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+  const weekOf = (iso) => "Week of " + shortDay(iso);
+  const dateOnly = (value) => (value ? new Date(value).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : "—");
   const pct = (part, whole) => (whole ? Math.round((part / whole) * 100) + "%" : "0%");
+  const plural = (n, word, many = word + "s") => `${num(n)} ${n === 1 ? word : many}`;
+  const durationDays = (days) => (days === null || days === undefined ? "—" : days < 1 ? "Under a day" : days < 60 ? plural(days, "day") : days < 730 ? plural(Math.round(days / 30.4), "month") : plural(Math.round(days / 365), "year"));
 
   // Four clean, whole-number intervals that cover the largest value.
   function niceStep(max) {
@@ -936,7 +1227,7 @@
     node.replaceChildren(h("div", { class: "tip-title" }, title), rows.map((r) =>
       h("div", { class: "tip-row" + (r.total ? " total" : "") },
         r.color ? h("span", { class: "swatch", style: `background:${r.color}` }) : null,
-        h("span", null, r.label), h("b", null, num(r.value)))));
+        h("span", null, r.label), h("b", null, typeof r.value === "number" ? num(r.value) : r.value))));
     node.hidden = false;
     const { innerWidth: vw, innerHeight: vh } = window;
     const rect = node.getBoundingClientRect();
@@ -988,8 +1279,8 @@
     return figure;
   }
 
-  // Daily columns, stacked when there is more than one series. series: [{ name, color, values }]
-  function columnChart({ days, series, height = 230, label }) {
+  // Columns per day (or per week), stacked when there is more than one series. series: [{ name, color, values }]
+  function columnChart({ days, series, height = 230, label, tipTitle = longDay, axisLabel = shortDay }) {
     const totals = days.map((_, i) => sum(series.map((s) => s.values[i])));
     const step = niceStep(Math.max(0, ...totals));
     const max = step * 4;
@@ -1002,7 +1293,7 @@
       const padL = 40, padR = 6, padT = 8, padB = 24;
       const plotW = width - padL - padR, plotH = hgt - padT - padB;
       const slot = plotW / days.length;
-      const barW = Math.max(2, Math.min(24, slot * 0.68, slot - 2));
+      const barW = Math.max(1.5, Math.min(24, slot * 0.68, slot - 2));
       const y = (v) => padT + plotH - (v / max) * plotH;
       const root = svg("svg", { width, height: hgt, role: "img", "aria-label": label });
       for (let t = 0; t <= 4; t++) {
@@ -1010,17 +1301,19 @@
         root.append(svg("line", { x1: padL, x2: width - padR, y1: yy, y2: yy, class: t ? "grid-line" : "base-line" }),
           svg("text", { x: padL - 8, y: yy + 4, "text-anchor": "end", class: "tick" }, num(step * t)));
       }
-      const labelEvery = plotW < 420 ? 14 : 7;
+      // As many axis labels as fit (about one per 64px), counted back from the most recent column.
+      const fits = Math.max(2, Math.floor(plotW / 64));
+      const labelEvery = Math.max(1, Math.ceil(days.length / fits));
       days.forEach((day, i) => {
         if ((days.length - 1 - i) % labelEvery === 0) {
-          root.append(svg("text", { x: padL + slot * i + slot / 2, y: hgt - 6, "text-anchor": "middle", class: "tick" }, shortDay(day)));
+          root.append(svg("text", { x: padL + slot * i + slot / 2, y: hgt - 6, "text-anchor": "middle", class: "tick" }, axisLabel(day)));
         }
         const hit = svg("rect", { x: padL + slot * i, y: padT, width: slot, height: plotH, class: "hit" });
         const rows = series.length === 1
           ? [{ label: series[0].name, value: series[0].values[i], color: series[0].color }]
           : [...series.filter((s) => s.values[i] > 0).map((s) => ({ label: s.name, value: s.values[i], color: s.color })),
              { label: "Total", value: totals[i], total: true }];
-        hit.addEventListener("pointermove", (e) => showTip(e, longDay(day), rows));
+        hit.addEventListener("pointermove", (e) => showTip(e, tipTitle(day), rows));
         hit.addEventListener("pointerleave", hideTip);
         root.append(hit);
       });
@@ -1029,7 +1322,7 @@
         const parts = series.filter((s) => s.values[i] > 0);
         let base = y(0);
         parts.forEach((s, k) => {
-          const top = y(0) - ((sum(parts.slice(0, k + 1).map((p) => p.values[i]))) / max) * plotH;
+          const top = y(0) - (sum(parts.slice(0, k + 1).map((p) => p.values[i])) / max) * plotH;
           const bottom = base - (k ? 2 : 0); // 2px surface gap between stacked segments
           if (bottom - top > 0.5) {
             root.append(svg("path", { class: "bar", fill: s.color, d: columnPath(x, top, barW, bottom - top, k === parts.length - 1 ? 4 : 0) }));
@@ -1039,12 +1332,12 @@
       });
       return root;
     }, height));
-    const columns = ["Day", ...series.map((s) => s.name), ...(series.length > 1 ? ["Total"] : [])];
-    const rows = days.map((d, i) => [shortDay(d), ...series.map((s) => s.values[i]), ...(series.length > 1 ? [totals[i]] : [])]).reverse();
+    const columns = ["Period", ...series.map((s) => s.name), ...(series.length > 1 ? ["Total"] : [])];
+    const rows = days.map((d, i) => [tipTitle(d), ...series.map((s) => s.values[i]), ...(series.length > 1 ? [totals[i]] : [])]).reverse();
     return withTableToggle(figure, vizTable(columns, rows, label + " (table)"));
   }
 
-  function sparkline(values, color = "var(--s1)", width = 96, height = 30) {
+  function sparkline(values, color = "var(--s-neutral)", width = 96, height = 30) {
     const max = Math.max(1, ...values);
     const stepX = (width - 8) / Math.max(1, values.length - 1);
     const pts = values.map((v, i) => [4 + i * stepX, height - 4 - (v / max) * (height - 8)]);
@@ -1056,23 +1349,23 @@
       svg("circle", { cx: ex, cy: ey, r: 3.5, fill: color, stroke: "var(--surface)", "stroke-width": 2 }));
   }
 
-  // One measure across categories, largest first. items: [{ label, value, href, color }]
-  function hbars(items, { label, unit = "" } = {}) {
+  // One measure across categories, largest first. items: [{ label, value, href, color, highlight }]
+  function hbars(items, { label, unit = "", keepOrder = false } = {}) {
     const max = Math.max(1, ...items.map((i) => i.value));
-    const sorted = [...items].sort((a, b) => b.value - a.value || a.label.localeCompare(b.label));
+    const sorted = keepOrder ? items : [...items].sort((a, b) => b.value - a.value || a.label.localeCompare(b.label));
     const figure = h("figure", { class: "viz" },
       h("div", { class: "hbars", role: "list", "aria-label": label }, sorted.map((item) =>
-        h("div", { class: "hbar", role: "listitem" },
+        h("div", { class: "hbar" + (item.highlight ? " highlight" : ""), role: "listitem" },
           h("div", { class: "hbar-label" },
             item.color ? h("span", { class: "swatch", style: `background:${item.color}` }) : null,
             item.href ? h("a", { href: item.href, title: item.label }, item.label) : h("span", { class: "t", title: item.label }, item.label)),
           h("div", { class: "track", onpointermove: (e) => showTip(e, item.label, [{ label: unit || label, value: item.value }]), onpointerleave: hideTip },
             item.value ? h("div", { class: "fill", style: `width:${(item.value / max) * 100}%` }) : null),
-          h("span", { class: "val" }, num(item.value))))));
+          h("span", { class: "val" }, item.display ?? num(item.value))))));
     return withTableToggle(figure, vizTable(["Item", unit || label], sorted.map((i) => [i.label, i.value]), label + " (table)"));
   }
 
-  // Parts of one whole. parts: [{ label, value, color }]
+  // Parts of one whole. parts: [{ label, value, color, href }]
   function segmented(parts, { label }) {
     const total = sum(parts.map((p) => p.value));
     return h("div", null,
@@ -1082,17 +1375,21 @@
           onpointermove: (e) => showTip(e, label, [{ label: p.label, value: p.value, color: p.color }]), onpointerleave: hideTip,
         }))),
       h("ul", { class: "seg-legend" }, parts.map((p) => h("li", null,
-        h("span", { class: "swatch", style: `background:${p.color}` }), h("span", null, p.label),
+        h("span", { class: "swatch", style: `background:${p.color}` }),
+        p.href ? h("a", { href: p.href }, p.label) : h("span", null, p.label),
         h("b", null, num(p.value)), h("span", { class: "pct" }, pct(p.value, total))))));
   }
 
-  function kpi(label, value, { sub, delta, spark, unit } = {}) {
-    return h("div", { class: "panel kpi" },
-      h("div", { class: "label" }, label),
+  // A stat tile. With `href` the whole tile is a link to the page holding the detail.
+  function kpi(label, value, { sub, delta, spark, unit, href } = {}) {
+    const content = [
+      h("div", { class: "label" }, label, href ? icon("chevron") : null),
       h("div", { class: "row" },
         h("div", { class: "value" }, value, unit ? h("small", null, " " + unit) : null),
         spark || null),
-      delta || sub ? h("div", { class: "sub" }, delta || null, delta && sub ? " " : null, sub || null) : null);
+      delta || sub ? h("div", { class: "sub" }, delta || null, delta && sub ? " " : null, sub || null) : null,
+    ];
+    return href ? h("a", { class: "panel kpi link", href }, content) : h("div", { class: "panel kpi" }, content);
   }
 
   function deltaChip(current, previous, period) {
@@ -1103,31 +1400,36 @@
     return h("span", { class: "delta " + tone, title: `Compared with the previous ${period}` }, (change > 0 ? "+" : "") + change + "%");
   }
 
-  /* ================= Home: statistics overview ================= */
-
+  // ---------- Activity wording shared by every feed ----------
   const ACTION_LABEL = {
-    "assignment.grant": "granted access", "assignment.revoke": "revoked access",
+    "assignment.grant": "granted access", "assignment.update": "changed a role", "assignment.revoke": "revoked access",
     "user.create": "added an employee", "user.update": "updated an employee", "user.delete": "removed an employee", "user.invite": "sent an invitation",
     "application.create": "registered an application", "application.update": "updated an application",
-    "role_mapping.create": "added a role", "role_mapping.delete": "deleted a role", "app_scope.update": "changed an administrator's scope",
+    "role_mapping.create": "added a role", "role_mapping.delete": "deleted a role", "role_mapping.list": "listed roles", "role.view": "opened a role",
+    "app_scope.update": "changed an administrator's scope",
     "identity.link": "linked their AFS identity", "user.provision": "was provisioned on first sign-in",
     "platform_role.bootstrap": "became super administrator", "access.denied": "was denied access",
     "notification.sent": "sent a notification", "notification.failed": "could not send a notification",
   };
+  const capitalize = (text) => text.replace(/^./, (c) => c.toUpperCase());
+  const actionText = (action) => ACTION_LABEL[action] || action;
 
-  function activityFeed(items, appsBySlug) {
-    if (!items.length) return emptyState(icon("log"), "No activity yet", "Changes to access appear here as they happen.");
-    return h("ul", { class: "feed" }, items.map((e) => {
-      const app = e.application_slug && appsBySlug[e.application_slug];
-      return h("li", null,
-        h("span", { class: "dot " + e.outcome, title: e.outcome === "success" ? "Succeeded" : "Refused or failed" }),
-        h("span", { class: "what" },
-          h("b", null, e.actor_name || "System"), " ", ACTION_LABEL[e.action] || h("span", { class: "mono" }, e.action),
-          e.outcome === "failure" ? h("span", { class: "sub" }, " (refused)") : null,
-          app ? h("span", { class: "sub" }, " · ", h("a", { href: "#/app/" + encodeURIComponent(app.slug) }, app.name)) : null),
-        h("span", { class: "when", title: fullDate(e.occurred_at) }, ago(e.occurred_at)));
-    }));
+  // items: [{ occurred_at, outcome, actor, text, app: { slug, name } , extra }]
+  function feed(items, emptyTitle, emptyText) {
+    if (!items.length) return emptyState(icon("log"), emptyTitle, emptyText);
+    return h("ul", { class: "feed" }, items.map((e) => h("li", null,
+      h("span", { class: "dot " + (e.outcome || "success"), title: e.outcome === "failure" ? "Refused or failed" : "Succeeded" }),
+      h("span", { class: "what" },
+        e.actor ? [h("b", null, e.actor), " "] : null, e.text,
+        e.outcome === "failure" ? h("span", { class: "sub" }, " (refused)") : null,
+        e.extra ? h("span", { class: "sub" }, " · ", e.extra) : null,
+        e.app && e.app.slug ? h("span", { class: "sub" }, " · ", h("a", { href: appHref(e.app.slug) }, e.app.name || e.app.slug)) : null),
+      h("span", { class: "when", title: fullDate(e.occurred_at) }, ago(e.occurred_at)))));
   }
+
+  /* ================= Home: statistics overview ================= */
+  // Each page shows only what is its own: the home page holds organisation-wide trends and what needs attention;
+  // people, roles and per-application detail live on their own pages, one click away.
 
   function healthBadge(app) {
     if (!app.enabled) return badge("Disabled", "neutral");
@@ -1135,14 +1437,45 @@
     return badge(health.label, health.tone);
   }
 
-  function appTile(app, canSeeUsage) {
+  function attentionItems(data) {
+    const items = [];
+    for (const a of data.applications) {
+      if (a.enabled && a.health === "error") items.push({ tone: "bad", text: `${a.name} is failing${a.last_error ? `: ${a.last_error}` : ""}`, href: appHref(a.slug) + "/health" });
+    }
+    for (const a of data.applications) {
+      if (a.enabled && a.health === "not_connected") items.push({ tone: "warn", text: `${a.name} is enabled but has not checked access through Command Center yet`, href: appHref(a.slug) + "/health" });
+      if (a.managed && !a.enabled && a.people > 0) items.push({ tone: "warn", text: `${a.name} is disabled, but ${plural(a.people, "person", "people")} still hold access`, href: appHref(a.slug) + "/people" });
+      if (a.managed && a.enabled && !a.roles.length && a.people > 0) items.push({ tone: "info", text: `${a.name} has no roles defined, so everyone with access has standard access`, href: appHref(a.slug) + "/roles" });
+      if (a.managed && a.failures_7d > 0 && a.health !== "error") items.push({ tone: "info", text: `${a.name} reported ${plural(a.failures_7d, "failure")} in the last 7 days`, href: appHref(a.slug) + "/health" });
+    }
+    const t = data.totals;
+    if (t.employees_pending) items.push({ tone: "info", text: `${plural(t.employees_pending, "employee")} ${t.employees_pending === 1 ? "has" : "have"} not signed in for the first time`, href: "#/employees" });
+    const refused = sum(data.sign_ins.failure);
+    if (refused) items.push({ tone: "info", text: `${plural(refused, "sign-in")} refused in the last ${data.period_days} days`, href: "#/audit" });
+    return items;
+  }
+
+  function attentionList(items) {
+    if (!items.length) {
+      return h("div", { class: "empty small" }, h("div", { class: "icon", "aria-hidden": "true" }, icon("check")),
+        h("h3", null, "All clear"), h("p", null, "No failing integrations, idle applications or waiting accounts."));
+    }
+    const ICON = { bad: "alert", warn: "alert", info: "info" };
+    const LABEL = { bad: "Problem", warn: "Warning", info: "Note" };
+    return h("ul", { class: "attention" }, items.map((item) => h("li", { class: item.tone },
+      h("span", { class: "attention-icon" }, icon(ICON[item.tone]), h("span", { class: "sr-only" }, LABEL[item.tone] + ": ")),
+      h("span", { class: "attention-text" }, item.text),
+      h("a", { href: item.href, class: "btn small" }, "Review"))));
+  }
+
+  function appTile(app, data) {
     const color = appColor(app.color_index);
-    const href = "#/app/" + encodeURIComponent(app.slug);
+    const href = appHref(app.slug);
     const stat = (label, value) => h("div", null, h("dt", null, label), h("dd", null, value));
     return h("article", { class: "panel app-tile" },
       h("div", { class: "app-head" },
-        h("div", { class: "app-icon", style: `background:color-mix(in srgb, ${color} 22%, var(--surface))`, "aria-hidden": "true" }, app.name.charAt(0).toUpperCase()),
-        h("div", { style: "min-width:0" }, h("h3", { style: "margin:0;font-size:15.5px" }, h("a", { href, class: "row-link", style: "color:var(--fg);text-decoration:none" }, app.name)),
+        h("div", { class: "app-icon", style: appTint(app.color_index), "aria-hidden": "true" }, app.name.charAt(0).toUpperCase()),
+        h("div", { style: "min-width:0" }, h("h3", { class: "tile-title" }, h("a", { href }, app.name)),
           h("span", { class: "sub mono" }, app.slug))),
       h("div", { class: "badges" }, app.enabled ? badge("Enabled", "accent") : badge("Disabled", "neutral"), app.enabled ? healthBadge(app) : null,
         app.integration_type === "oidc" ? badge("Single sign-on", "neutral") : null),
@@ -1150,11 +1483,11 @@
         ? h("dl", { class: "app-stats" },
             stat("People", num(app.people)),
             stat("Roles", num(app.roles.length)),
-            canSeeUsage ? stat("Sessions, 30d", num(app.sessions_30d)) : stat("Changes, 30d", num(app.granted_30d + app.revoked_30d)))
+            data.can_see_usage ? stat(`Sessions, ${data.period_days}d`, num(app.sessions_total)) : stat(`Changes, ${data.period_days}d`, num(app.granted + app.revoked)))
         : h("p", { class: "muted", style: "margin:0;font-size:13px" }, "Outside your scope: access figures are shown to its managers."),
       app.description ? h("p", { class: "muted clamp", style: "margin:0;font-size:13.5px" }, app.description) : null,
       h("div", { class: "foot" },
-        canSeeUsage && app.sessions_30d ? sparkline(app.sessions_daily, color) : h("span"),
+        data.can_see_usage && app.sessions_total ? sparkline(app.sessions_daily, color) : h("span"),
         h("span", { class: "actions" },
           linkButton("Overview", href, { small: true }),
           app.enabled && app.launch_url ? h("a", { class: "btn small", href: app.launch_url, target: "_blank", rel: "noopener noreferrer", "aria-label": `Launch ${app.name} (opens in a new tab)` }, "Launch", icon("external")) : null)));
@@ -1162,51 +1495,46 @@
 
   async function renderHome(root) {
     if (!isAdmin()) return renderEmployeeHome(root);
-    const [data, mine] = await Promise.all([api("GET", "/api/admin/overview"), api("GET", "/api/apps")]);
+    const [data, mine] = await Promise.all([api("GET", `/api/admin/overview?days=${state.period}`), api("GET", "/api/apps")]);
     const t = data.totals;
     const apps = data.applications;
     const scoped = apps.filter((a) => a.managed);
     const appsBySlug = Object.fromEntries(apps.map((a) => [a.slug, a]));
     const first = (state.me.name || state.me.email).split(" ")[0];
+    const period = `${data.period_days} days`;
     const signIns = sum(data.sign_ins.success);
     const refused = sum(data.sign_ins.failure);
-    const appHref = (a) => "#/app/" + encodeURIComponent(a.slug);
-
     const sessionsDaily = data.days.map((_, i) => sum(apps.map((a) => (a.sessions_daily ? a.sessions_daily[i] : 0))));
 
     const kpis = h("div", { class: "kpis" },
-      kpi("Applications", num(t.applications), { sub: `${t.applications_enabled} enabled · ${t.applications - t.applications_enabled} disabled` }),
-      kpi("Active employees", num(t.employees_active), { sub: `${t.employees_pending} waiting for first sign-in · ${t.employees_disabled} disabled` }),
-      kpi("People with access", num(t.users_with_access), { sub: `${num(t.assignments)} assignments · +${t.granted_30d} / −${t.revoked_30d} in 30 days` }),
+      kpi("Applications", num(t.applications), { sub: `${t.applications_enabled} enabled · ${t.applications - t.applications_enabled} disabled`, href: "#/applications" }),
+      kpi("Active employees", num(t.employees_active), { sub: `${t.signed_in_period} signed in, ${period} · ${t.employees_disabled} disabled`, href: "#/employees" }),
+      kpi("People with access", num(t.users_with_access), { sub: `${num(t.assignments)} assignments · +${t.granted} / −${t.revoked}`, href: "#/assignments" }),
       data.can_see_usage
-        ? kpi("Sessions, 30 days", num(t.sessions_30d), { delta: deltaChip(t.sessions_30d, t.sessions_prev_30d, "30 days"), sub: `${num(t.sessions_7d)} this week`, spark: sparkline(sessionsDaily, "var(--s-neutral)") })
+        ? kpi(`Sessions, ${period}`, num(t.sessions_total), { delta: deltaChip(t.sessions_total, t.sessions_prev, period), sub: `${num(t.sessions_7d)} this week`, spark: sparkline(sessionsDaily), href: "#/usage" })
         : null,
-      kpi("Sign-ins, 30 days", num(signIns), { sub: `${refused} refused · ${t.signed_in_7d} people this week`, spark: sparkline(data.sign_ins.success, "var(--s-neutral)") }),
-      kpi("Healthy integrations", `${t.applications_connected}`, { unit: `of ${t.applications}`,
-        sub: t.applications_failing ? badge(`${t.applications_failing} failing`, "bad") : "None failing" }));
+      kpi(`Sign-ins, ${period}`, num(signIns), { delta: deltaChip(signIns, t.sign_ins_prev, period), sub: `${t.signed_in_7d} people this week`, spark: sparkline(data.sign_ins.success), href: "#/audit" }),
+      kpi("Healthy integrations", `${t.applications_connected}`, { unit: `of ${t.applications_enabled} enabled`,
+        sub: t.applications_failing ? badge(`${t.applications_failing} failing`, "bad") : "None failing", href: "#/integrations" }));
 
     // Sessions stacked by application. More than eight series fold the smallest into "Other".
-    let sessionSeries = apps.filter((a) => a.sessions_30d > 0).sort((a, b) => b.sessions_30d - a.sessions_30d)
+    let sessionSeries = apps.filter((a) => a.sessions_total > 0).sort((a, b) => b.sessions_total - a.sessions_total)
       .map((a) => ({ name: a.name, color: appColor(a.color_index), values: a.sessions_daily }));
     if (sessionSeries.length > 8) {
       const rest = sessionSeries.slice(7);
       sessionSeries = [...sessionSeries.slice(0, 7), { name: "Other", color: "var(--s-other)", values: data.days.map((_, i) => sum(rest.map((s) => s.values[i]))) }];
     }
-    const signInChart = columnChart({ days: data.days, series: [{ name: "Sign-ins", color: "var(--s-neutral)", values: data.sign_ins.success }], label: "Sign-ins per day" });
-    const chartsRow = data.can_see_usage
-      ? h("div", { class: "grid two-one" },
-          panel("Sessions per day by application", "Each time Command Center grants an application access. Last 30 days.",
-            sessionSeries.length ? columnChart({ days: data.days, series: sessionSeries, label: "Sessions per day by application" })
-              : emptyState(icon("chart"), "No sessions yet", "Sessions appear once integrated applications check access through Command Center.")),
-          panel("Sign-ins per day", `Successful AFS sign-ins. ${refused} refused in 30 days.`, signInChart))
-      : h("div", { class: "grid two-one" },
-          panel("Sign-ins per day", `Successful AFS sign-ins. ${refused} refused in 30 days.`, signInChart),
-          panel("People with access", "Your applications", scoped.length
-            ? hbars(scoped.map((a) => ({ label: a.name, value: a.people, href: appHref(a) })), { label: "People with access", unit: "People" })
-            : emptyState(icon("people"), "No applications in your scope", "A super administrator chooses which applications you manage.")));
+    const signInPanel = panel("Sign-ins per day", `Successful AFS sign-ins. ${plural(refused, "refused sign-in")} in ${period}.`,
+      columnChart({ days: data.days, series: [{ name: "Sign-ins", color: "var(--s-neutral)", values: data.sign_ins.success }], label: "Sign-ins per day" }));
+    const changesPanel = panel("Access changes", data.scope === "all" ? "Access granted and revoked per day" : "Granted and revoked in the applications you manage",
+      t.granted + t.revoked
+        ? columnChart({ days: data.days, series: [
+            { name: "Granted", color: "var(--s1)", values: data.access_changes.granted },
+            { name: "Revoked", color: "var(--s2)", values: data.access_changes.revoked }], label: "Access changes per day" })
+        : emptyState(icon("key"), "No changes in this period", "Grants and revocations appear here."));
 
     const collection = h("div", { class: "app-grid" },
-      apps.map((a) => appTile(a, data.can_see_usage)),
+      apps.map((a) => appTile(a, data)),
       isSuper() ? h("button", { type: "button", class: "panel add-tile", onclick: registerApplication },
         h("span", null, h("span", { class: "empty", style: "padding:0;display:block" }, h("span", { class: "icon" }, icon("plus"))),
           h("strong", { style: "display:block;color:var(--fg)" }, "Register an application"),
@@ -1215,81 +1543,64 @@
     const roles = data.platform_roles;
     const peoplePanel = panel("People and roles", "Everyone with an AFS account", h("div", null,
       h("div", { class: "seg-block" }, h("h3", null, "Platform role"),
-        segmented([
-          { label: ROLE_LABEL.super_admin, value: roles.super_admin, color: "var(--s1)" },
-          { label: ROLE_LABEL.access_admin, value: roles.access_admin, color: "var(--s2)" },
-          { label: ROLE_LABEL.employee, value: roles.employee, color: "var(--s3)" },
-        ], { label: "Platform role" })),
+        segmented(["super_admin", "access_admin", "employee"].map((name, i) => ({
+          label: ROLE_LABEL[name], value: roles[name], color: `var(--s${i + 1})`, href: "#/platform-role/" + name })), { label: "Platform role" })),
       h("div", { class: "seg-block" }, h("h3", null, "Account status"),
         segmented([
           { label: "Active, signed in before", value: t.employees_active - t.employees_pending, color: "var(--s1)" },
           { label: "Waiting for first sign-in", value: t.employees_pending, color: "var(--s2)" },
           { label: "Disabled", value: t.employees_disabled, color: "var(--s3)" },
-        ], { label: "Account status" }))));
+        ], { label: "Account status" }))), { actions: linkButton("All roles", "#/roles", { small: true }) });
 
-    const accessBars = panel("People with access by application", data.scope === "all" ? "Active assignments per application" : "Applications you manage",
-      scoped.length ? hbars(scoped.map((a) => ({ label: a.name, value: a.people, href: appHref(a), color: appColor(a.color_index) })), { label: "People with access", unit: "People" })
-        : emptyState(icon("people"), "No applications in your scope", "A super administrator chooses which applications you manage."));
+    const attention = attentionItems(data);
+    const attentionPanel = panel("Needs attention", attention.length ? plural(attention.length, "item") : "Nothing to follow up", attentionList(attention), { flush: true });
+    const activityPanel = panel("Recent activity", "Latest changes to access", feed(data.recent_activity.slice(0, 6).map((e) => ({
+      occurred_at: e.occurred_at, outcome: e.outcome, actor: e.actor_name || "System", text: actionText(e.action),
+      app: e.application_slug ? { slug: e.application_slug, name: (appsBySlug[e.application_slug] || {}).name } : null,
+    })), "No activity yet", "Changes to access appear here as they happen."), { flush: true, actions: linkButton("Audit log", "#/audit", { small: true }) });
 
-    const roleRows = scoped.flatMap((a) => [
-      ...a.roles.map((r) => [
-        { node: h("a", { href: appHref(a), class: "row-link" }, h("span", { class: "swatch", style: `background:${appColor(a.color_index)};margin-right:8px` }), a.name) },
-        { node: h("code", { class: "mono" }, r.name) },
-        { node: h("span", { class: "mono" }, r.external_role) },
-        { className: "num", node: num(r.people) },
-      ]),
-      ...(a.standard_access > 0 || !a.roles.length ? [[
-        { node: h("a", { href: appHref(a), class: "row-link" }, h("span", { class: "swatch", style: `background:${appColor(a.color_index)};margin-right:8px` }), a.name) },
-        { node: h("span", { class: "muted" }, a.roles.length ? "Standard access" : "No roles defined") },
-        { node: h("span", { class: "muted" }, "—") },
-        { className: "num", node: num(a.standard_access) },
-      ]] : []),
-    ]);
-    const rolesPanel = panel("Roles by application", "Who holds which role inside each application", roleRows.length
-      ? table([{ label: "Application" }, { label: "Role" }, { label: "Value in the application" }, { label: "People", className: "num" }], roleRows, { label: "Roles by application" })
-      : emptyState(icon("shield"), "No roles yet", "Define an application's roles from its page."), { flush: true });
-
-    const live = data.live && data.live.biocap;
-    const liveSection = live && live.status === "ok" ? [
-      sectionTitle("Live from Biocap", `Read from Biocap's own database ${ago(live.generated_at)}. Counts only.`, linkButton("Usage", "#/usage", { small: true })),
-      h("div", { class: "kpis" },
-        kpi("Biocap users", num(live.users_total), { sub: `${num(live.users_active)} active · ${num(live.users_logged_in_30d)} signed in, 30 days` }),
-        kpi("Stories", num(live.stories_total), { sub: `${num(live.stories_published)} published` }),
-        kpi("Pending review", num(live.stories_pending_review))),
-    ] : [];
-
-    fill(root, 
+    fill(root,
       h("section", { class: "hero" },
         h("div", null,
           h("p", { class: "eyebrow" }, ROLE_LABEL[state.me.platform_role] || "Administrator"),
           h("h1", null, `Welcome, ${first}`),
-          h("p", null, `Every application AFS manages, who can reach it, and how it is used. ${apps.length} application${apps.length === 1 ? "" : "s"} registered.`)),
+          h("p", null, `Every application AFS manages, who can reach it, and how it is used. ${plural(apps.length, "application")} registered.`)),
         h("div", { class: "actions" },
-          h("span", { class: "chip", title: fullDate(data.generated_at) }, "Last 30 days · updated ", ago(data.generated_at)),
-          button(h("span", null, "Refresh"), navigate, { small: true }))),
+          periodPicker(),
+          h("span", { class: "chip", title: fullDate(data.generated_at) }, "Updated ", ago(data.generated_at)),
+          h("button", { type: "button", class: "small", onclick: navigate, "aria-label": "Refresh figures" }, icon("refresh")))),
       data.scope === "managed"
-        ? h("p", { class: "notice", style: "margin:0 0 16px" }, `Access figures cover the ${scoped.length} application${scoped.length === 1 ? "" : "s"} you manage. Session counts are shown to super administrators.`)
+        ? h("p", { class: "notice", style: "margin:0 0 16px" }, `Access figures cover the ${plural(scoped.length, "application")} you manage. Session counts are shown to super administrators.`)
         : null,
       kpis,
-      chartsRow,
+      data.can_see_usage
+        ? h("div", { class: "grid two-one" },
+            panel("Sessions per day by application", `Each time Command Center grants an application access. Last ${period}.`,
+              sessionSeries.length ? columnChart({ days: data.days, series: sessionSeries, label: "Sessions per day by application" })
+                : emptyState(icon("chart"), "No sessions yet", "Sessions appear once integrated applications check access through Command Center.")),
+            signInPanel)
+        : h("div", { class: "grid halves" }, signInPanel, changesPanel),
       sectionTitle("Applications managed by AFS", "New registrations appear here, in the menu and in every statistic automatically.",
         isSuper() ? linkButton("Manage applications", "#/applications", { small: true }) : null),
       collection,
-      h("div", { class: "grid halves" }, data.can_see_usage ? accessBars : rolesPanel, peoplePanel),
-      h("div", { class: "grid" + (data.can_see_usage ? " two-one" : "") }, data.can_see_usage ? rolesPanel : null,
-        panel("Recent activity", "Latest changes to access", activityFeed(data.recent_activity, appsBySlug), { flush: true, actions: linkButton("Audit log", "#/audit", { small: true }) })),
-      liveSection,
-      mine.length ? [sectionTitle("Your applications", "Applications assigned to you. Each opens in a new tab."), h("div", { class: "cards" }, mine.map(appCard))] : null);
+      data.can_see_usage
+        ? [h("div", { class: "grid halves" }, changesPanel, peoplePanel), h("div", { class: "grid two-one" }, attentionPanel, activityPanel)]
+        : [h("div", { class: "grid halves" }, attentionPanel, peoplePanel), h("div", { class: "grid" }, activityPanel)],
+      mine.length ? [sectionTitle("Your applications", "Applications assigned to you. Each opens in a new tab."), h("div", { class: "cards" }, mine.map((a) => appCard(a)))] : null);
   }
 
   /* ================= Portal: employee home ================= */
 
-  function appCard(app) {
+  // `detail` (from /api/me/overview) adds what the employee's role allows and since when they have had access.
+  function appCard(app, detail) {
     return h("article", { class: "panel card" },
       h("div", { class: "app-head" }, h("div", { class: "app-icon", "aria-hidden": "true" }, app.name.charAt(0).toUpperCase()), h("h3", null, app.name)),
       h("p", null, app.description || "No description."),
       h("div", { class: "meta" },
         app.role_name ? h("div", null, "Your role: ", h("b", null, app.role_name)) : h("div", null, "Standard access"),
+        detail && detail.role_description ? h("div", { class: "role-note" }, detail.role_description) : null,
+        detail ? h("div", null, "Access since ", h("b", { title: fullDate(detail.granted_at) }, dateOnly(detail.granted_at)),
+          detail.granted_by ? [" · granted by ", h("b", null, detail.granted_by)] : null) : null,
         app.available ? null : badge("Unavailable", "bad")),
       h("div", { class: "foot" },
         app.available
@@ -1298,54 +1609,87 @@
           : h("span", { class: "muted" }, "Temporarily unavailable. Try again later.")));
   }
 
-  // Every application the employee is assigned to. Each card opens the application in its own tab.
+  const MY_CHANGE = {
+    "assignment.grant": "Access granted", "assignment.update": "Role changed", "assignment.revoke": "Access removed",
+    "user.create": "Account created", "user.update": "Account details changed", "user.invite": "Invitation sent", "identity.link": "AFS identity linked",
+    "user.provision": "Account created at first sign-in", "platform_role.bootstrap": "Made super administrator",
+  };
+
+  // Every application the employee is assigned to, with their role and its history. Each card opens the application in a new tab.
   async function renderEmployeeHome(root) {
-    const apps = await api("GET", "/api/apps");
+    const [apps, me] = await Promise.all([api("GET", "/api/apps"), api("GET", "/api/me/overview")]);
     const first = (state.me.name || state.me.email).split(" ")[0];
+    const detailBySlug = Object.fromEntries(me.access.map((a) => [a.application_slug, a]));
     const unavailable = apps.filter((a) => !a.available).length;
     const summary = apps.length === 0
       ? "No applications are assigned to you yet."
       : `${apps.length} application${apps.length === 1 ? "" : "s"} assigned to you${unavailable ? `, ${unavailable} temporarily unavailable` : ""}.`;
-    fill(root, 
+    const signIns = sum(me.sign_ins.success);
+    const previous = me.sign_ins.recent.filter((s) => s.outcome === "success")[1];
+
+    const signInList = me.sign_ins.recent.length
+      ? h("ul", { class: "feed" }, me.sign_ins.recent.map((s) => h("li", null,
+          h("span", { class: "dot " + s.outcome }),
+          h("span", { class: "what" }, s.outcome === "success" ? "Signed in" : "Sign-in refused"),
+          h("span", { class: "when", title: fullDate(s.occurred_at) }, ago(s.occurred_at)))))
+      : emptyState(icon("person"), "No sign-ins recorded", "Your sign-ins appear here.");
+
+    fill(root,
       h("section", { class: "hero" },
         h("div", null,
           h("p", { class: "eyebrow" }, ROLE_LABEL[state.me.platform_role] || "Employee"),
           h("h1", null, `Welcome, ${first}`),
           h("p", null, summary))),
+      h("div", { class: "kpis", style: "margin-bottom:20px" },
+        kpi("Available now", num(apps.length - unavailable), { unit: `of ${apps.length}` }),
+        kpi("Sign-ins, 30 days", num(signIns), { spark: sparkline(me.sign_ins.success) }),
+        kpi("Previous sign-in", previous ? ago(previous.occurred_at) : "—", { sub: previous ? fullDate(previous.occurred_at) : "This is your first" }),
+        kpi("Member since", dateOnly(me.account.created_at), { sub: me.account.email })),
       apps.length
-        ? [h("div", { class: "kpis", style: "margin-bottom:20px" },
-            kpi("Assigned to you", num(apps.length)),
-            kpi("Available now", num(apps.length - unavailable)),
-            kpi("With a specific role", num(apps.filter((a) => a.role_name).length), { sub: "Others give standard access" })),
-           h("div", { class: "cards" }, apps.map(appCard))]
-        : emptyState(icon("apps"), "Nothing to open yet", "Ask an access administrator to assign the applications you need."));
+        ? h("div", { class: "cards" }, apps.map((a) => appCard(a, detailBySlug[a.slug])))
+        : emptyState(icon("apps"), "Nothing to open yet", "Ask an access administrator to assign the applications you need."),
+      h("div", { class: "grid halves", style: "margin-top:20px" },
+        panel("Changes to your access", "Granted, changed and removed access, and account changes", feed(me.changes.map((c) => ({
+          occurred_at: c.occurred_at, outcome: c.outcome, text: MY_CHANGE[c.action] || capitalize(actionText(c.action)),
+          extra: c.actor_name ? `by ${c.actor_name}` : null,
+          app: c.application_slug ? { slug: c.application_slug, name: c.application_name } : null,
+        })), "No changes yet", "When your access changes, it is listed here."), { flush: true }),
+        panel("Your recent sign-ins", "If you do not recognise one, tell an administrator.", signInList, { flush: true })),
+      me.past_access.length
+        ? h("div", { class: "grid" }, panel("Access you no longer have", null, table(
+            [{ label: "Application" }, { label: "Role" }, { label: "From" }, { label: "Until" }],
+            me.past_access.map((a) => [a.application_name, a.role_name || "Standard access", dateOnly(a.granted_at), dateOnly(a.revoked_at)]),
+            { label: "Past access" }), { flush: true }))
+        : null);
   }
 
   /* ================= Application page ================= */
 
-  async function renderApp(root, slug, section) {
+  async function renderApp(root, slug) {
     if (!isAdmin()) return renderEmployeeApp(root, slug);
-    const data = await api("GET", "/api/admin/overview");
+    const data = await api("GET", `/api/admin/overview?days=${state.period}`);
     const app = data.applications.find((a) => a.slug === slug);
     if (!app) {
       fill(root, pageHead("Application"), h("div", { class: "panel" },
         emptyState(icon("box"), "Application not found", "It may have been renamed. Pick one from the menu.", linkButton("Back to overview", "#/home", { small: true }))));
       return;
     }
+    state.crumb = app.name;
     const color = appColor(app.color_index);
+    const period = `${data.period_days} days`;
     const head = h("div", { class: "page-head" },
       h("div", { class: "app-head" },
-        h("div", { class: "app-icon lg", style: `background:color-mix(in srgb, ${color} 22%, var(--surface))`, "aria-hidden": "true" }, app.name.charAt(0).toUpperCase()),
+        h("div", { class: "app-icon lg", style: appTint(app.color_index), "aria-hidden": "true" }, app.name.charAt(0).toUpperCase()),
         h("div", null,
           h("h1", null, app.name),
           h("div", { class: "actions", style: "gap:6px" }, h("span", { class: "mono muted" }, app.slug),
-            app.enabled ? badge("Enabled", "accent") : badge("Disabled", "neutral"), app.enabled ? healthBadge(app) : null))),
+            app.enabled ? badge("Enabled", "accent") : badge("Disabled", "neutral"), app.enabled ? healthBadge(app) : null,
+            h("span", { class: "muted", style: "font-size:12.5px" }, "Registered " + dateOnly(app.created_at))))),
       h("div", { class: "actions" },
+        periodPicker(),
         app.enabled && app.launch_url ? h("a", { class: "btn primary", href: app.launch_url, target: "_blank", rel: "noopener noreferrer" }, "Launch app", icon("external")) : null,
-        app.managed ? button("Manage roles", () => manageRoles(app)) : null,
         isSuper() ? button("Edit", () => editApplication(app)) : null,
         isSuper() ? button(app.enabled ? "Disable" : "Enable", () => toggleApplication(app), { danger: app.enabled }) : null));
-
     const description = app.description ? h("p", { class: "muted", style: "margin:-8px 0 20px;max-width:80ch" }, app.description) : null;
 
     if (!app.managed) {
@@ -1355,80 +1699,84 @@
       return;
     }
 
-    const [assignments, events, audit] = await Promise.all([
+    const [assignments, events, audit, catalog] = await Promise.all([
       api("GET", `/api/admin/assignments?application_id=${encodeURIComponent(app.id)}`),
       api("GET", `/api/admin/integrations/${app.id}/events?limit=8`),
       api("GET", `/api/admin/audit?limit=8&application=${encodeURIComponent(app.slug)}`),
+      api("GET", "/api/admin/roles"),
     ]);
+    const roleInfo = catalog.roles.filter((r) => r.application_id === app.id);
 
     const kpis = h("div", { class: "kpis" },
-      kpi("People with access", num(app.people), { sub: `${num(app.roles.length)} role${app.roles.length === 1 ? "" : "s"} defined` }),
-      data.can_see_usage ? kpi("Sessions, 30 days", num(app.sessions_30d), { delta: deltaChip(app.sessions_30d, app.sessions_prev_30d, "30 days"), sub: `${num(app.sessions_7d)} this week`, spark: sparkline(app.sessions_daily, color) }) : null,
-      kpi("Access changes, 30 days", num(app.granted_30d + app.revoked_30d), { sub: `${app.granted_30d} granted · ${app.revoked_30d} revoked` }),
-      kpi("Reported failures, 7 days", num(app.failures_7d), { sub: app.last_access_ok_at ? `Last good check ${ago(app.last_access_ok_at)}` : "No access check yet" }));
+      kpi("People with access", num(app.people), { sub: `${plural(app.roles.length, "role")} defined`, href: appHref(app.slug) + "/people" }),
+      data.can_see_usage ? kpi(`Sessions, ${period}`, num(app.sessions_total), { delta: deltaChip(app.sessions_total, app.sessions_prev, period), sub: `${num(app.sessions_7d)} this week`, spark: sparkline(app.sessions_daily, color) }) : null,
+      data.can_see_usage ? kpi("Sessions per person", app.people ? (app.sessions_total / app.people).toFixed(1) : "—", { sub: `Over ${period}` }) : null,
+      kpi(`Access changes, ${period}`, num(app.granted + app.revoked), { sub: `${app.granted} granted · ${app.revoked} revoked` }),
+      kpi("Reported failures, 7 days", num(app.failures_7d), { sub: app.last_access_ok_at ? `Last good check ${ago(app.last_access_ok_at)}` : "No access check yet", href: appHref(app.slug) + "/health" }));
 
     const roleParts = [
-      ...app.roles.map((r, i) => ({ label: r.name, value: r.people, color: `var(--s${(i % 8) + 1})` })),
+      ...app.roles.map((r, i) => ({ label: r.name, value: r.people, color: `var(--s${(i % 8) + 1})`, href: "#/role/" + r.id })),
       { label: "Standard access", value: app.standard_access, color: "var(--s-other)" },
     ];
-    const rolesSplit = panel("Access by role", `${num(app.people)} people`, app.people
+    const rolesSplit = panel("Access by role", "Share of people in each role. Open a role for its holders and history.", app.people
       ? segmented(roleParts, { label: "Access by role" })
       : emptyState(icon("people"), "Nobody has access yet", "Grant access to an employee to get started."));
 
     const chartsRow = data.can_see_usage
       ? h("div", { class: "grid two-one" },
-          panel("Sessions per day", "Last 30 days", columnChart({ days: data.days, series: [{ name: "Sessions", color, values: app.sessions_daily }], label: `Sessions per day, ${app.name}` })),
+          panel("Sessions per day", `Last ${period}`, columnChart({ days: data.days, series: [{ name: "Sessions", color, values: app.sessions_daily }], label: `Sessions per day, ${app.name}` })),
           rolesSplit)
       : h("div", { class: "grid halves" }, rolesSplit, healthPanel(app, events));
 
-    // People with access, searchable, with the same actions as the Assignments page.
+    // People with access, searchable and sortable, with the same actions as the Assignments page.
     const filter = { q: "" };
     const peopleBody = h("div");
-    const paintPeople = () => {
+    const visiblePeople = () => {
       const q = filter.q.trim().toLowerCase();
-      const shown = assignments.filter((a) => !q || a.email.toLowerCase().includes(q));
+      return assignments.filter((a) => !q || a.email.toLowerCase().includes(q) || (a.role_name || "").toLowerCase().includes(q));
+    };
+    const paintPeople = () => {
+      const shown = visiblePeople();
       peopleBody.replaceChildren(shown.length
-        ? table(["Employee", "Role", "Granted", ""].map((label) => ({ label })), shown.map((a) => [
-            a.email,
-            { node: a.role_name ? badge(a.role_name, "accent") : badge("Standard access", "neutral") },
-            { node: h("span", { title: fullDate(a.granted_at) }, ago(a.granted_at)) },
+        ? table([{ label: "Employee" }, { label: "Role" }, { label: "Granted" }, { label: "", sort: false }], shown.map((a) => [
+            { node: personLink(a.user_id, a.email), sort: a.email },
+            { node: a.role_name ? h("a", { href: "#/role/" + a.app_role_id, class: "badge accent badge-link" }, a.role_name) : badge("Standard access", "neutral"), sort: a.role_name || "" },
+            whenCell(a.granted_at),
             { className: "actions-cell", node: h("span", { class: "actions" },
                 button("Change role", () => changeRole(a), { small: true, ariaLabel: `Change ${a.email}'s role in ${a.application_name}` }),
                 button("Revoke", () => revoke(a), { small: true, danger: true, ariaLabel: `Revoke ${a.application_name} from ${a.email}` })) },
-          ]), { label: `People with access to ${app.name}` })
+          ]), { label: `People with access to ${app.name}`, sortable: true })
         : emptyState(icon("people"), assignments.length ? "No matches" : "Nobody has access yet", assignments.length ? "Change the search." : "Grant access to an employee to get started."));
     };
     paintPeople();
     const peoplePanel = panel("People with access", "Revoking takes effect at the next request.", h("div", null,
-      assignments.length > 6 ? h("div", { class: "toolbar", style: "padding:0 18px" }, toolbarSearch("Search by employee email", "", (v) => { filter.q = v; paintPeople(); }, "Search people with access")) : null,
+      assignments.length > 6 ? h("div", { class: "toolbar", style: "padding:0 18px" }, toolbarSearch("Search by email or role", "", (v) => { filter.q = v; paintPeople(); }, "Search people with access")) : null,
       peopleBody), {
       id: "section-people", flush: true,
-      actions: [linkButton("All assignments", "#/assignments/" + encodeURIComponent(app.id), { small: true }),
-        app.enabled ? button("Grant access", () => Promise.all([api("GET", "/api/admin/users"), api("GET", "/api/admin/applications")])
-          .then(([users, apps]) => grantAccess(users, apps.filter((a) => a.id === app.id))).catch((err) => toast(err.message, true)), { small: true, primary: true }) : null],
+      actions: [csvButton(`${app.slug}-access`, () => ({ headers: ["Email", "Role", "Granted"], rows: visiblePeople().map((a) => [a.email, a.role_name || "Standard access", a.granted_at]) })),
+        app.enabled ? button("Grant access", () => openGrant({ appId: app.id }), { small: true, primary: true }) : null],
     });
 
-    const rolesPanel = panel("Roles", "Each central role maps to the value the application itself checks.", app.roles.length
-      ? table([{ label: "Central role" }, { label: "Value in the application" }, { label: "People", className: "num" }], app.roles.map((r) => [
-          { node: h("code", { class: "mono" }, r.name) }, { node: h("code", { class: "mono" }, r.external_role) }, { className: "num", node: num(r.people) },
-        ]), { label: `Roles of ${app.name}` })
+    const rolesPanel = panel("Roles", "What each role is for, and how recently it changed.", roleInfo.length
+      ? table([{ label: "Role" }, { label: "Value in the application" }, { label: "Purpose" }, { label: "Last change" }], roleInfo.map((r) => [
+          { node: roleLink(r.id, r.name), sort: r.name },
+          { node: h("code", { class: "mono" }, r.external_role) },
+          { node: h("span", { class: "muted" }, r.description || "—") },
+          whenCell(r.last_change_at, "No changes"),
+        ]), { label: `Roles of ${app.name}`, sortable: true })
       : emptyState(icon("shield"), "No roles yet", "Add the roles this application enforces, so assignments can use them."),
       { id: "section-roles", flush: true, actions: button("Manage roles", () => manageRoles(app), { small: true }) });
 
-    const activityPanel = panel("Activity", "Latest audited changes for this application", audit.items.length
-      ? h("ul", { class: "feed" }, audit.items.map((e) => h("li", null,
-          h("span", { class: "dot " + e.outcome }),
-          h("span", { class: "what" }, ACTION_LABEL[e.action] ? h("b", null, ACTION_LABEL[e.action].replace(/^./, (c) => c.toUpperCase())) : h("span", { class: "mono" }, e.action),
-            e.outcome === "failure" ? h("span", { class: "sub" }, " (refused)") : null),
-          h("span", { class: "when", title: fullDate(e.occurred_at) }, ago(e.occurred_at)))))
-      : emptyState(icon("log"), "No activity yet", "Changes to this application's access appear here."),
+    const activityPanel = panel("Activity", "Latest audited changes for this application", feed(audit.items.map((e) => ({
+      occurred_at: e.occurred_at, outcome: e.outcome, text: capitalize(actionText(e.action)),
+    })), "No activity yet", "Changes to this application's access appear here."),
       { id: "section-activity", flush: true, actions: linkButton("Open in audit log", "#/audit/" + encodeURIComponent(app.slug), { small: true }) });
 
     const live = data.live && data.live[app.slug];
     const liveBlock = live && live.status === "ok"
       ? [sectionTitle("Live figures", `Read from ${app.name}'s own database ${ago(live.generated_at)}. Counts only.`),
-         h("div", { class: "kpis" }, Object.entries(live).filter(([k, v]) => typeof v === "number").map(([k, v]) =>
-           kpi(k.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase()).replace(/ 30d$/, ", 30 days"), num(v))))]
+         h("div", { class: "kpis" }, Object.entries(live).filter(([, v]) => typeof v === "number").map(([k, v]) =>
+           kpi(capitalize(k.replace(/_/g, " ")).replace(/ 30d$/, ", 30 days"), num(v))))]
       : null;
 
     fill(root, head, description, kpis, chartsRow, liveBlock,
@@ -1458,25 +1806,332 @@
   }
 
   async function renderEmployeeApp(root, slug) {
-    const apps = await api("GET", "/api/apps");
+    const [apps, me] = await Promise.all([api("GET", "/api/apps"), api("GET", "/api/me/overview")]);
     const app = apps.find((a) => a.slug === slug);
     if (!app) {
       fill(root, pageHead("Application"), h("div", { class: "panel" },
         emptyState(icon("box"), "Not assigned to you", "Ask an access administrator if you need this application.", linkButton("Back to home", "#/home", { small: true }))));
       return;
     }
-    const color = appColor(apps.indexOf(app));
-    fill(root, 
+    state.crumb = app.name;
+    const detail = me.access.find((a) => a.application_slug === slug) || {};
+    const history = me.changes.filter((c) => c.application_slug === slug);
+    fill(root,
       h("div", { class: "page-head" },
         h("div", { class: "app-head" },
-          h("div", { class: "app-icon lg", style: `background:color-mix(in srgb, ${color} 22%, var(--surface))`, "aria-hidden": "true" }, app.name.charAt(0).toUpperCase()),
+          h("div", { class: "app-icon lg", style: appTint(apps.indexOf(app)), "aria-hidden": "true" }, app.name.charAt(0).toUpperCase()),
           h("div", null, h("h1", null, app.name), app.available ? badge("Available", "ok") : badge("Temporarily unavailable", "bad"))),
         app.available ? h("div", { class: "actions" }, linkButton("Open", app.launch_url, { primary: true, external: true })) : null),
-      h("div", { class: "panel" }, h("div", { class: "panel-body" },
-        h("dl", { class: "facts" },
-          h("dt", null, "About"), h("dd", null, app.description || "No description."),
-          h("dt", null, "Your access"), h("dd", null, app.role_name ? ["Role ", h("b", null, app.role_name)] : "Standard access"),
-          h("dt", null, "How to open"), h("dd", null, app.available ? "Opens in a new tab and signs you in with your AFS account." : "Unavailable right now. Try again later.")))));
+      h("div", { class: "grid halves", style: "margin-top:0" },
+        h("div", { class: "panel" }, h("div", { class: "panel-body" },
+          h("dl", { class: "facts" },
+            h("dt", null, "About"), h("dd", null, app.description || "No description."),
+            h("dt", null, "Your access"), h("dd", null, app.role_name ? ["Role ", h("b", null, app.role_name)] : "Standard access"),
+            detail.role_description ? [h("dt", null, "What it allows"), h("dd", null, detail.role_description)] : null,
+            h("dt", null, "Since"), h("dd", null, dateOnly(detail.granted_at), detail.granted_by ? ` · granted by ${detail.granted_by}` : ""),
+            h("dt", null, "How to open"), h("dd", null, app.available ? "Opens in a new tab and signs you in with your AFS account." : "Unavailable right now. Try again later.")))),
+        panel("History", "Changes to your access to this application", feed(history.map((c) => ({
+          occurred_at: c.occurred_at, outcome: c.outcome, text: MY_CHANGE[c.action] || capitalize(actionText(c.action)), extra: c.actor_name ? `by ${c.actor_name}` : null,
+        })), "No changes recorded", "Grants and role changes appear here."), { flush: true })));
+  }
+
+  /* ================= Roles ================= */
+
+  const PLATFORM_ABOUT = {
+    super_admin: "Runs the platform: registers applications, sets platform roles, chooses which applications each access administrator manages, and sees usage.",
+    access_admin: "Manages access for the applications assigned to them: grants and revokes access, defines roles, and adds employees.",
+    employee: "Opens the applications assigned to them. Sees only their own access and sign-ins.",
+  };
+  // What each platform role can do. Kept in step with the server checks in admin.py.
+  const PERMISSIONS = [
+    ["Open assigned applications", "Yes", "Yes", "Yes"],
+    ["See statistics, integrations and the audit log", "Yes", "Yes", "No"],
+    ["Grant, change and revoke access", "All applications", "Their applications", "No"],
+    ["Define application roles", "All applications", "Their applications", "No"],
+    ["Add, disable and reactivate employees", "Yes", "Yes", "No"],
+    ["Change platform roles", "Yes", "No", "No"],
+    ["Register, edit, enable and disable applications", "Yes", "No", "No"],
+    ["Choose an access administrator's applications", "Yes", "No", "No"],
+    ["See session counts and live figures", "Yes", "No", "No"],
+  ];
+
+  function permissionsTable(highlight) {
+    const order = ["super_admin", "access_admin", "employee"];
+    const mark = (value) => value === "Yes" ? h("span", { class: "perm yes" }, icon("check"), h("span", { class: "sr-only" }, "Yes"))
+      : value === "No" ? h("span", { class: "perm no" }, "—", h("span", { class: "sr-only" }, "No")) : h("span", { class: "perm part" }, value);
+    return h("div", { class: "table-wrap" }, h("table", { class: "matrix", "aria-label": "Permissions by platform role" },
+      h("thead", null, h("tr", null, h("th", { scope: "col" }, "Permission"), order.map((r) =>
+        h("th", { scope: "col", class: r === highlight ? "hl" : null }, h("a", { href: "#/platform-role/" + r }, ROLE_LABEL[r]))))),
+      h("tbody", null, PERMISSIONS.map(([label, ...values]) => h("tr", null, h("th", { scope: "row" }, label),
+        values.map((v, i) => h("td", { class: order[i] === highlight ? "hl" : null }, mark(v))))))));
+  }
+
+  async function renderRoles(root) {
+    const catalog = await api("GET", "/api/admin/roles");
+    const roles = catalog.roles;
+    const inUse = roles.filter((r) => r.holders > 0).length;
+    const holders = sum(roles.map((r) => r.holders));
+    const active = sum(roles.map((r) => r.holders_signed_in_30d));
+    const filter = { q: "", app: "", unused: false };
+    const body = h("div");
+    const visible = () => {
+      const q = filter.q.trim().toLowerCase();
+      return roles.filter((r) => (!q || `${r.name} ${r.external_role} ${r.description} ${r.application_name}`.toLowerCase().includes(q))
+        && (!filter.app || r.application_id === filter.app) && (!filter.unused || r.holders === 0));
+    };
+    const paint = () => {
+      const shown = visible();
+      body.replaceChildren(shown.length
+        ? table([{ label: "Role" }, { label: "Application" }, { label: "Value in the application" }, { label: "Holders", className: "num" },
+            { label: "Signed in, 30 days", className: "num" }, { label: "Joined, 30 days", className: "num" }, { label: "Last change" }],
+          shown.map((r) => [
+            { node: h("div", null, roleLink(r.id, r.name), r.holders ? null : [" ", badge("Unused", "neutral")], r.description ? h("span", { class: "sub" }, r.description) : null), sort: r.name },
+            { node: appLink(r.application_slug, r.application_name), sort: r.application_name },
+            { node: h("code", { class: "mono" }, r.external_role) },
+            { className: "num", node: num(r.holders), sort: r.holders },
+            { className: "num", node: r.holders ? `${num(r.holders_signed_in_30d)} · ${pct(r.holders_signed_in_30d, r.holders)}` : "—", sort: r.holders_signed_in_30d },
+            { className: "num", node: num(r.joined_30d), sort: r.joined_30d },
+            whenCell(r.last_change_at, "No changes"),
+          ]), { label: "Application roles", sortable: true })
+        : emptyState(icon("shield"), roles.length ? "No roles match" : "No roles yet", roles.length ? "Change the search or filters." : "Define roles from an application's page."));
+    };
+    const apps = [...new Map(roles.map((r) => [r.application_id, r.application_name])).entries()].sort((a, b) => a[1].localeCompare(b[1]));
+    fill(root,
+      pageHead("Roles", "Platform roles decide what someone can do in Command Center. Application roles decide what they can do inside each application."),
+      h("div", { class: "kpis" },
+        kpi("Application roles", num(roles.length), { sub: `Across ${plural(apps.length, "application")}` }),
+        kpi("In use", num(inUse), { sub: `${num(roles.length - inUse)} unused` }),
+        kpi("Role holders", num(holders), { sub: `${pct(active, holders)} signed in within 30 days` }),
+        kpi("Joined, 30 days", num(sum(roles.map((r) => r.joined_30d))), { sub: "People given a role" })),
+      sectionTitle("Platform roles", "Open one to see who holds it and how it has changed."),
+      h("div", { class: "role-cards" }, catalog.platform_roles.map((p) => h("a", { class: "panel role-card", href: "#/platform-role/" + p.name },
+        h("div", { class: "role-card-head" }, icon("shield"), h("strong", null, ROLE_LABEL[p.name]), icon("chevron")),
+        h("p", null, PLATFORM_ABOUT[p.name]),
+        h("div", { class: "role-card-foot" }, h("b", null, num(p.people)), ` ${p.people === 1 ? "person" : "people"} · ${num(p.active)} active`)))),
+      sectionTitle("Application roles", "Every role defined in the applications you manage. Open one for its holders and history."),
+      h("div", { class: "toolbar" },
+        toolbarSearch("Search roles", "", (v) => { filter.q = v; paint(); }, "Search roles"),
+        h("select", { "aria-label": "Filter roles by application", onchange: (e) => { filter.app = e.target.value; paint(); } },
+          h("option", { value: "" }, "All applications"), apps.map(([id, name]) => h("option", { value: id }, name))),
+        h("label", { class: "switch" }, h("input", { type: "checkbox", onchange: (e) => { filter.unused = e.target.checked; paint(); } }), "Unused only"),
+        h("span", { style: "margin-left:auto" }, csvButton("roles", () => ({
+          headers: ["Role", "Application", "Value in the application", "Description", "Holders", "Signed in, 30 days", "Joined, 30 days", "Last change"],
+          rows: visible().map((r) => [r.name, r.application_name, r.external_role, r.description, r.holders, r.holders_signed_in_30d, r.joined_30d, r.last_change_at || ""]),
+        })))),
+      h("div", { class: "panel" }, body),
+      sectionTitle("Permissions by platform role", null),
+      h("div", { class: "panel" }, permissionsTable()));
+    paint();
+  }
+
+  const ROLE_EVENT = {
+    "assignment.grant": (s) => `gave this role to ${s || "an employee"}`,
+    "assignment.update": (s) => `moved ${s || "an employee"} into this role`,
+    "assignment.revoke": (s) => `revoked access from ${s || "a holder"}`,
+    "role_mapping.create": () => "created this role",
+    "role_mapping.delete": () => "tried to delete this role",
+    "role.view": () => "was refused access to this role",
+  };
+
+  async function renderRole(root, id) {
+    const d = await api("GET", `/api/admin/roles/${encodeURIComponent(id)}`);
+    const r = d.role;
+    const s = d.stats;
+    state.crumb = `${r.name} · ${r.application_name}`;
+    const holderObj = (x) => ({ id: x.assignment_id, user_id: x.user_id, email: x.email, application_id: r.application_id, application_name: r.application_name, app_role_id: r.id });
+    const filter = { q: "" };
+    const body = h("div");
+    const visible = () => {
+      const q = filter.q.trim().toLowerCase();
+      return d.holders.filter((x) => !q || `${x.email} ${x.display_name || ""} ${x.granted_by || ""}`.toLowerCase().includes(q));
+    };
+    const paint = () => {
+      const shown = visible();
+      body.replaceChildren(shown.length
+        ? table([{ label: "Employee" }, { label: "Status" }, { label: "Last sign-in" }, { label: "Holding since" }, { label: "Granted by" }, { label: "", sort: false }],
+          shown.map((x) => [
+            { node: h("div", null, personLink(x.user_id, x.display_name || x.email), x.display_name ? h("span", { class: "sub" }, x.email) : null), sort: x.display_name || x.email },
+            { node: x.status === "active" ? badge("Active", "ok") : badge("Disabled", "bad"), sort: x.status },
+            whenCell(x.last_login_at),
+            { node: h("span", { title: fullDate(x.granted_at) }, dateOnly(x.granted_at)), sort: x.granted_at },
+            x.granted_by || "—",
+            { className: "actions-cell", node: h("span", { class: "actions" },
+              button("Change role", () => changeRole(holderObj(x)), { small: true, ariaLabel: `Change ${x.email}'s role in ${r.application_name}` }),
+              button("Revoke", () => revoke(holderObj(x)), { small: true, danger: true, ariaLabel: `Revoke ${r.application_name} from ${x.email}` })) },
+          ]), { label: `Holders of ${r.name}`, sortable: true })
+        : emptyState(icon("people"), d.holders.length ? "No matches" : "Nobody holds this role", d.holders.length ? "Change the search." : "Grant this role to give someone its permissions."));
+    };
+    paint();
+    const deleteRole = () => confirmDialog({
+      title: `Delete role ${r.name}?`,
+      text: "Deletion is refused while any assignment, current or past, uses it. The audit log keeps a record.",
+      action: "Delete role",
+      onConfirm: () => api("DELETE", `/api/admin/roles/${r.id}`),
+      done: () => { toast("Role deleted."); location.hash = appHref(r.application_slug) + "/roles"; },
+    });
+
+    fill(root,
+      h("div", { class: "page-head" },
+        h("div", null,
+          h("p", { class: "eyebrow" }, "Application role"),
+          h("h1", { class: "mono-title" }, r.name),
+          h("div", { class: "actions", style: "gap:8px" },
+            h("span", { class: "muted" }, "in"), appLink(r.application_slug, r.application_name),
+            h("span", { class: "chip", title: "The value the application itself checks" }, "Value: ", h("code", { class: "mono" }, r.external_role)),
+            h("span", { class: "muted", style: "font-size:12.5px" }, "Created " + dateOnly(r.created_at)))),
+        h("div", { class: "actions" },
+          r.application_enabled ? button("Grant this role", () => openGrant({ appId: r.application_id, roleId: r.id }), { primary: true }) : null,
+          s.holders === 0 && s.left_total === 0 ? button("Delete role", deleteRole, { danger: true }) : null)),
+      r.description ? h("p", { class: "lede" }, r.description) : null,
+      h("div", { class: "kpis" },
+        kpi("Holders", num(s.holders), { sub: `${pct(s.holders, s.application_people)} of the ${plural(s.application_people, "person", "people")} with access` }),
+        kpi("Signed in, 30 days", num(s.signed_in_30d), { unit: `of ${num(s.holders)}`, sub: s.never_signed_in ? `${num(s.never_signed_in)} never signed in` : "All have signed in" }),
+        kpi("Median time held", durationDays(s.median_tenure_days), { sub: "Since access was granted" }),
+        kpi("Joined · left", `${num(s.joined_total)} · ${num(s.left_total)}`, { sub: "Since records began" }),
+        s.disabled_holders ? kpi("Disabled holders", num(s.disabled_holders), { sub: badge("Review", "warn") }) : null),
+      h("div", { class: "grid two-one" },
+        panel("Joined and left, per week", "Last 12 weeks", columnChart({ days: d.weeks, series: [
+          { name: "Joined", color: "var(--s1)", values: d.joined_weekly },
+          { name: "Left", color: "var(--s2)", values: d.left_weekly }], label: `People joining and leaving ${r.name}`, tipTitle: weekOf, height: 210 })),
+        panel(`Roles in ${r.application_name}`, "Holders per role. This role is highlighted.", hbars(d.siblings.map((x) => ({
+          label: x.name, value: x.holders, href: x.id === r.id ? null : "#/role/" + x.id, highlight: x.id === r.id })), { label: "Holders per role", unit: "Holders" }))),
+      h("div", { class: "grid" }, panel("Holders", "Everyone who holds this role now.", h("div", null,
+        d.holders.length > 6 ? h("div", { class: "toolbar", style: "padding:0 18px" }, toolbarSearch("Search holders", "", (v) => { filter.q = v; paint(); }, "Search holders")) : null,
+        body), { flush: true, actions: csvButton(`role-${r.application_slug}-${r.name}`, () => ({
+          headers: ["Email", "Name", "Status", "Last sign-in", "Holding since", "Granted by"],
+          rows: visible().map((x) => [x.email, x.display_name || "", x.status, x.last_login_at || "", x.granted_at, x.granted_by || ""]) })) })),
+      h("div", { class: "grid" }, panel("History", "Who joined, moved into or lost this role, and changes to the role itself.", feed(d.events.map((e) => ({
+        occurred_at: e.occurred_at, outcome: e.outcome, actor: e.actor_name || "System",
+        text: (ROLE_EVENT[e.action] || (() => actionText(e.action)))(e.subject),
+      })), "No history yet", "Changes involving this role appear here."), { flush: true })));
+  }
+
+  async function renderPlatformRole(root, name) {
+    const d = await api("GET", `/api/admin/platform-roles/${encodeURIComponent(name)}`);
+    const s = d.stats;
+    state.crumb = ROLE_LABEL[name];
+    const filter = { q: "" };
+    const body = h("div");
+    const visible = () => {
+      const q = filter.q.trim().toLowerCase();
+      return d.people.filter((p) => !q || `${p.email} ${p.display_name || ""}`.toLowerCase().includes(q));
+    };
+    const scoped = name === "access_admin";
+    const paint = () => {
+      const shown = visible();
+      body.replaceChildren(shown.length
+        ? table([{ label: "Employee" }, { label: "Status" }, { label: "Applications", className: "num" }, scoped ? { label: "Manages" } : null,
+            { label: "Last sign-in" }, { label: "Added" }].filter(Boolean),
+          shown.map((p) => [
+            { node: h("div", null, personLink(p.id, p.display_name || p.email), p.display_name ? h("span", { class: "sub" }, p.email) : null), sort: p.display_name || p.email },
+            { node: p.status !== "active" ? badge("Disabled", "bad") : p.linked ? badge("Active", "ok") : badge("Waiting for first sign-in", "warn"), sort: p.status + p.linked },
+            { className: "num", node: num(p.applications), sort: p.applications },
+            scoped ? { node: p.managed_applications.length ? h("span", { class: "chips" }, p.managed_applications.map((a) => h("span", { class: "chip" }, a))) : h("span", { class: "muted" }, "None yet"), sort: p.managed_applications.length } : null,
+            whenCell(p.last_login_at),
+            { node: dateOnly(p.created_at), sort: p.created_at },
+          ].filter((c) => c !== null)), { label: `People who are ${ROLE_LABEL[name]}`, sortable: true })
+        : emptyState(icon("people"), d.people.length ? "No matches" : "Nobody holds this role", d.people.length ? "Change the search." : "Change an employee's platform role on the Employees page."));
+    };
+    paint();
+    fill(root,
+      h("div", { class: "page-head" },
+        h("div", null, h("p", { class: "eyebrow" }, "Platform role"), h("h1", null, ROLE_LABEL[name]), h("p", null, PLATFORM_ABOUT[name])),
+        h("div", { class: "actions" }, linkButton("All roles", "#/roles", { small: true }))),
+      h("div", { class: "kpis" },
+        kpi("People", num(s.people), { sub: `${num(s.active)} active · ${num(s.disabled)} disabled` }),
+        kpi("Waiting for first sign-in", num(s.pending)),
+        kpi("Signed in, 30 days", num(s.signed_in_30d), { unit: `of ${num(s.people)}` }),
+        kpi("Applications per person", String(s.applications_per_person), { sub: "Average current access" })),
+      h("div", { class: "grid" }, panel("People", null, h("div", null,
+        d.people.length > 6 ? h("div", { class: "toolbar", style: "padding:0 18px" }, toolbarSearch("Search people", "", (v) => { filter.q = v; paint(); }, "Search people with this role")) : null,
+        body), { flush: true, actions: csvButton(`platform-role-${name}`, () => ({
+          headers: ["Email", "Name", "Status", "Identity linked", "Applications", ...(scoped ? ["Manages"] : []), "Last sign-in", "Added"],
+          rows: visible().map((p) => [p.email, p.display_name || "", p.status, p.linked ? "yes" : "no", p.applications, ...(scoped ? [p.managed_applications.join("; ")] : []), p.last_login_at || "", p.created_at]) })) })),
+      h("div", { class: "grid two-one" },
+        panel("What this role can do", "Compared with the other platform roles", permissionsTable(name), { flush: true }),
+        panel("Changes", "People moved into or out of this role", feed(d.changes.map((c) => ({
+          occurred_at: c.occurred_at, outcome: c.outcome, actor: c.actor_name || "System",
+          text: c.action === "platform_role.bootstrap" ? "became the first super administrator"
+            : `moved ${c.subject || "an employee"} from ${ROLE_LABEL[c.from_role] || c.from_role} to ${ROLE_LABEL[c.to_role] || c.to_role}`,
+        })), "No changes recorded", "Platform role changes appear here."), { flush: true })));
+  }
+
+  /* ================= Employee profile ================= */
+
+  async function renderEmployee(root, id) {
+    const p = await api("GET", `/api/admin/users/${encodeURIComponent(id)}/profile`);
+    const u = p.user;
+    const name = u.display_name || u.email;
+    state.crumb = name;
+    const assignmentObj = (a) => ({ id: a.id, user_id: u.id, email: u.email, application_id: a.application_id, application_name: a.application_name, app_role_id: a.app_role_id });
+    const signIns = sum(p.sign_ins.success);
+    const refused = sum(p.sign_ins.failure);
+
+    const accessTable = p.access.length
+      ? table([{ label: "Application" }, { label: "Role" }, { label: "Since" }, { label: "Granted by" }, { label: "", sort: false }], p.access.map((a) => [
+          { node: appLink(a.application_slug, a.application_name), sort: a.application_name },
+          { node: h("div", null, a.app_role_id ? roleLink(a.app_role_id, a.role_name) : h("span", { class: "muted" }, "Standard access"),
+              a.role_description ? h("span", { class: "sub" }, a.role_description) : null), sort: a.role_name || "" },
+          { node: h("span", { title: fullDate(a.granted_at) }, dateOnly(a.granted_at)), sort: a.granted_at },
+          a.granted_by || "—",
+          { className: "actions-cell", node: h("span", { class: "actions" },
+            button("Change role", () => changeRole(assignmentObj(a)), { small: true, ariaLabel: `Change ${u.email}'s role in ${a.application_name}` }),
+            button("Revoke", () => revoke(assignmentObj(a)), { small: true, danger: true, ariaLabel: `Revoke ${a.application_name} from ${u.email}` })) },
+        ]), { label: `Access held by ${u.email}`, sortable: true })
+      : emptyState(icon("key"), "No access", p.scope === "managed" ? "No access to the applications you manage." : "Grant access to give this person an application.");
+
+    fill(root,
+      h("div", { class: "page-head" },
+        h("div", { class: "app-head" },
+          h("div", { class: "avatar lg", "aria-hidden": "true" }, initials(u.display_name, u.email)),
+          h("div", null,
+            h("h1", null, name),
+            h("div", { class: "actions", style: "gap:6px" },
+              u.display_name ? h("span", { class: "muted" }, u.email) : null,
+              h("a", { href: "#/platform-role/" + u.platform_role, class: "badge accent badge-link" }, ROLE_LABEL[u.platform_role]),
+              u.status === "active" ? badge("Active", "ok") : badge("Disabled", "bad"),
+              u.linked ? badge("Identity linked", "neutral") : badge("Waiting for first sign-in", "warn")))),
+        h("div", { class: "actions" },
+          u.status === "active" ? button("Grant access", () => openGrant({ userId: u.id }), { primary: true }) : null,
+          !u.linked && u.status === "active" ? button("Send invite", () => sendInvite(u)) : null,
+          button("Edit", () => editEmployee(u)),
+          u.status === "active" ? button("Disable", () => toggleStatus(u), { danger: true }) : button("Reactivate", () => toggleStatus(u)))),
+      p.scope === "managed" ? h("p", { class: "notice", style: "margin:0 0 16px" }, "Access shown is limited to the applications you manage.") : null,
+      h("div", { class: "kpis" },
+        kpi("Applications", num(p.access.length), { sub: `${num(p.past_access.length)} removed in the past` }),
+        kpi("Sign-ins, 30 days", num(signIns), { sub: refused ? `${num(refused)} refused` : "None refused", spark: sparkline(p.sign_ins.success) }),
+        kpi("Last sign-in", u.last_login_at ? ago(u.last_login_at) : "Never", { sub: u.last_login_at ? fullDate(u.last_login_at) : "Has not signed in" }),
+        kpi("Added", dateOnly(u.created_at), { sub: `${durationDays(Math.floor((Date.now() - new Date(u.created_at)) / 86400000))} ago` })),
+      h("div", { class: "grid" }, panel("Current access", "Applications, roles and who granted them", accessTable, {
+        flush: true, actions: p.access.length ? csvButton(`access-${u.email}`, () => ({ headers: ["Application", "Role", "Since", "Granted by"],
+          rows: p.access.map((a) => [a.application_name, a.role_name || "Standard access", a.granted_at, a.granted_by || ""]) })) : null })),
+      p.managed_applications ? h("div", { class: "grid" }, panel("Applications this administrator manages",
+        "They can grant and revoke access only for these. A super administrator changes the list from Edit.",
+        p.managed_applications.length ? h("div", { class: "chips" }, p.managed_applications.map((a) => h("a", { class: "chip", href: appHref(a.slug) }, a.name)))
+          : h("p", { class: "muted", style: "margin:0" }, "None yet."))) : null,
+      h("div", { class: "grid halves" },
+        panel("Changes to this account", "Access granted, changed and removed, and account changes", feed(p.changes.map((c) => ({
+          occurred_at: c.occurred_at, outcome: c.outcome, actor: c.actor_name || "System", text: actionText(c.action),
+          app: c.application_slug ? { slug: c.application_slug, name: c.application_name } : null,
+        })), "No changes recorded", "Changes to this account appear here."), { flush: true }),
+        panel("Sign-ins per day", "Last 30 days", columnChart({ days: p.sign_ins.days, series: [
+          { name: "Sign-ins", color: "var(--s-neutral)", values: p.sign_ins.success }], label: `Sign-ins by ${u.email}`, height: 180 }))),
+      p.past_access.length
+        ? h("div", { class: "grid" }, panel("Past access", null, table([{ label: "Application" }, { label: "Role" }, { label: "Granted" }, { label: "Revoked" }, { label: "Revoked by" }],
+            p.past_access.map((a) => [
+              { node: appLink(a.application_slug, a.application_name), sort: a.application_name },
+              a.role_name || "Standard access",
+              { node: dateOnly(a.granted_at), sort: a.granted_at },
+              { node: dateOnly(a.revoked_at), sort: a.revoked_at },
+              a.revoked_by || "—"]), { label: "Past access", sortable: true }), { flush: true }))
+        : null,
+      p.performed.length
+        ? h("div", { class: "grid" }, panel("Actions taken as administrator", "Latest changes this person made", feed(p.performed.map((e) => ({
+            occurred_at: e.occurred_at, outcome: e.outcome, text: capitalize(actionText(e.action)),
+            extra: e.details && (e.details.user_email || e.details.email || e.details.name) || null,
+            app: e.application_slug ? { slug: e.application_slug, name: e.application_name } : null,
+          })), "", ""), { flush: true }))
+        : null);
   }
 
   /* ================= Administration: employees ================= */
@@ -1486,10 +2141,11 @@
     const users = await api("GET", "/api/admin/users");
     const filter = { q: "", role: "", status: "" };
     const body = h("div", { class: "panel" });
+    let shown = users;
 
     const paint = () => {
       const q = filter.q.trim().toLowerCase();
-      const shown = users.filter((u) =>
+      shown = users.filter((u) =>
         (!q || u.email.toLowerCase().includes(q) || (u.display_name || "").toLowerCase().includes(q)) &&
         (!filter.role || u.platform_role === filter.role) &&
         (!filter.status || u.status === filter.status));
@@ -1499,11 +2155,11 @@
         return;
       }
       const rows = shown.map((u) => [
-        { node: h("div", null, h("strong", null, u.display_name || u.email), h("span", { class: "sub" }, u.email)) },
-        u.linked ? badge("Linked", "ok") : badge("Waiting for first sign-in", "warn"),
-        { node: isSuper ? roleSelect(u) : badge(ROLE_LABEL[u.platform_role] || u.platform_role, "accent") },
-        u.status === "active" ? badge("Active", "ok") : badge("Disabled", "bad"),
-        { node: h("span", { title: fullDate(u.last_login_at) }, ago(u.last_login_at)) },
+        { node: h("div", null, personLink(u.id, u.display_name || u.email), h("span", { class: "sub" }, u.email)), sort: u.display_name || u.email },
+        { node: u.linked ? badge("Linked", "ok") : badge("Waiting for first sign-in", "warn"), sort: String(u.linked) },
+        { node: isSuper ? roleSelect(u) : badge(ROLE_LABEL[u.platform_role] || u.platform_role, "accent"), sort: u.platform_role },
+        { node: u.status === "active" ? badge("Active", "ok") : badge("Disabled", "bad"), sort: u.status },
+        whenCell(u.last_login_at),
         { className: "actions-cell", node: h("span", null,
           button("Edit", () => editEmployee(u), { small: true, ariaLabel: `Edit ${u.email}` }),
           !u.linked && u.status === "active"
@@ -1516,7 +2172,7 @@
             ? button("Disable", () => toggleStatus(u), { small: true, danger: true, ariaLabel: `Disable ${u.email}` })
             : button("Reactivate", () => toggleStatus(u), { small: true, ariaLabel: `Reactivate ${u.email}` })) },
       ]);
-      body.replaceChildren(table(["Employee", "Identity", "Platform role", "Status", "Last sign-in", ""].map((label) => ({ label })), rows, { label: "Employees" }));
+      body.replaceChildren(table(["Employee", "Identity", "Platform role", "Status", "Last sign-in", ""].map((label) => ({ label })), rows, { label: "Employees", sortable: true }));
     };
 
     const roleSelect = (u) => h("select", { "aria-label": `Platform role for ${u.email}`, onchange: async (e) => {
@@ -1539,9 +2195,12 @@
       h("option", { value: "disabled" }, "Disabled"));
 
     root.replaceChildren(
-      pageHead("Employees", "Manage who can sign in and what they can administer. Accounts link to the AFS identity on first sign-in.",
+      pageHead("Employees", "Manage who can sign in and what they can administer. Open an employee for their access, history and sign-ins.",
         ADMIN_ROLES.includes(state.me.platform_role) ? addButton : null),
-      h("div", { class: "toolbar" }, toolbarSearch("Search by name or email", "", (v) => { filter.q = v; paint(); }, "Search employees"), roleFilter, statusFilter),
+      h("div", { class: "toolbar" }, toolbarSearch("Search by name or email", "", (v) => { filter.q = v; paint(); }, "Search employees"), roleFilter, statusFilter,
+        h("span", { style: "margin-left:auto" }, csvButton("employees", () => ({
+          headers: ["Email", "Name", "Platform role", "Status", "Identity linked", "Last sign-in", "Added"],
+          rows: shown.map((u) => [u.email, u.display_name || "", ROLE_LABEL[u.platform_role], u.status, u.linked ? "yes" : "no", u.last_login_at || "", u.created_at]) })))),
       body);
     paint();
   }
@@ -1782,9 +2441,10 @@
     ]);
     const filter = { q: "", app: apps.some((a) => a.id === presetApp && managesApp(a.id)) ? presetApp : "" };
     const body = h("div", { class: "panel" });
+    let shown = assignments;
     const paint = () => {
       const q = filter.q.trim().toLowerCase();
-      const shown = assignments.filter((a) =>
+      shown = assignments.filter((a) =>
         (!q || a.email.toLowerCase().includes(q)) && (!filter.app || a.application_id === filter.app));
       if (shown.length === 0) {
         body.replaceChildren(emptyState(icon("key"), assignments.length ? "No matches" : "No access granted yet",
@@ -1792,14 +2452,14 @@
         return;
       }
       body.replaceChildren(table(["Employee", "Application", "Role", "Granted", ""].map((label) => ({ label })), shown.map((a) => [
-        { node: h("span", null, a.email) },
-        { node: h("a", { href: "#/app/" + encodeURIComponent(a.application_slug), class: "row-link" }, a.application_name) },
-        { node: a.role_name ? badge(a.role_name, "accent") : badge("Standard access", "neutral") },
-        { node: h("span", { title: fullDate(a.granted_at) }, ago(a.granted_at)) },
+        { node: personLink(a.user_id, a.email), sort: a.email },
+        { node: appLink(a.application_slug, a.application_name), sort: a.application_name },
+        { node: a.role_name ? h("a", { href: "#/role/" + a.app_role_id, class: "badge accent badge-link" }, a.role_name) : badge("Standard access", "neutral"), sort: a.role_name || "" },
+        whenCell(a.granted_at),
         { className: "actions-cell", node: h("span", { class: "actions" },
             button("Change role", () => changeRole(a), { small: true, ariaLabel: `Change ${a.email}'s role in ${a.application_name}` }),
             button("Revoke", () => revoke(a), { small: true, danger: true, ariaLabel: `Revoke ${a.application_name} from ${a.email}` })) },
-      ]), { label: "Assignments" }));
+      ]), { label: "Assignments", sortable: true }));
     };
     const managedApps = apps.filter((a) => managesApp(a.id));
     const appFilter = h("select", { "aria-label": "Filter by application", onchange: (e) => { filter.app = e.target.value; paint(); } },
@@ -1808,12 +2468,16 @@
     root.replaceChildren(
       pageHead("Assignments", "Who can open which application, and with which role. Revoking takes effect at the next request.",
         h("button", { type: "button", class: "primary", onclick: () => grantAccess(users, apps) }, "Grant access")),
-      h("div", { class: "toolbar" }, toolbarSearch("Search by employee email", "", (v) => { filter.q = v; paint(); }, "Search assignments"), appFilter),
+      h("div", { class: "toolbar" }, toolbarSearch("Search by employee email", "", (v) => { filter.q = v; paint(); }, "Search assignments"), appFilter,
+        h("span", { style: "margin-left:auto" }, csvButton("assignments", () => ({
+          headers: ["Email", "Application", "Role", "Granted"],
+          rows: shown.map((a) => [a.email, a.application_name, a.role_name || "Standard access", a.granted_at]) })))),
       body);
     paint();
   }
 
-  function grantAccess(users, apps) {
+  // `preset` can choose the employee, application and role in advance: { userId, appId, roleId }.
+  function grantAccess(users, apps, preset = {}) {
     const active = users.filter((u) => u.status === "active");
     const enabled = apps.filter((a) => a.enabled && managesApp(a.id));
     if (!active.length || !enabled.length) {
@@ -1832,7 +2496,7 @@
       title: "Grant access",
       description: "The employee can open the application at their next request. They are emailed about the change.",
       submitLabel: "Grant access",
-      fields: [{ label: "Employee", name: "user_id", options: [{ value: "", label: "Choose an employee…" }, ...active.map((u) => ({ value: u.id, label: u.email }))], required: true }],
+      fields: [{ label: "Employee", name: "user_id", value: active.some((u) => u.id === preset.userId) ? preset.userId : "", options: [{ value: "", label: "Choose an employee…" }, ...active.map((u) => ({ value: u.id, label: u.email }))], required: true }],
       extra: [h("div", { class: "field" }, h("label", { for: "grant-app" }, "Application *"), (appSelect.id = "grant-app", appSelect)),
               h("div", { class: "field" }, h("label", { for: "grant-role" }, "Role"), (roleSelect.id = "grant-role", roleSelect))],
       onSubmit: async (values) => {
@@ -1843,7 +2507,8 @@
       },
       done: () => navigate(),
     });
-    loadRoles(appSelect.value).catch((err) => toast(err.message, true));
+    if (enabled.some((a) => a.id === preset.appId)) appSelect.value = preset.appId;
+    loadRoles(appSelect.value).then(() => { if (preset.roleId) roleSelect.value = preset.roleId; }).catch((err) => toast(err.message, true));
     return dialog;
   }
 
@@ -1900,7 +2565,7 @@
           const health = HEALTH[a.status] || HEALTH.not_connected;
           return h("article", { class: "panel card" },
             h("div", { class: "app-head" }, h("div", { class: "app-icon", "aria-hidden": "true" }, a.name.charAt(0).toUpperCase()),
-              h("div", null, h("h3", null, a.name), h("span", { class: "sub mono muted" }, a.slug))),
+              h("div", null, h("h3", null, h("a", { href: appHref(a.slug) + "/health" }, a.name)), h("span", { class: "sub mono muted" }, a.slug))),
             h("div", null, badge(health.label, health.tone)),
             h("div", { class: "meta" },
               h("div", null, "Last successful check: ", h("b", null, ago(a.last_access_ok_at))),
@@ -1913,45 +2578,77 @@
       kpis, cards);
   }
 
-  // Usage of every integrated application: sessions Command Center granted, plus live figures from applications that
-  // report them. Counts only; no personal details are shown here.
+  // Usage: how heavily each application is used. Only figures that appear nowhere else: daily averages, peaks, active
+  // days, sessions per person, each application's share and the weekday pattern, plus live figures from applications
+  // that report them. Counts only; no personal details.
+  const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
   async function renderUsage(root) {
-    const data = await api("GET", "/api/admin/usage");
+    const data = await api("GET", `/api/admin/overview?days=${state.period}`);
     const apps = data.applications;
-    const sum = (key) => apps.reduce((n, a) => n + Number(a[key]), 0);
-    const kpis = h("div", { class: "kpis" },
-      [["Applications", apps.length], ["Sessions, 7 days", sum("sessions_7d")], ["Sessions, 30 days", sum("sessions_30d")]].map(([label, value]) =>
-        h("div", { class: "panel kpi" }, h("div", { class: "label" }, label), h("div", { class: "value" }, value))));
+    const length = data.period_days;
+    const period = `${length} days`;
+    const total = data.totals.sessions_total;
+    const daily = data.days.map((_, i) => sum(apps.map((a) => a.sessions_daily[i])));
+    const busiest = daily.indexOf(Math.max(...daily));
+    const idleDays = daily.filter((v) => v === 0).length;
+    const rows = apps.map((a) => {
+      const peak = a.sessions_daily.indexOf(Math.max(...a.sessions_daily));
+      return {
+        a, avg: a.sessions_total / length, peakValue: a.sessions_daily[peak] || 0, peakDay: data.days[peak],
+        activeDays: a.sessions_daily.filter((v) => v > 0).length, perPerson: a.people ? a.sessions_total / a.people : null,
+        share: total ? a.sessions_total / total : 0,
+      };
+    }).sort((x, y) => y.a.sessions_total - x.a.sessions_total);
+    const top = rows[0];
+    const weekday = WEEKDAYS.map(() => 0);
+    data.days.forEach((d, i) => { weekday[(dayDate(d).getDay() + 6) % 7] += daily[i]; });
+
+    const tableRows = rows.map((r) => [
+      { node: appLink(r.a.slug, r.a.name), sort: r.a.name },
+      { node: r.a.enabled ? badge("Enabled", "accent") : badge("Disabled", "neutral"), sort: String(r.a.enabled) },
+      { className: "num", node: num(r.a.sessions_total), sort: r.a.sessions_total },
+      { className: "num", node: r.avg.toFixed(1), sort: r.avg },
+      { className: "num", node: r.peakValue ? `${num(r.peakValue)} · ${shortDay(r.peakDay)}` : "—", sort: r.peakValue },
+      { className: "num", node: `${r.activeDays} of ${length}`, sort: r.activeDays },
+      { className: "num", node: r.perPerson === null ? "—" : r.perPerson.toFixed(1), sort: r.perPerson === null ? "" : r.perPerson },
+      { className: "num", node: pct(r.a.sessions_total, total), sort: r.share },
+      { node: deltaChip(r.a.sessions_total, r.a.sessions_prev, period), sort: r.a.sessions_prev ? (r.a.sessions_total - r.a.sessions_prev) / r.a.sessions_prev : (r.a.sessions_total ? 1e9 : 0) },
+    ]);
 
     const live = data.live.biocap;
     let liveBlock;
-    if (live.status === "ok") {
+    if (live && live.status === "ok") {
       liveBlock = h("div", { class: "kpis" },
         [["Biocap users", live.users_total], ["Active users", live.users_active], ["Logged in, 30 days", live.users_logged_in_30d],
-         ["Stories", live.stories_total], ["Published", live.stories_published], ["Pending review", live.stories_pending_review]].map(([label, value]) =>
-          h("div", { class: "panel kpi" }, h("div", { class: "label" }, label), h("div", { class: "value" }, value))));
+         ["Stories", live.stories_total], ["Published", live.stories_published], ["Pending review", live.stories_pending_review]].map(([label, value]) => kpi(label, num(value))));
     } else {
-      const text = live.status === "not_configured"
+      liveBlock = h("p", { class: "notice" }, live && live.status === "not_configured"
         ? "Biocap's live figures are not connected yet. An administrator sets BIOCAP_DB_URI for the Command Center."
-        : "Biocap's live figures are unavailable right now. They are retried automatically.";
-      liveBlock = h("p", { class: "muted" }, text);
+        : "Biocap's live figures are unavailable right now. They are retried automatically.");
     }
 
-    const rows = apps.map((a) => [
-      h("strong", null, a.name),
-      a.enabled ? badge("Enabled", "accent") : badge("Disabled", "neutral"),
-      String(a.active_employees),
-      String(a.sessions_7d),
-      String(a.sessions_30d),
-      ago(a.last_access_ok_at),
-    ]);
-    root.replaceChildren(
-      pageHead("Usage", "Sessions are counted each time Command Center grants an application access (sign-in, or a token renewal that asks again)."),
-      kpis,
-      h("h2", { style: "margin:22px 0 10px;font-size:16px" }, "Biocap, live"),
-      liveBlock,
-      h("h2", { style: "margin:22px 0 10px;font-size:16px" }, "Applications"),
-      h("div", { class: "panel" }, table(["Application", "Status", "Active employees", "Sessions, 7 days", "Sessions, 30 days", "Last access"].map((label) => ({ label })), rows, { label: "Application usage" })));
+    fill(root,
+      pageHead("Usage", "Sessions are counted each time Command Center grants an application access (sign-in, or a token renewal that asks again).", periodPicker()),
+      h("div", { class: "kpis" },
+        kpi(`Sessions, ${period}`, num(total), { delta: deltaChip(total, data.totals.sessions_prev, period), sub: "vs the previous period" }),
+        kpi("Average per day", (total / length).toFixed(1), { spark: sparkline(daily) }),
+        kpi("Busiest day", daily[busiest] ? num(daily[busiest]) : "—", { sub: daily[busiest] ? longDay(data.days[busiest]) : "No sessions yet" }),
+        kpi("Most used", top && top.a.sessions_total ? top.a.name : "—", { sub: top && top.a.sessions_total ? `${pct(top.a.sessions_total, total)} of all sessions` : "" }),
+        kpi("Days without sessions", num(idleDays), { unit: `of ${length}` })),
+      h("div", { class: "grid halves" },
+        panel("Share of sessions", "Each application's part of all sessions", total
+          ? segmented(rows.filter((r) => r.a.sessions_total).map((r) => ({ label: r.a.name, value: r.a.sessions_total, color: appColor(r.a.color_index), href: appHref(r.a.slug) })), { label: "Share of sessions" })
+          : emptyState(icon("chart"), "No sessions yet", "Sessions appear once applications check access.")),
+        panel("Sessions by weekday", `All applications, last ${period}`, hbars(WEEKDAYS.map((d, i) => ({ label: d, value: weekday[i] })), { label: "Sessions by weekday", unit: "Sessions", keepOrder: true }))),
+      sectionTitle("By application", null, csvButton("usage", () => ({
+        headers: ["Application", "Enabled", "Sessions", "Average per day", "Peak sessions", "Peak day", "Active days", "Sessions per person", "Share", "Previous period"],
+        rows: rows.map((r) => [r.a.name, r.a.enabled ? "yes" : "no", r.a.sessions_total, r.avg.toFixed(2), r.peakValue, r.peakValue ? r.peakDay : "", r.activeDays,
+          r.perPerson === null ? "" : r.perPerson.toFixed(2), (r.share * 100).toFixed(1) + "%", r.a.sessions_prev]) }))),
+      h("div", { class: "panel" }, table([{ label: "Application" }, { label: "Status" }, { label: "Sessions", className: "num" }, { label: "Per day", className: "num" },
+        { label: "Peak day", className: "num" }, { label: "Active days", className: "num" }, { label: "Per person", className: "num" }, { label: "Share", className: "num" }, { label: "Change" }],
+        tableRows, { label: "Application usage", sortable: true })),
+      sectionTitle("Biocap, live", "Read from Biocap's own database. Counts only."),
+      liveBlock);
   }
 
   async function showEvents(app) {
@@ -1982,6 +2679,7 @@
     const body = h("div", { class: "panel" });
     const pager = h("div", { class: "pager" });
 
+    let lastItems = [];
     const load = async () => {
       body.replaceChildren(skeleton());
       const params = new URLSearchParams({ limit: PAGE, offset: query.offset });
@@ -1990,6 +2688,7 @@
       if (query.application) params.set("application", query.application);
       try {
         const page = await api("GET", "/api/admin/audit?" + params.toString());
+        lastItems = page.items;
         if (page.items.length === 0) {
           body.replaceChildren(emptyState(icon("log"), "No matching entries", "Change the filters to see more activity."));
         } else {
@@ -2001,7 +2700,7 @@
             } }, "Details");
             return [
               { node: h("span", { title: fullDate(e.occurred_at) }, ago(e.occurred_at)) },
-              { node: h("span", { class: "mono" }, (e.actor_identity || "").slice(0, 12)) },
+              { node: e.actor_user_id ? personLink(e.actor_user_id, e.actor_name || (e.actor_identity || "").slice(0, 12)) : h("span", { class: "muted" }, e.actor_identity === "anonymous" ? "Anonymous" : "System") },
               { node: h("span", { class: "mono" }, e.action) },
               { node: `${e.target_type}${e.target_id ? " " + String(e.target_id).slice(0, 8) : ""}` },
               e.application_slug || "—",
@@ -2031,7 +2730,11 @@
 
     root.replaceChildren(
       pageHead("Audit log", "Every privileged change, sign-in and refused action, with who did it and when. Entries cannot be edited or deleted."),
-      h("div", { class: "toolbar" }, actionInput, outcomeSelect, appSelect),
+      h("div", { class: "toolbar" }, actionInput, outcomeSelect, appSelect,
+        h("span", { style: "margin-left:auto" }, csvButton("audit-log", () => ({
+          headers: ["When", "Who", "Identity", "Action", "Target type", "Target", "Application", "Outcome", "Details"],
+          rows: lastItems.map((e) => [e.occurred_at, e.actor_name || "", e.actor_identity, e.action, e.target_type, e.target_id || "", e.application_slug || "", e.outcome, JSON.stringify(e.details || {})]),
+        }), "Export this page"))),
       body, pager);
     load();
   }
@@ -2039,6 +2742,7 @@
   /* ================= sign-in and start-up ================= */
 
   async function start() {
+    applyTheme(readPref("afs.theme", "system"));
     const params = new URLSearchParams(location.search);
     const ssoError = params.get("sso_error");
     try {

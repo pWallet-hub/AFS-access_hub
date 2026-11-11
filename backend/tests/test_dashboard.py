@@ -65,7 +65,7 @@ def test_a_newly_registered_application_appears_with_its_figures(super_admin):
     assert entry["standard_access"] == 1
     assert entry["roles"] == [{"id": str(role["id"]), "name": "viewer", "external_role": "VIEWER", "people": 1}]
     assert entry["sessions_daily"][-1] == 5 and len(entry["sessions_daily"]) == 30
-    assert entry["sessions_7d"] == 5 and entry["sessions_30d"] == 8 and entry["sessions_prev_30d"] == 7
+    assert entry["sessions_7d"] == 5 and entry["sessions_total"] == 8 and entry["sessions_prev"] == 7
     assert entry["health"] == "not_connected"
 
 
@@ -89,7 +89,7 @@ def test_access_admin_sees_figures_only_for_managed_applications_and_no_sessions
     body = client_for(access_admin).get("/api/admin/overview").json()
     assert body["scope"] == "managed" and body["can_see_usage"] is False
     assert body["live"] == {}
-    assert "sessions_30d" not in body["totals"]
+    assert "sessions_total" not in body["totals"]
     managed = _find(body, mine)
     assert managed["managed"] is True and managed["people"] == 1 and "sessions_daily" not in managed
     unmanaged = _find(body, other)
@@ -103,4 +103,23 @@ def test_sign_ins_are_counted_per_day(super_admin):
         conn.execute(
             "INSERT INTO audit_log (actor_identity, action, target_type, outcome) VALUES ('t', 'auth.login', 'user', 'success')")
     after = client_for(super_admin).get("/api/admin/overview").json()["sign_ins"]["success"][-1]
+    assert after == before + 1
+
+
+def test_the_period_can_be_7_30_or_90_days(super_admin):
+    application = _app()
+    _sessions(application, 2, days_ago=60)
+    client = client_for(super_admin)
+    week = client.get("/api/admin/overview?days=7").json()
+    quarter = client.get("/api/admin/overview?days=90").json()
+    assert len(week["days"]) == 7 and week["period_days"] == 7
+    assert len(quarter["days"]) == 90 and _find(quarter, application)["sessions_total"] == 2
+    assert _find(week, application)["sessions_total"] == 0
+    assert client.get("/api/admin/overview?days=12").status_code == 422
+
+
+def test_access_changes_are_counted_per_day(super_admin):
+    before = client_for(super_admin).get("/api/admin/overview").json()["access_changes"]["granted"][-1]
+    _assign(make_user(), _app())
+    after = client_for(super_admin).get("/api/admin/overview").json()["access_changes"]["granted"][-1]
     assert after == before + 1

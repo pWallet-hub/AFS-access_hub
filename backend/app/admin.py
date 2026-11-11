@@ -665,9 +665,12 @@ def list_audit(
         params.append(application)
     where = f"WHERE {' AND '.join(filters)}" if filters else ""
     with connect() as conn:
+        # actor_name is the person's current name, for display; actor_identity stays the recorded value.
         rows = conn.execute(
-            "SELECT id, occurred_at, actor_identity, action, target_type, target_id, application_slug, outcome,"
-            f" details FROM audit_log {where} ORDER BY id DESC LIMIT %s OFFSET %s",
+            "SELECT l.id, l.occurred_at, l.actor_user_id, l.actor_identity, l.action, l.target_type, l.target_id,"
+            " l.application_slug, l.outcome, l.details, coalesce(u.display_name, u.email) AS actor_name"
+            f" FROM (SELECT * FROM audit_log {where} ORDER BY id DESC LIMIT %s OFFSET %s) l"
+            " LEFT JOIN users u ON u.id = l.actor_user_id ORDER BY l.id DESC",
             (*params, limit, offset),
         ).fetchall()
         total = conn.execute(f"SELECT count(*) AS n FROM audit_log {where}", params).fetchone()["n"]
