@@ -87,7 +87,8 @@ Repository `pWallet-hub/Marketing-app`. One Coolify project (Docker Compose buil
   deploys without them.
 - **Environment, Command Center:** `MARKETING_OIDC_CLIENT_SECRET`, `MARKETING_REDIRECT_URI`
   (`https://marketing.afs-rwanda.org/api/auth/callback`), `MARKETING_ORIGIN` (`https://marketing.afs-rwanda.org`),
-  `AFS_SERVICE_TOKEN_MARKETING`. Redeploy Command Center after setting them.
+  `AFS_SERVICE_TOKEN_MARKETING`. Redeploy Command Center after setting them. In production, the backend refuses to start
+  if the Marketing secrets are placeholders or `MARKETING_ORIGIN` is not HTTPS.
 - **Environment, marketing:** `POSTGRES_PASSWORD`, `SESSION_SECRET` (32+ characters), `PUBLIC_BASE_URL`,
   `OIDC_CLIENT_SECRET` (same as `MARKETING_OIDC_CLIENT_SECRET`), `AFS_SERVICE_TOKEN_MARKETING` (same as in Command
   Center), and the Resend settings to send mail. Keycloak and Command Center addresses default to `afs-keycloak` and

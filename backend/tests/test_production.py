@@ -35,6 +35,14 @@ def test_plain_http_public_addresses_are_refused():
     assert any("BIOCAP_ORIGIN" in p for p in problems)
 
 
+def test_marketing_values_are_checked_when_set():
+    problems = production_problems(
+        {**GOOD, "AFS_SERVICE_TOKEN_MARKETING": "change-me-marketing", "MARKETING_ORIGIN": "http://marketing.example"}
+    )
+    assert any("AFS_SERVICE_TOKEN_MARKETING" in p for p in problems)
+    assert any("MARKETING_ORIGIN" in p for p in problems)
+
+
 def test_session_cookies_must_be_https_only():
     env = {k: v for k, v in GOOD.items() if k != "SESSION_HTTPS_ONLY"}
     assert any("SESSION_HTTPS_ONLY" in p for p in production_problems(env))
