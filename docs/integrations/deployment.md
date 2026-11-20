@@ -74,7 +74,8 @@ Addresses marked `example.org` are placeholders. Replace them with the real addr
 ### 3.5 Marketing Mailer
 
 Repository `pWallet-hub/Marketing-app`. One Coolify project (Docker Compose build pack, compose file
-`/docker-compose.prod.yml`) with its own PostgreSQL, the API, the mail worker and the frontend.
+`/docker-compose.yaml`, the app's only compose file) with its own PostgreSQL, the API, the mail worker, a daily backup
+and the frontend.
 
 - **One public address.** Give the `frontend` service the domain (e.g. `https://marketing.afs-rwanda.org`, port 80).
   nginx proxies `/api` to the backend, so the SSO callback is `https://marketing.afs-rwanda.org/api/auth/callback` and
@@ -91,8 +92,8 @@ Repository `pWallet-hub/Marketing-app`. One Coolify project (Docker Compose buil
   if the Marketing secrets are placeholders or `MARKETING_ORIGIN` is not HTTPS.
 - **Environment, marketing:** `POSTGRES_PASSWORD`, `SESSION_SECRET` (32+ characters), `PUBLIC_BASE_URL`,
   `OIDC_CLIENT_SECRET` (same as `MARKETING_OIDC_CLIENT_SECRET`), `AFS_SERVICE_TOKEN_MARKETING` (same as in Command
-  Center), and the Resend settings to send mail. Keycloak and Command Center addresses default to `afs-keycloak` and
-  `afs-command-center-backend` on `afs-internal`. Template: `backend/.env.example`.
+  Center), `KEYCLOAK_PUBLIC_URL` (same as Command Center's), and the Resend settings to send mail. Keycloak and Command Center addresses default to `afs-keycloak` and
+  `afs-command-center-backend` on `afs-internal`. Template: `.env.example` (leave out its local-only block).
 - **Access** is checked against Command Center on every request, so revoking an assignment ends access at once.
 - **Email:** Resend, on a sending subdomain separate from the hub's transactional mail (open item in `DESIGN.md`).
 - **Network:** the backend joins `afs-internal` (section 4). Deploy Command Center first.
